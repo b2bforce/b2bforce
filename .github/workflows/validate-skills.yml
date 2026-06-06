@@ -1,0 +1,26 @@
+name: Validate Skills
+
+on:
+  pull_request:
+    paths:
+      - '.agents/skills/**'
+      - '.claude/skills/**'
+      - 'validate-skills.sh'
+  push:
+    branches:
+      - main
+    paths:
+      - '.agents/skills/**'
+      - '.claude/skills/**'
+      - 'validate-skills.sh'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run validate-skills.sh
+        run: |
+          chmod +x validate-skills.sh
+          ./validate-skills.sh

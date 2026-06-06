@@ -1,0 +1,4 @@
+.env
+data/firm.json
+tmp/
+.DS_Store

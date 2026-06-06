@@ -1,0 +1,196 @@
+# Content Generation — Types and Skills
+
+How B2BForce skills generate content. **Do not use one generic “write
+content” skill** — each format has different prompts, context, length rules, and
+workspace paths.
+
+## Two pipelines (important)
+
+| Pipeline | When | Skill | Output |
+|----------|------|-------|--------|
+| **Idea → draft** | User has a content idea with `content_type` | Type-specific `marketing-content-*` skills | `workspace/marketing/content/drafts/{type}/` |
+| **Brief/service → service page** | New standalone service page from text, service file, URL, and optional SERP competitors | `marketing-service-page` | `workspace/marketing/landing-pages/{slug}/` |
+| **Idea → prospecting** | Content idea type `prospecting_sequence` | `sales-prospecting-sequence` | `workspace/sales/prospecting/` |
+
+Service pages are **not** the same workflow as blog posts. The standalone
+service-page pipeline can use service context, a brief, a URL, SEO phrases, and
+optional SERP/competitor research. `landing_page` ideas are service-page
+opportunities; they route to `marketing-service-page`, not a content draft skill.
+
+## Content types (from `ContentIdea`)
+
+| Type | Label | Buying stages | Skill name |
+|------|-------|---------------|-----------|
+| `blog_post` | Blog Post | All stages | `marketing-content-blog-post` |
+| `linkedin_post` | LinkedIn Post | All stages | `marketing-content-linkedin-post` |
+| `x_post` | X (Twitter) Post | All stages | `marketing-content-x-post` |
+| `case_study` | Case Study | `decision`, `vendor` only | `marketing-content-case-study` |
+| `landing_page` | Service Page Opportunity | `vendor` only | `marketing-service-page` |
+| `prospecting_sequence` | Prospecting emails | (sales) | `sales-prospecting-sequence` |
+
+Stage restrictions must be enforced in `marketing-content-ideas` when generating
+ideas — do not assign `landing_page` to problem-aware stage, etc.
+
+## Prompt layering (all idea → draft types)
+
+Every generation skill should stack prompts in this order:
+
+1. **Base writer** — style, storytelling, data/evidence rules (no length).
+2. **Quality layer** — universal anti-slop guidelines.
+3. **Format layer (per type)** — **highest priority** — length, structure, output format.
+
+Per-type format requirements live in each skill's `references/`.
+
+Idea → draft skills are written for the **current agent/LLM session**. API keys
+are only required by explicit external research/scraping steps such as
+`tool-exa`, `tool-firecrawl`, or `tool-dataforseo`.
+
+### Per-type format summary
+
+| Type | Length | Output | Key rules |
+|------|--------|--------|-----------|
+| **LinkedIn** | 150–250 words optimal; max ~300 words / 3000 chars | Plain text, no markdown headers | One sentence per line; no bullet lists; 0–2 emojis; 2–3 hashtags; framework varies by buying stage (story hook, PAS, etc.) |
+| **X / Twitter** | 150–250 chars optimal; max 280/tweet; threads 8–12 | Plain text; threads separated by `---` | No external links in body; 1–2 hashtags; reply hooks; algorithm-native |
+| **Blog** | 800–1500 words | Markdown with H2/H3 | Framework by stage (expert opinion funnel, how-to, comparison, etc.) |
+| **Case study** | 500–1500 words | Markdown | PASTOR structure; 2–3 metrics; client quote; before/after |
+| **Prospecting** | Email sequence | Markdown / structured emails | Separate frameworks (OIS, PAS, Trigger, Value-First, Curiosity) — not social formats |
+
+## Context inputs (shared)
+
+All idea → draft skills read from workspace (not from JSON import):
+
+- `workspace/firm/profile.md` — brand voice, words to avoid
+- `workspace/firm/services/{slug}.md` — service context
+- `workspace/marketing/icp/{slug}.md` — target client company segment
+- `workspace/marketing/icp/personas/{slug}.md` — decision maker or user persona
+- Content idea file — title, description, `content_type`, `buying_stage`, `status`,
+  language, `service`, `icp`, `persona`, `buyer_question`, `hook_type`,
+  `unique_angle`, `proof_source`, `next_action`, `recommended_next_skill`,
+  `research_mode`
+
+## ICP gate
+
+Do not generate content ideas, drafts, landing pages, prospecting, or content
+editing suggestions without `service + icp + persona` context. The service should
+link to the ICP via `target_icps` when possible; each persona must point back to
+the ICP with `icp:`.
+
+If the selected service has no ICP or no persona, run `marketing-icp` first.
+Do not create a throwaway ICP inside a prompt.
+
+Optional per-firm content guidelines: add
+`workspace/firm/content-guidelines/{type}.md` and feed it into the format layer.
+
+## Draft gate
+
+Before any idea → draft skill:
+
+1. Run `scripts/validate-content-ideas.sh`.
+2. Use only an idea with `status: new` or `status: approved`.
+3. Verify `recommended_next_skill` matches the skill you are about to run.
+4. Load the firm, service, ICP, persona, and all idea frontmatter fields listed
+   above. Do not write from title + description only.
+5. Treat `research_mode: dry_run` as an internal-context draft. Do not imply the
+   angle has been externally benchmarked.
+6. Treat `research_mode: market_informed` as externally enriched only if a research
+   artifact or cited reference notes are present.
+7. After writing the draft, run `scripts/validate-content-draft.sh {draft-path}`.
+8. Update the source idea to `status: generated` only after the draft exists and
+   validates.
+
+Case studies have an additional proof gate: if `proof_source` says
+`needs real client proof before draft`, or the title contains `[Client]`, stop and
+ask for real client facts, metrics, and quote. Do not draft a fake case study with
+placeholder proof.
+
+## Shared writing quality
+
+These rules come from the old app prompt stack and apply to every content draft:
+
+- Open with a specific buyer problem, observation, or tension. No generic intros.
+- Every section should move from problem/context → insight → action.
+- Use concrete examples only from workspace context, reference notes, or real proof.
+- Never invent case results, metrics, quotes, client names, or external research.
+- Acknowledge boundaries where useful: when an approach fits, and when it does not.
+- Match buying mode: reactive buyers need urgency, empathy, and quick wins;
+  proactive buyers need strategic upside, tradeoffs, and ROI logic.
+- Avoid AI-slop phrases: "testament to", "plays a crucial role", "underscores",
+  "groundbreaking", "delve", "showcase", "comprehensive", "multifaceted",
+  "it's worth noting", and vague attributions such as "experts say".
+- Do not add a generic conclusion section. End with a stage-matched next action.
+
+## Content idea validation
+
+After writing ideas, run:
+
+```bash
+scripts/validate-content-ideas.sh
+```
+
+This validates required frontmatter, filename convention, stage restrictions,
+proof placeholders for case studies, and SEO keyword rules.
+
+## Research enrichment (differs by type)
+
+| Type | Exa reference articles | Competitive research | SERP / scrape |
+|------|------------------------|----------------------|---------------|
+| Blog post | Yes | No | No |
+| Case study | Yes | No | No |
+| Service page opportunity | No | Yes (optional, via `marketing-service-page`) | Yes (optional) |
+| LinkedIn | **No** | No | No |
+| X post | **No** | No | No |
+| Prospecting | **No** | No | No |
+
+Implementing skills: call Exa only for types in the first column; never attach
+long-form reference blocks to LinkedIn/X prompts.
+
+Exa is optional enrichment, not a prerequisite for writing. Use the existing
+`tool-exa` skill when the user wants a market-informed draft or when a long-form
+skill needs reference articles. Do not create a separate Exa/content-research skill
+unless it owns a new persisted artifact and workflow.
+
+## Workspace output paths
+
+```text
+workspace/marketing/content/
+├── ideas/
+│   └── {content_type}--{buying_stage}--{slug}.md
+│                              # frontmatter: content_type, buying_stage, status, service, icp, persona
+└── drafts/
+    ├── blog/{slug}.md
+    ├── linkedin/{slug}.md
+    ├── x/{slug}.md
+    ├── case-studies/{slug}.md
+
+workspace/marketing/landing-pages/
+└── {slug}/                      # standalone service-page workflow only
+    ├── page.md
+    ├── service-context.md       # generated service definition
+    └── competitor-research.md   # SERP URLs + scrape summaries
+
+workspace/sales/prospecting/
+├── {service}--{icp}--{persona}--{campaign-slug}.md
+│                                  # default prospecting_sequence
+└── {service}--{icp}--{persona}--{campaign-slug}/
+    ├── sequence.md                # optional pack when variants/import are requested
+    ├── variants.md
+    └── crm-import.csv
+```
+
+## Skill design rules
+
+1. **One skill per content type** (or one router skill that delegates) — never
+   one prompt for all formats.
+2. Each skill's `SKILL.md` carries format requirements in `references/`.
+3. Each skill documents: allowed buying stages, length, output path, research steps.
+4. `marketing-content-ideas` generates ideas with explicit `content_type`.
+   `landing_page` ideas are service-page opportunities and should use
+   `recommended_next_skill: marketing-service-page`.
+5. Content idea filenames must use `{content_type}--{buying_stage}--{slug}.md`
+   for scanning large backlogs. Do not create type subfolders.
+6. `marketing-service-page` is a **separate skill** for standalone service pages.
+   Do not recreate a separate content landing-page draft skill.
+
+## Related docs
+
+- [WORKSPACE.md](WORKSPACE.md) — naming conventions

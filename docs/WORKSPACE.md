@@ -1,0 +1,97 @@
+# Workspace Conventions
+
+File naming and output paths for B2BForce skills + workspace.
+
+## General rules
+
+1. Use **kebab-case** for slugs: `acme-digital`, not `Acme Digital`.
+2. One primary markdown file per entity; use subfolders for history or attachments.
+3. Prefix draft/template files with `!_` when they need attention: `!_profile.md`.
+4. Date-prefix reports: `YYYY-MM-DD-weekly-report.md`.
+
+## Path map
+
+| Entity | Path pattern | Example |
+|--------|--------------|---------|
+| Company | `workspace/firm/profile.md` | — |
+| Service | `workspace/firm/services/{slug}.md` | `services/seo-retainer.md` |
+| ICP | `workspace/marketing/icp/{slug}.md` | `icp/mid-market-saas.md` |
+| Buyer persona | `workspace/marketing/icp/personas/{slug}.md` | `personas/cmo-mid-market.md` |
+| Content idea | `workspace/marketing/content/ideas/{content_type}--{buying_stage}--{slug}.md` | One backlog folder; filename indexes type + stage |
+| Blog draft | `workspace/marketing/content/drafts/blog/{slug}.md` | 800–1500 words, Markdown |
+| LinkedIn draft | `workspace/marketing/content/drafts/linkedin/{slug}.md` | Plain text, ~150–250 words |
+| X draft | `workspace/marketing/content/drafts/x/{slug}.md` | Plain text, ≤280 chars or thread |
+| Case study draft | `workspace/marketing/content/drafts/case-studies/{slug}.md` | PASTOR, Markdown |
+| Service page | `workspace/marketing/landing-pages/{slug}/page.md` | Brief/service/URL + optional SERP — see `competitor-research.md` |
+| Competitor | `workspace/intelligence/competitors/{slug}/` | `competitors/acme-agency/!_profile.md` |
+| Weekly report | `workspace/intelligence/reports/{date}-{slug}.md` | `reports/2026-05-26-acme-agency.md` |
+| Prospecting sequence | `workspace/sales/prospecting/{service}--{icp}--{persona}--{campaign-slug}.md` | Email sequence — separate from social drafts |
+
+Per-type length, format, and research rules: [content-generation.md](content-generation.md).
+
+## Content idea frontmatter (example)
+
+Path:
+
+`workspace/marketing/content/ideas/blog_post--problem--why-mid-market-saas-teams-fail-at-content-marketing.md`
+
+```yaml
+---
+title: Why mid-market SaaS teams fail at content marketing
+content_type: blog_post   # blog_post | linkedin_post | x_post | case_study | landing_page | prospecting_sequence
+buying_stage: problem     # problem | concept | education | decision | vendor
+status: new               # new | approved | in_progress | generated | declined | later
+language: en
+service: seo-retainer
+icp: mid-market-saas
+persona: cmo-mid-market
+buyer_question: Why is our content volume not producing qualified pipeline?
+hook_type: problem
+unique_angle: Why teams overproduce posts instead of fixing distribution.
+proof_source: Internal audit of SaaS content programs.
+next_action: Compare current content operations against the service audit checklist.
+recommended_next_skill: marketing-content-blog-post
+research_mode: dry_run
+---
+```
+
+`service`, `icp`, and `persona` are required for content ideas and all idea-based
+drafts. If an ICP/persona does not exist yet, create it first with
+`marketing-icp`.
+
+Keep all ideas in one folder. Do not create type subfolders. For human scanning
+at high volume, encode type and buying stage in the filename:
+`{content_type}--{buying_stage}--{slug}.md`. The frontmatter remains the source
+of truth if filename and metadata ever disagree.
+
+`target_keyword` is only for `blog_post` and `landing_page`. Leave it empty for
+LinkedIn, X, case study, and prospecting ideas.
+
+## Competitor folder structure
+
+```text
+workspace/intelligence/competitors/{slug}/
+├── !_profile.md          # Name, URL, monitoring frequency, why it matters
+├── pages.md              # Monitored page index
+├── notes.md              # Manual analyst notes
+├── snapshots/            # Timestamped page snapshots
+└── changes/              # Timestamped change artifacts
+```
+
+## Landing page folder (standalone workflow)
+
+```text
+workspace/marketing/landing-pages/{slug}/
+├── page.md
+├── service-context.md
+└── competitor-research.md
+```
+
+## Private data
+
+These stay **gitignored**:
+
+- `.env` — API keys
+- `data/firm.json` — optional machine metadata if a tool needs it
+
+Workspace content is otherwise committed as operational history.

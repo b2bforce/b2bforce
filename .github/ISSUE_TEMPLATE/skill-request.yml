@@ -1,0 +1,31 @@
+name: Skill Request
+description: Request a new Agent Skill for B2BForce skills + workspace
+title: "[Skill]: "
+labels: ["skill-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request a new skill derived from a real B2BForce workflow.
+        Describe the workflow and why it belongs in this repo.
+  - type: input
+    id: skill-name
+    attributes:
+      label: Proposed skill name (kebab-case)
+      placeholder: marketing-icp-from-service
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What workflow should this skill automate?
+    validations:
+      required: true
+  - type: textarea
+    id: workspace-output
+    attributes:
+      label: Workspace output path
+      description: Where should artifacts be written?
+    validations:
+      required: true
