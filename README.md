@@ -63,9 +63,9 @@ context every skill reads before it runs:
 | Folder | Job | What it does |
 |--------|-----|--------------|
 | `marketing/` | **Get known** | Define your ideal client; generate blog posts, case studies, LinkedIn/X posts, and SEO landing pages — output to your repo, not someone else's cloud |
-| `sales/` | **Win clients** | Prospecting sequences — built for founder-led B2B sales |
+| `sales/` | **Win clients** | Prospecting, discovery briefs, bid/no-bid calls, proposals with enforced scope boundaries, and win-loss records that make your win rate computable |
 | `intelligence/` | **Watch the market** | Track competitors, snapshots, changes, and weekly digests as repo files |
-| `firm/` | **Shared context** | Your services, positioning, and guardrails — every skill reads the same firm facts |
+| `firm/` | **Shared context** | Your services, positioning, guardrails, and a library of verified client proof — every skill reads the same firm facts, and none may invent a client result |
 | `pdca/` | **Know if it worked** | Baseline, target, measured result, and an explicit decision per cycle — the scoreboard is a table in your repo, not a dashboard subscription |
 
 The first four areas follow David Maister's
@@ -73,10 +73,11 @@ The first four areas follow David Maister's
 framework: market your expertise, develop clients, and watch the market. `pdca/`
 cuts across all of them — it is where you find out whether any of it worked.
 
-Plus **21 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
+Plus **26 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
 reports, company/service/ICP setup, content ideas, 4 content draft types, SEO
-research, landing page pipelines, prospecting, a PDCA measurement loop, and 3 tool
-wrappers (Firecrawl, DataForSEO, Exa).
+research, landing page pipelines, prospecting, a discovery → proposal → win-loss
+pipeline, a PDCA measurement loop, and 4 tool wrappers (Firecrawl, DataForSEO, Exa,
+WeasyPrint for print-ready PDFs).
 
 Content type rules: [docs/content-generation.md](docs/content-generation.md)
 
@@ -104,7 +105,11 @@ You fill `.env` locally (never paste API keys in chat).
 **Step 4** — Generate ICP + buyer personas for a service first, then run content
 ideas, drafts, prospecting, or monitoring.
 
-**Step 5** — Set up one PDCA area with `firm-pdca-setup` so the work you just
+**Step 5** — Record your two or three best past client results with
+`sales-outcome-log` in `backfill` mode. Case studies and proposals cannot cite proof
+that is not written down, and this is what unblocks them.
+
+**Step 6** — Set up one PDCA area with `firm-pdca-setup` so the work you just
 generated gets measured against a baseline instead of assumed to be working.
 
 For the full bootstrap checklist, see [docs/SETUP-PROMPT.md](docs/SETUP-PROMPT.md).

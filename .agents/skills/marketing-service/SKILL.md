@@ -89,6 +89,10 @@ Use this extraction order:
 Do not invent proof, metrics, pricing, clients, certifications, or guarantees.
 Use `!_verify` notes for useful but low-confidence facts.
 
+For proof points, read `workspace/firm/proof/` and reference the matching records by
+slug instead of restating their numbers here. One source of truth per client result
+— see the Proof Gate in `AGENTS.md`.
+
 ### 5. Write output
 
 Write one file:
@@ -123,7 +127,8 @@ Body sections should stay concise:
 
 - Outcomes should be concrete business outcomes, not generic benefits.
 - Challenges should include consequences and current workarounds.
-- Proof points must come from the user, firm profile, page content, or be omitted.
+- Proof points must resolve to a record in `workspace/firm/proof/`, or come from the
+  user, firm profile, or page content — otherwise omit them.
 - Keep the service file readable for humans and LLMs; do not mirror it into JSON.
 - Do not create `data/firm.json` or hidden service context files.
 

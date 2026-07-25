@@ -66,7 +66,8 @@ Define before writing emails:
 
 - audience: target company type + buyer persona;
 - offer: the useful thing the prospect can get before a sales call;
-- proof: only facts from workspace/user input, or mark `proof_needed`;
+- proof: a record in `workspace/firm/proof/` (respect `client_public` before naming
+  anyone), other workspace facts, user input — or mark `proof_needed`;
 - likely objection: time, risk, internal capacity, incumbent vendor, budget;
 - CTA type: diagnostic question, useful resource, teardown/audit offer, or soft
   permission ask;
@@ -201,3 +202,10 @@ user explicitly asks for JSON.
 
 - `references/output-templates.md` - required Markdown structure, optional
   variants and CSV export templates
+
+## Related Skills
+
+| Skill | When |
+|-------|------|
+| `sales-discovery-brief` | A prospect replied — capture the opportunity before proposing |
+| `sales-outcome-log` | Record what came of the campaign, including nothing |

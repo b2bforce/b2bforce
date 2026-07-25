@@ -25,7 +25,8 @@ Draft pipeline for a content idea of type `case_study`.
 - Firm/service/ICP/persona context
 - Current agent/LLM session
 - Optional: Exa reference notes via `tool-exa` for quality benchmarks
-- Real client proof before drafting if the idea uses placeholder proof
+- A record in `workspace/firm/proof/` with `usable_publicly: true` when the idea
+  uses placeholder proof
 
 ## Prompt layering
 
@@ -38,13 +39,25 @@ Follow the shared draft gate and writing quality rules in `docs/content-generati
 ## Proof gate
 
 If `proof_source` says `needs real client proof before draft`, or the title contains
-`[Client]`, stop. Ask for real client facts before writing:
+`[Client]`, do not ask the user to retype the facts yet — **read
+`workspace/firm/proof/` first**. See the Proof Gate in `AGENTS.md`.
 
-- client name or approved anonymized label
-- starting situation and business problem
-- service delivered and timeline
-- 2–3 real metrics, before/after facts, or qualitative outcomes
-- approved quote or explicit note that no quote is available
+1. Look for a record matching this service and ICP.
+2. A case study is public material, so it requires `usable_publicly: true`. A
+   record with `usable_publicly: false` may not be drafted into a case study even
+   though a private proposal could cite it.
+3. Name the client only with `client_public: true`; otherwise use the record's
+   approved anonymized label.
+4. Quote the client only with `quote_approved: true`.
+5. Use only metrics with `verified: true`.
+
+If no usable record exists, stop and ask for the client facts, then have
+`sales-outcome-log` write them to `workspace/firm/proof/` before drafting. Recording
+them once is what stops this gate from blocking every future case study.
+
+Facts needed for a record: client name or approved label, starting situation,
+service delivered, timeline, 2–3 real metrics, and an approved quote or a note that
+none is available.
 
 Do not invent metrics, quote, client name, industry, timeline, or result.
 

@@ -47,6 +47,10 @@ Input priority:
 If a URL and description conflict, user description wins. Do not invent proof,
 metrics, clients, or pricing.
 
+A service page is public material. Client results may only come from
+`workspace/firm/proof/` records with `usable_publicly: true`, named only when
+`client_public: true` — see the Proof Gate in `AGENTS.md`.
+
 Write or update:
 
 `workspace/marketing/landing-pages/{slug}/service-context.md`

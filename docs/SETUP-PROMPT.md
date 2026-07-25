@@ -22,7 +22,12 @@ Please:
 - [ ] Main competitors or accounts to monitor (names + URLs)
 - [ ] Content language(s): en / de / pl / other
 - [ ] Which workflows matter most? (pick: monitoring, ICP, content ideas,
-      content generation, prospecting, landing pages, measurement, JSON import)
+      content generation, prospecting, proposals, landing pages, measurement,
+      JSON import)
+- [ ] Will this repo ever be public or shared outside the firm? (decides whether
+      client proof and proposals get committed or gitignored — see SECURITY.md)
+- [ ] Your 2-3 best client results, and for each: may we name the client, may we
+      quote them, may we use it publicly?
 - [ ] If measurement: which business outcome matters most, and where does the
       number for it already live? (system, report, or spreadsheet)
 - [ ] Where will outputs live? (this repo workspace/ — confirm)
@@ -50,6 +55,10 @@ STOP after Step 1 — wait for my answers before continuing.
 - [ ] Confirm workspace/firm/profile.md is readable
 - [ ] Confirm at least one workspace/firm/services/{slug}.md exists, unless I said the firm has no defined service yet
 - [ ] Suggest first task: generate ICP + buyer personas for one service
+- [ ] If I gave client results: write them to workspace/firm/proof/ with
+      `sales-outcome-log` in backfill mode, flags false unless I approved otherwise
+- [ ] If I said this repo may be public: add workspace/firm/proof/ and
+      workspace/sales/opportunities/ to .gitignore before writing anything into them
 - [ ] If measurement selected: suggest `firm-pdca-setup` for one area only, using
       the `content` metric pack unless I named a source of truth for another pack
 - [ ] Delete ./tmp/b2bforce-setup-tasks.md
