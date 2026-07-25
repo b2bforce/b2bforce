@@ -126,6 +126,54 @@ reuse the shared writing-quality rules below and the same proof rules, with one
 difference: a proposal is private, so it may cite a record with
 `usable_publicly: false` as long as naming and quote flags are respected.
 
+## Answer-first opening (blog, case study, service page)
+
+Long-form content is now read by two audiences: a buyer, and an answer engine deciding
+what to quote. Both want the same thing in the same place.
+
+**Open by answering the idea's `buyer_question` directly, in 40–60 words, before any
+build-up.** Then develop it as normal.
+
+This looks like it contradicts "open with a specific buyer problem, observation, or
+tension" below. It does not, and the resolution matters: name the tension **and** resolve
+it in the same opening. A direct answer that states what most firms get wrong is both.
+
+```markdown
+<!-- weak: tension with no answer, nothing extractable -->
+Every mid-market team eventually faces the migration question. It is harder than
+it looks, and the stakes are high. Let's explore what's involved.
+
+<!-- strong: names the tension and answers it in one move -->
+Most mid-market teams ask whether to migrate all at once or incrementally. Below
+roughly 200k monthly users, incremental almost always wins: it keeps releases
+shippable and spreads risk across quarters. Above that, the coordination cost of
+running two systems flips the maths — and that threshold, not platform choice, is
+the decision that matters.
+```
+
+Why 40–60 words: short enough to be quoted whole, long enough to carry a qualified
+claim. A one-sentence teaser gives an engine nothing to lift; a 200-word wind-up buries
+the answer below where it looks.
+
+Also worth doing, not mechanically enforced:
+
+- **A machine-readable FAQ** — an `## FAQ` section with each question as an `###`
+  subhead and a self-contained answer under it. Self-contained matters: an answer that
+  depends on the paragraph above it cannot be quoted alone.
+- **Named, quantified evidence.** "Reduced deployment time by 80%" is quotable;
+  "significantly faster" is not. Evidence still comes only from
+  `workspace/firm/proof/` — see the Proof Gate.
+- **Concrete entities.** Name the platforms, standards, regions, and roles. Engines match
+  on specifics, and so do buyers.
+
+`scripts/validate-content-draft.sh` checks the opening paragraph length on blog posts.
+It cannot check whether the opening actually answers the question — that stays a
+judgment call for the writing skill.
+
+This is the on-site half of answer-engine visibility. The larger half is which
+third-party surfaces get cited at all, which is `intel-ai-visibility` and
+`marketing-geo-placement`.
+
 ## Shared writing quality
 
 These rules come from the old app prompt stack and apply to every content draft:

@@ -21,9 +21,9 @@ Please:
 - [ ] Target clients (ICP summary: industry, size, geography)
 - [ ] Main competitors or accounts to monitor (names + URLs)
 - [ ] Content language(s): en / de / pl / other
-- [ ] Which workflows matter most? (pick: monitoring, ICP, content ideas,
-      content generation, prospecting, proposals, client retention, landing pages,
-      measurement, JSON import)
+- [ ] Which workflows matter most? (pick: monitoring, AI visibility, ICP, content
+      ideas, content generation, prospecting, proposals, client retention, landing
+      pages, measurement, JSON import)
 - [ ] Will this repo ever be public or shared outside the firm? (decides whether
       client proof, proposals, and client accounts get committed or gitignored —
       see SECURITY.md)
@@ -70,6 +70,10 @@ STOP after Step 1 — wait for my answers before continuing.
       for retention and most firms have it written down nowhere.
 - [ ] If I have active clients: run `scripts/validate-account.sh` and show me what
       it reports
+- [ ] If AI visibility selected: build a first prompt panel with `intel-ai-visibility`
+      for ONE service and ONE ICP only, 10-15 prompts, derived from my service and ICP
+      files. Tell me the estimated cost before running a batch, and label the first
+      batch a baseline — not a trend
 - [ ] If measurement selected: suggest `firm-pdca-setup` for one area only, using
       the `content` metric pack unless I named a source of truth for another pack
 - [ ] Delete ./tmp/b2bforce-setup-tasks.md

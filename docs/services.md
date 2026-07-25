@@ -17,6 +17,10 @@ Typical paid work:
   scheduler this repo deliberately does not include,
 - splitting `workspace/` into a private repo — the usual reason is
   `workspace/clients/`, which holds client names, renewal dates, and health
-  assessments that a firm wants versioned but not in a public fork.
+  assessments that a firm wants versioned but not in a public fork,
+- running the answer-engine visibility panel on a schedule — monthly batches across
+  several engines, committed automatically, with the rollup and drift section prepared
+  for review. The repo ships the workflow for an agent session; putting it on a
+  cadence needs the same scheduler this repo deliberately does not include.
 
 This is optional. The repo remains self-hosted and owned by the user.

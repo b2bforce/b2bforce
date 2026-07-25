@@ -55,6 +55,16 @@ word_count() {
   body_text "$1" | wc -w | tr -d ' '
 }
 
+# Words in the first real paragraph of prose, skipping headings, HTML comments, and
+# blockquotes. Used for the answer-first opening rule in docs/content-generation.md.
+opening_paragraph_words() {
+  body_text "$1" | awk '
+    /^[[:space:]]*$/ { if (started) exit; next }
+    /^[[:space:]]*(#|<!--|>|!\[|\||-{3,})/ { if (started) exit; next }
+    { started = 1; print }
+  ' | wc -w | tr -d ' '
+}
+
 char_count() {
   printf "%s" "$1" | wc -m | tr -d ' '
 }
@@ -118,6 +128,13 @@ if [[ -f "${DRAFT_FILE}" ]]; then
       fi
       if grep -qiE '^(#|## )[[:space:]]*(summary|conclusion|conclusions)[[:space:]]*$|in conclusion' "${DRAFT_FILE}"; then
         error "${DRAFT_FILE}: avoid generic summary/conclusion sections"
+      fi
+      # Answer-first opening: target 40-60 words. The window is wider than the target
+      # because this is a proxy for "answers the buyer_question up front" — it catches a
+      # one-line teaser and a rambling wind-up, and leaves the rest to judgment.
+      opening="$(opening_paragraph_words "${DRAFT_FILE}")"
+      if [[ "${opening}" -lt 25 || "${opening}" -gt 90 ]]; then
+        error "${DRAFT_FILE}: opening paragraph is ${opening} words; answer the buyer_question directly in 40-60 (see docs/content-generation.md)"
       fi
       ;;
     linkedin_post)

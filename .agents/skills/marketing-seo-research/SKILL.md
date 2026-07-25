@@ -87,9 +87,20 @@ primary_keyword:
 search_volume:
 competition:
 suggestions: []
+answer_engine_prompts: []   # prompt slugs from ai-visibility/!_prompts.md
 date: 2026-06-01
 ---
 ```
+
+`answer_engine_prompts` links this research to the panel in
+`workspace/intelligence/ai-visibility/!_prompts.md`. Buyers increasingly ask the
+question rather than searching the keyword, and only about a tenth of what answer
+engines cite sits in the top 10 organic results — so a keyword can look healthy while
+the firm is absent from the answer built on the same intent.
+
+Fill it by matching this topic's buyer intent to existing prompt slugs. Do not create
+prompts here; that is `intel-ai-visibility`, and a panel edited from two places stops
+being comparable across batches.
 
 ## Integration with content pipeline
 
@@ -121,4 +132,12 @@ EXA_API_KEY=        # or Perplexity — AI keyword fallback
 | `marketing-content-ideas` | Attach target keywords to ideas |
 | `marketing-content-blog-post` | Consume SEO context in blog drafts |
 | `marketing-service-page` | Consume SEO context in standalone service pages |
+| `intel-ai-visibility` | The same buyer intent measured in answer engines instead of SERPs |
 | `firm-context` | Industry + target location |
+
+## Scope
+
+This skill covers classic search. It is still worth running — but it measures one
+channel, and `answer_engine_prompts` exists so the file says which. Do not stretch
+keyword volume into a claim about AI visibility; they are different measurements with
+little overlap.
