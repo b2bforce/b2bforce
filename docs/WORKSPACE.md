@@ -181,5 +181,7 @@ These stay **gitignored**:
 
 - `.env` — API keys
 - `data/firm.json` — optional machine metadata if a tool needs it
+- `*.pdf` and `tmp/` — rendered documents are build output, not records. The
+  Markdown source is versioned; a committed PDF is a binary that drifts from it.
 
 Workspace content is otherwise committed as operational history.

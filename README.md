@@ -73,10 +73,11 @@ The first four areas follow David Maister's
 framework: market your expertise, develop clients, and watch the market. `pdca/`
 cuts across all of them — it is where you find out whether any of it worked.
 
-Plus **25 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
+Plus **26 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
 reports, company/service/ICP setup, content ideas, 4 content draft types, SEO
 research, landing page pipelines, prospecting, a discovery → proposal → win-loss
-pipeline, a PDCA measurement loop, and 3 tool wrappers (Firecrawl, DataForSEO, Exa).
+pipeline, a PDCA measurement loop, and 4 tool wrappers (Firecrawl, DataForSEO, Exa,
+WeasyPrint for print-ready PDFs).
 
 Content type rules: [docs/content-generation.md](docs/content-generation.md)
 

@@ -56,7 +56,13 @@ number will be quoted back during negotiation, and the firm will have to defend 
 ## Length
 
 Target **6–8 pages, roughly 2,000–2,500 words**. Proposals in that range close at
-roughly twice the rate of 20-page documents. The validator fails above 3,000 words.
+roughly twice the rate of 20-page documents. The validator enforces only the
+ceiling: it fails above 3,000 words.
+
+Shorter is not a problem. The worked example in `tool-weasyprint` lands at about
+1,900 words over five pages including the cover, and it covers every required
+section. Never pad a proposal to reach a page count — that is the failure mode this
+rule exists to prevent.
 
 Length discipline is not cosmetic. A long proposal signals that the firm did not
 know which parts mattered, and it moves the decision to whoever has time to read
@@ -156,7 +162,30 @@ scripts/validate-proposal.sh workspace/sales/opportunities/{opportunity}/proposa
 
 Treat a non-zero exit as a hard stop.
 
-### 9. Record the send
+### 9. Render the PDF
+
+Clients do not read Markdown. After the validator passes, render with
+`tool-weasyprint`:
+
+```bash
+uv run --with markdown --with weasyprint python3 \
+  .agents/skills/tool-weasyprint/scripts/md-to-pdf.py \
+  workspace/sales/opportunities/{opportunity}/proposal.md
+```
+
+Validate first, render second. The PDF is what leaves the building, so a Proof Gate
+violation has to be caught while it is still a Markdown file.
+
+Output goes to `tmp/pdf/` and is gitignored. Do not commit it — `proposal.md` is
+the versioned record, and a committed PDF is a binary that drifts from its source.
+
+Optional cover fields, read only for the PDF and never for the workflow:
+`title`, `subtitle`, `firm`, `client`, `date`, `valid_until`, `reference`, `footer`.
+Use display names here, not slugs. All other frontmatter is stripped from the
+rendered document, so internal fields such as `proof_refs` stay out of the client's
+copy.
+
+### 10. Record the send
 
 Set `status: sent` and `sent: {date}` when it goes out. Then `sales-outcome-log`
 records what happened, which is what makes win rate computable later.
@@ -211,6 +240,8 @@ option if the repo is or will become public.
    the validator fails.
 5. Delete `## Out of scope`; confirm the validator fails.
 6. Confirm word count lands in 2,000–2,500 and the validator passes.
+7. Render the PDF and confirm no frontmatter field appears in it — especially
+   `proof_refs` and the internal slugs.
 
 ## Reference Files
 
@@ -225,4 +256,5 @@ option if the repo is or will become public.
 | `sales-discovery-brief` | Produces the brief; run first |
 | `sales-bid-qualification` | Must record `bid` or `conditional` before this runs |
 | `sales-outcome-log` | Records won/lost and creates the proof record on a win |
+| `tool-weasyprint` | Renders the sendable PDF; see its `examples/` for a worked proposal |
 | `marketing-content-case-study` | Turns a proof record into a public case study |

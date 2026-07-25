@@ -2,3 +2,7 @@
 data/firm.json
 tmp/
 .DS_Store
+
+# Rendered documents. The Markdown source is the record; PDFs are build output
+# and must not be committed as binaries.
+*.pdf

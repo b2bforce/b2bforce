@@ -199,6 +199,10 @@ scripts/validate-proposal.sh {proposal-path}
 Treat a non-zero exit as a hard stop. Keep these checks in the script; do not
 restate them in each sales skill.
 
+Validate before rendering a PDF with `tool-weasyprint`. The PDF is what leaves the
+building, so a Proof Gate violation must be caught while it is still Markdown.
+Rendered PDFs go to `tmp/pdf/` and are gitignored — `proposal.md` is the record.
+
 ## Measurement Loop
 
 Most skills in this repo generate artifacts. `workspace/pdca/` is where the firm
@@ -302,14 +306,16 @@ Run workflows exactly as documented in each skill.
 
 ### Tools (API wrappers)
 
-Thin wrappers other skills call. Each has ready `.sh` scripts that read keys from
-`.env`. Never inline API keys.
+Thin wrappers other skills call. The API wrappers have ready `.sh` scripts that read
+keys from `.env` — never inline API keys. `tool-weasyprint` is a local renderer and
+needs no credentials.
 
 | Skill | Purpose |
 |-------|---------|
 | `tool-firecrawl` | Scrape URL → markdown; map site URLs |
 | `tool-dataforseo` | Google SERP results; keyword volume |
 | `tool-exa` | Neural search, contents, similar, cited answer |
+| `tool-weasyprint` | Markdown → print-ready PDF (proposals, reports); no API key |
 
 See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 
