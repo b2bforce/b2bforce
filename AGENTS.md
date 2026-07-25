@@ -22,7 +22,8 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   ├── firm/                 # Your company profile + services
 │   ├── marketing/            # ICP, content, landing pages
 │   ├── sales/                # Prospecting sequences
-│   └── intelligence/         # Competitors, snapshots, changes, reports
+│   ├── intelligence/         # Competitors, snapshots, changes, reports
+│   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
 ├── data/                     # Optional machine metadata only when a tool needs it
 ├── docs/                     # SETUP-PROMPT, WORKSPACE conventions
 └── scripts/bootstrap.sh      # Clone template for new firm instances
@@ -135,6 +136,37 @@ Treat a non-zero exit as a hard stop. Fix the missing firm, service, ICP, or per
 files before generating ideas. Keep this validation centralized in the script; do
 not copy its checks into every content skill.
 
+## Measurement Loop
+
+Most skills in this repo generate artifacts. `workspace/pdca/` is where the firm
+records whether those artifacts moved a business outcome.
+
+Rules that apply to every skill, not just the PDCA ones:
+
+- **Outputs are not outcomes.** A published post, a sent sequence, or a shipped
+  page is an output. Never report it as a business result.
+- **No source of truth, no number.** A metric whose source the user cannot name is
+  `waiting`. Do not estimate a baseline, a target, or a benchmark.
+- **Missing data is not success.** Past its due date, a missing value is `🔴 N/D`.
+- **Acceptance criteria come before the work.** A criterion written after seeing
+  the result is a rationalization, not a test.
+- **Do not self-assess.** Judging work with the same reasoning that produced it
+  adds no independent signal. Run `firm-pdca-eval` as a separate pass, and prefer
+  deterministic checks over an opinion.
+
+Cadence: a firm that sells expertise sees pipeline effects months after the work,
+so outcome metrics are checked quarterly and only weekly or biweekly for outputs
+and leading indicators. A weekly outcome target invites optimizing the wrong thing.
+
+Before closing a cycle, run:
+
+```bash
+scripts/validate-pdca-cycle.sh {cycle-path}
+```
+
+Treat a non-zero exit as a hard stop. This is the structural gate; keep it in the
+script rather than restating its checks in each PDCA skill.
+
 ## Skills
 
 Location: `.agents/skills/{skill-name}/SKILL.md`
@@ -193,6 +225,14 @@ Run workflows exactly as documented in each skill.
 |-------|---------|
 | `sales-prospecting-sequence` | B2B email sequence |
 
+### Measurement
+
+| Skill | Purpose |
+|-------|---------|
+| `firm-pdca-setup` | Create a PDCA area: outcome, metrics, sources of truth, cadence, baseline |
+| `firm-pdca-cycle` | Run one Plan/Do/Check/Act cycle and close it with an explicit decision |
+| `firm-pdca-eval` | Independent evaluation against criteria written before the work |
+
 ### Tools (API wrappers)
 
 Thin wrappers other skills call. Each has ready `.sh` scripts that read keys from
@@ -217,6 +257,8 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 - Content drafts → type-specific subfolder under `content/drafts/` (blog, linkedin, x, case-studies)
 - Standalone landing pages → `workspace/marketing/landing-pages/{slug}/`
 - Prospecting → `workspace/sales/prospecting/`
+- PDCA area → `workspace/pdca/{area}/` (`README.md`, `scoreboard.md`, `evals.md`, `errors.md`)
+- PDCA cycle → `workspace/pdca/{area}/cycles/{YYYY}-W{ww}--{slug}.md`
 
 **Content generation:** each format (blog, LinkedIn, X, case study, landing page) uses a
 different skill, prompt, and output path. See [docs/content-generation.md](docs/content-generation.md).
@@ -239,3 +281,4 @@ See `docs/WORKSPACE.md` for full conventions.
 | `workspace/marketing/` | Visible expertise |
 | `workspace/sales/` | Client development |
 | `workspace/intelligence/` | Market awareness |
+| `workspace/pdca/` | Cross-cutting — whether the above moved an outcome |

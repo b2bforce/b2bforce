@@ -7,7 +7,9 @@ Thank you for contributing to B2BForce skills + workspace.
 - Location: `.agents/skills/{kebab-case-name}/SKILL.md`
 - Frontmatter: `name` must match folder name; include `description` with trigger phrases
 - Keep `SKILL.md` under 500 lines — move details to `references/`
-- Prefix by active area: `intel-`, `marketing-`, `sales-`, `workflow-`
+- Prefix by active area: `firm-`, `intel-`, `marketing-`, `sales-`. Use `firm-` for
+  firm-wide, cross-cutting workflows (`firm-context`, `firm-pdca-*`); `tool-` is
+  reserved for API wrappers
 - **Content generation:** one skill per content type (`marketing-content-blog-post`, `marketing-content-linkedin-post`, etc.) — see [docs/content-generation.md](docs/content-generation.md). Do not ship a single generic content skill.
 - Service pages: use `marketing-service-page`. Do not add a separate content landing-page draft skill.
 - Hub skill: `firm-context` — all skills should read `workspace/firm/profile.md` first
@@ -19,7 +21,9 @@ Thank you for contributing to B2BForce skills + workspace.
 ./validate-skills.sh
 ```
 
-All skills must pass before merge.
+All skills must pass before merge. If you change a workspace artifact format, also
+run the matching validator in `scripts/` (content readiness, content ideas, content
+draft, PDCA cycle).
 
 ## Pull requests
 

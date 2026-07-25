@@ -26,6 +26,8 @@ File naming and output paths for B2BForce skills + workspace.
 | Competitor | `workspace/intelligence/competitors/{slug}/` | `competitors/acme-agency/!_profile.md` |
 | Weekly report | `workspace/intelligence/reports/{date}-{slug}.md` | `reports/2026-05-26-acme-agency.md` |
 | Prospecting sequence | `workspace/sales/prospecting/{service}--{icp}--{persona}--{campaign-slug}.md` | Email sequence — separate from social drafts |
+| PDCA area | `workspace/pdca/{area}/` | `pdca/content-to-pipeline/README.md` |
+| PDCA cycle | `workspace/pdca/{area}/cycles/{YYYY}-W{ww}--{slug}.md` | `cycles/2026-W31--buyer-question-coverage.md` |
 
 Per-type length, format, and research rules: [content-generation.md](content-generation.md).
 
@@ -86,6 +88,28 @@ workspace/marketing/landing-pages/{slug}/
 ├── service-context.md
 └── competitor-research.md
 ```
+
+## PDCA area folder
+
+```text
+workspace/pdca/{area}/
+├── README.md        # outcome, metrics, sources of truth, cadence, owner, autonomy, baseline
+├── cycles/
+│   └── {YYYY}-W{ww}--{slug}.md
+├── scoreboard.md    # appended when a cycle closes
+├── evals.md         # acceptance-criteria patterns and regression tests
+└── errors.md        # repeated failures and the guard added for each
+```
+
+One area = one business outcome. Do not create an area for "marketing" in general.
+
+`scoreboard.md` grows by **appended rows**, one per metric checked, and past rows are
+never rewritten. Do not pre-generate a row or column per future week: unfilled weeks
+are placeholder content, and an append-only long table stays diffable as history.
+
+Cycle files carry eleven required sections and are gated by
+`scripts/validate-pdca-cycle.sh`. Details: `firm-pdca-cycle` and its
+`references/cycle-file.md`.
 
 ## Private data
 
