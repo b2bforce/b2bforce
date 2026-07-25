@@ -40,11 +40,17 @@ exists, because it correctly refuses to invent client results.
 | Mode | Use |
 |------|-----|
 | `close` | An opportunity in `workspace/sales/opportunities/` ended |
+| `fill` | Delivery produced results — turn an existing stub into a usable record |
 | `backfill` | A past engagement with no opportunity folder — record the proof only |
 
 `backfill` is how a firm that just cloned this repo makes its existing track record
 usable. Run it once per notable past engagement; three good records beat a folder
 of thin ones.
+
+`fill` is the mode that keeps this pipeline from stalling. A win creates a stub with
+empty `metrics`, and a stub nobody returns to is the failure mode of the whole proof
+library. Two things trigger `fill`: a `client-qbr` where the client just confirmed
+numbers out loud, and `client-health-review`, which reports every stub still empty.
 
 ## Core Rules
 
@@ -138,9 +144,10 @@ On a fresh win the record is a **stub**: flags `false`, `metrics` empty. That is
 correct and honest — the engagement has not produced results yet. Set
 `proof_record: {slug}` in `outcome.md` so the two link.
 
-The stub becomes useful later, when delivery ends and a human confirms numbers.
-Say this to the user, and offer to schedule the follow-up: an empty stub nobody
-returns to is the failure mode of this whole pipeline.
+The stub becomes useful later, when delivery ends and a human confirms numbers —
+that is `fill` mode. Say this to the user and offer to schedule the follow-up. If the
+firm uses `workspace/clients/`, the QBR is the natural moment: the numbers are already
+on the table, and `client-health-review` reports every stub still empty.
 
 ### Filling a record
 
@@ -188,8 +195,11 @@ Rules:
 5. For `backfill`: skip `outcome.md`, create the proof record directly, and ask
    which metrics a human can confirm right now. Leave the rest unverified rather
    than filling them in.
-6. Check the loop triggers above and act on any that fire.
-7. If several outcomes in a row are `unknown` on `reason_stated`, say so. The firm
+6. For `fill`: read the existing record, ask which numbers the client has now
+   confirmed, and update `metrics`, the permission flags, and `updated`. Never
+   promote a flag the client did not agree to.
+7. Check the loop triggers above and act on any that fire.
+8. If several outcomes in a row are `unknown` on `reason_stated`, say so. The firm
    is not asking losers why they lost, which is the cheapest research available.
 
 ## Testing Requirements
@@ -202,6 +212,8 @@ Rules:
    human-confirmed metrics marked `verified: true`.
 4. Run `marketing-content-case-study` against a filled, publicly usable record;
    confirm its proof gate is now satisfied.
+5. Run `fill` against a stub; confirm only human-confirmed metrics get
+   `verified: true` and that unconfirmed ones stay out rather than being estimated.
 
 ## Related Skills
 
@@ -211,4 +223,7 @@ Rules:
 | `sales-bid-qualification` | Receives the repeated-loss patterns |
 | `marketing-content-case-study` | Consumes a filled, publicly usable proof record |
 | `intel-competitor-monitoring` | Start monitoring a competitor that beat the firm |
+| `client-onboarding` | A win becomes an account — run it next |
+| `client-qbr` | Where confirmed results arrive that `fill` mode needs |
+| `client-health-review` | Reports every proof stub still empty |
 | `firm-pdca-cycle` | Turns recorded outcomes into a measured win rate |

@@ -22,6 +22,11 @@ Proposal Gate in [../../AGENTS.md](../../AGENTS.md).
 repeated loss patterns back into the ICP's `anti_fit_criteria`, and on a win it
 creates the record in `workspace/firm/proof/` that unblocks case studies.
 
+A win also ends this folder's job. From there the account moves to
+[../clients/](../clients/) — `client-onboarding` next, because the first 90 days is
+where nearly half of client departures are decided. Leaving a win here and never
+opening an account is how a hard-won client churns quietly.
+
 An opportunity folder is a record of decisions, not a CRM. No pipeline stages,
 forecasts, or roll-ups.
 

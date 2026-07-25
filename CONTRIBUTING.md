@@ -7,7 +7,8 @@ Thank you for contributing to B2BForce skills + workspace.
 - Location: `.agents/skills/{kebab-case-name}/SKILL.md`
 - Frontmatter: `name` must match folder name; include `description` with trigger phrases
 - Keep `SKILL.md` under 500 lines — move details to `references/`
-- Prefix by active area: `firm-`, `intel-`, `marketing-`, `sales-`. Use `firm-` for
+- Prefix by active area: `firm-`, `intel-`, `marketing-`, `sales-`, `client-`. Use
+  `sales-` for winning work and `client-` for keeping it. Use `firm-` for
   firm-wide, cross-cutting workflows (`firm-context`, `firm-pdca-*`); `tool-` is
   reserved for thin wrappers around external tools, whether an API (`tool-exa`) or a
   local renderer (`tool-weasyprint`)
@@ -24,7 +25,7 @@ Thank you for contributing to B2BForce skills + workspace.
 
 All skills must pass before merge. If you change a workspace artifact format, also
 run the matching validator in `scripts/` (content readiness, content ideas, content
-draft, proposal, PDCA cycle).
+draft, proposal, client account, PDCA cycle).
 
 ## Pull requests
 

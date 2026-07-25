@@ -28,6 +28,9 @@ File naming and output paths for B2BForce skills + workspace.
 | Prospecting sequence | `workspace/sales/prospecting/{service}--{icp}--{persona}--{campaign-slug}.md` | Email sequence — separate from social drafts |
 | Proof record | `workspace/firm/proof/{slug}.md` | `proof/northwind-release-automation.md` |
 | Opportunity | `workspace/sales/opportunities/{account}--{service}--{YYYY-MM}/` | `opportunities/acme-industrial--platform-migration--2026-07/` |
+| Client account | `workspace/clients/{slug}/` | `clients/northwind-logistics/!_account.md` |
+| QBR | `workspace/clients/{slug}/qbr/{YYYY}-Q{N}.md` | `qbr/2026-Q4.md` |
+| Client health report | `workspace/clients/reports/{YYYY-MM-DD}-health.md` | `reports/2026-12-01-health.md` |
 | PDCA area | `workspace/pdca/{area}/` | `pdca/content-to-pipeline/README.md` |
 | PDCA cycle | `workspace/pdca/{area}/cycles/{YYYY}-W{ww}--{slug}.md` | `cycles/2026-W31--buyer-question-coverage.md` |
 
@@ -152,6 +155,63 @@ for the same reason.
 This folder is a record of decisions, not a CRM. One file per stage, each with a
 decision and a reason. No pipeline stages, forecasts, probability weights, or
 roll-ups — that is a different kind of tool and this repo should not drift into it.
+
+## Client folder
+
+```text
+workspace/clients/{slug}/
+├── !_account.md       # the account record — required
+├── onboarding.md      # written success definition, stakeholders, day 14/30/90
+├── account-plan.md    # committee map, expansion hypotheses with triggers, risks
+├── qbr/{YYYY}-Q{N}.md # delivered vs promised, next quarter, expansion + referral asks
+└── notes.md           # relationship signals with a risk level
+workspace/clients/reports/{YYYY-MM-DD}-health.md
+```
+
+Only `!_account.md` is required. Create the rest when a workflow needs them.
+
+There is deliberately **no** `engagements/` folder. A delivered engagement is already
+recorded twice — the deal in `workspace/sales/opportunities/{opportunity}/outcome.md`
+and the result in `workspace/firm/proof/{slug}.md`. A third copy inside the client
+folder is exactly the mirroring the DRY rule forbids, and it would be the copy that
+goes stale. `!_account.md` carries `services` and links to the opportunities instead.
+
+### Account record
+
+`workspace/clients/{slug}/!_account.md`. `client` must equal the folder name.
+
+```yaml
+---
+client: northwind-logistics
+services: [platform-migration]     # slugs from workspace/firm/services/
+engagement_type: retainer          # retainer | project | mixed
+start_date: 2026-08-17
+renewal_date: 2027-08-16           # empty for a one-off project
+mrr_band: 5-10k                    # a band, never an exact figure
+health: green                      # green | amber | red
+health_reason: Both quarters delivered against the success definition.
+contacts:
+  - { name: "Anna Kowalska", role: "CTO", type: economic_buyer }
+  - { name: "Piotr Lis", role: "Head of Platform", type: user }
+referenceable: true                # true | false | pending
+status: active                     # active | paused | ended
+reviewed_at: 2026-12-01            # required while active
+last_contact: 2026-11-28
+---
+```
+
+Body: what the firm does for them, what the relationship depends on, and open risks.
+
+Rules enforced by `scripts/validate-account.sh`:
+
+- at least one named contact with a role — the Client Context Gate;
+- `health: amber` or `red` requires a `health_reason`. A colour without a stated cause
+  cannot be acted on;
+- `reviewed_at` is required while active, and a stale `reviewed_at` with `health: green`
+  is an **error** — see the Client Context Gate in `AGENTS.md`;
+- exact-money fields (`contract_value`, `mrr`, `arr`, `margin`, `utilization`,
+  `hours_logged`, `rate`) are rejected. This folder holds the relationship, not the
+  ledger, and `mrr_band` keeps a leak cheap.
 
 ## PDCA area folder
 

@@ -22,6 +22,7 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   ├── firm/                 # Your company profile, services, verified client proof
 │   ├── marketing/            # ICP, content, landing pages
 │   ├── sales/                # Prospecting, opportunities, proposals, outcomes
+│   ├── clients/              # Won accounts — onboarding, account plans, QBRs, health
 │   ├── intelligence/         # Competitors, snapshots, changes, reports
 │   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
 ├── data/                     # Optional machine metadata only when a tool needs it
@@ -203,6 +204,53 @@ Validate before rendering a PDF with `tool-weasyprint`. The PDF is what leaves t
 building, so a Proof Gate violation must be caught while it is still Markdown.
 Rendered PDFs go to `tmp/pdf/` and are gitignored — `proposal.md` is the record.
 
+## Client Context Gate
+
+`workspace/clients/{slug}/` holds a won account. Before running any `client-*` skill,
+verify `!_account.md` exists with:
+
+- a real `engagement_type` (`retainer`, `project`, or `mixed`);
+- at least one **named contact with a role** — a relationship the firm cannot name is
+  not a relationship it can manage;
+- `reviewed_at`, on an active account.
+
+If any is missing, run `client-onboarding` first. Check it mechanically:
+
+```bash
+scripts/validate-account.sh [workspace/clients/{slug}]
+```
+
+Errors exit non-zero. Warnings are reported without failing, because a bookkeeping
+lapse should not block a QBR — with one exception, below.
+
+**Stale data is the failure mode of this folder.** Nothing here refreshes itself, so a
+file is only as true as the last person who touched it. A `health: green` that has not
+been reviewed in over 90 days is therefore an **error**, not a warning: it is an
+assertion the firm can no longer support and a human will act on it. Stale `amber` or
+`red` is only a warning — the firm already knows that account needs attention.
+
+`workspace/clients/` holds the **relationship**, never the ledger. No contract values,
+margin, utilization, or hours; `mrr_band` is a band on purpose. The validator rejects
+exact-money fields, both to stay out of PSA territory and because this is the most
+sensitive folder in the repo.
+
+## Renewal And Expansion Review
+
+Before starting new prospecting, check the existing client base first:
+
+```bash
+scripts/validate-account.sh
+```
+
+Surface any account with a `renewal_date` inside 60 days, or with no QBR in two
+quarters, and say so **before** generating new outbound. This is not politeness about
+ordering. Acquiring a client costs several times more than expanding one and closes
+about half as fast, so running acquisition while a renewal quietly lapses is the most
+expensive sequencing mistake available here.
+
+`client-health-review` produces the full sweep. Treat its findings as work, not as a
+report — a portfolio review nobody acts on is the reason this folder can rot.
+
 ## Measurement Loop
 
 Most skills in this repo generate artifacts. `workspace/pdca/` is where the firm
@@ -296,6 +344,15 @@ Run workflows exactly as documented in each skill.
 | `sales-proposal` | Assemble proposal or SOW with scope boundaries, verified proof, one pricing table |
 | `sales-outcome-log` | Record won/lost/no-decision; create the verified proof record on a win |
 
+### Clients — retention and expansion
+
+| Skill | Purpose |
+|-------|---------|
+| `client-onboarding` | First 90 days: written success definition, stakeholders, day 14/30/90 checkpoints |
+| `client-account-plan` | Buying committee map plus expansion hypotheses with triggers |
+| `client-qbr` | Quarterly review: delivered vs promised, next quarter, expansion and referral asks |
+| `client-health-review` | Portfolio sweep: renewals, stale reviews, missing success definitions, unfilled proof stubs |
+
 ### Measurement
 
 | Skill | Purpose |
@@ -333,6 +390,9 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 - Client proof → `workspace/firm/proof/{slug}.md`
 - Opportunity → `workspace/sales/opportunities/{account}--{service}--{YYYY-MM}/`
   (`!_discovery.md`, `proposal.md`, `outcome.md`)
+- Client account → `workspace/clients/{slug}/` (`!_account.md`, `onboarding.md`,
+  `account-plan.md`, `qbr/{YYYY}-Q{N}.md`, `notes.md`)
+- Client health report → `workspace/clients/reports/{YYYY-MM-DD}-health.md`
 - PDCA area → `workspace/pdca/{area}/` (`README.md`, `scoreboard.md`, `evals.md`, `errors.md`)
 - PDCA cycle → `workspace/pdca/{area}/cycles/{YYYY}-W{ww}--{slug}.md`
 
@@ -355,6 +415,11 @@ See `docs/WORKSPACE.md` for full conventions.
 | Folder | Maister dimension |
 |--------|-------------------|
 | `workspace/marketing/` | Visible expertise |
-| `workspace/sales/` | Client development |
+| `workspace/sales/` | Client development — winning the work |
+| `workspace/clients/` | Client relationships and service quality — keeping and growing it |
 | `workspace/intelligence/` | Market awareness |
 | `workspace/pdca/` | Cross-cutting — whether the above moved an outcome |
+
+Maister's argument is that delivered quality **is** the marketing engine: the existing
+client base is the cheapest source of new work, and referrals from it outperform every
+outbound channel. `workspace/clients/` is where that half of the framework lives.
