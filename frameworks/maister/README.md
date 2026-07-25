@@ -18,9 +18,9 @@ Source: David Maister, [*Managing the Professional Service Firm*](https://en.wik
 | Maister concept | Workspace | Skills (examples) |
 |-----------------|-----------|-------------------|
 | Visible expertise | `workspace/marketing/` | content-ideas, content-generation, landing-page |
-| Client development | `workspace/sales/` | prospecting-sequence |
+| Client development | `workspace/sales/` | prospecting-sequence, discovery-brief, bid-qualification, proposal, outcome-log |
 | Market intelligence | `workspace/intelligence/` | competitor-monitoring, weekly-report |
-| Firm identity | `workspace/firm/` | company-profile, service |
+| Firm identity | `workspace/firm/` | company-profile, service, proof library |
 
 ## Typical firm types (examples)
 
@@ -41,5 +41,7 @@ When unsure where to put output, ask:
 2. Is this **market-facing expertise** → `workspace/marketing/`
 3. Is this **winning or managing a client relationship** → `workspace/sales/`
 4. Is this **watching the market** → `workspace/intelligence/`
+5. Is this a **result a client actually got** → `workspace/firm/proof/`, and nowhere
+   else. Every skill cites from there rather than restating numbers.
 
 Always read `workspace/firm/profile.md` first.

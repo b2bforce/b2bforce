@@ -23,7 +23,7 @@ Thank you for contributing to B2BForce skills + workspace.
 
 All skills must pass before merge. If you change a workspace artifact format, also
 run the matching validator in `scripts/` (content readiness, content ideas, content
-draft, PDCA cycle).
+draft, proposal, PDCA cycle).
 
 ## Pull requests
 

@@ -19,9 +19,9 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   └── skills/               # Agent Skills — executable workflows (primary)
 ├── .claude/skills/           # Symlink → .agents/skills (Claude Code)
 ├── workspace/                # Operational artifacts (committed)
-│   ├── firm/                 # Your company profile + services
+│   ├── firm/                 # Your company profile, services, verified client proof
 │   ├── marketing/            # ICP, content, landing pages
-│   ├── sales/                # Prospecting sequences
+│   ├── sales/                # Prospecting, opportunities, proposals, outcomes
 │   ├── intelligence/         # Competitors, snapshots, changes, reports
 │   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
 ├── data/                     # Optional machine metadata only when a tool needs it
@@ -136,6 +136,69 @@ Treat a non-zero exit as a hard stop. Fix the missing firm, service, ICP, or per
 files before generating ideas. Keep this validation centralized in the script; do
 not copy its checks into every content skill.
 
+## Proof Gate
+
+Several skills are forbidden from inventing client results — correctly. This gate is
+where the real ones live, so those skills have somewhere to look instead of asking
+the user again every time.
+
+**One record per client result:** `workspace/firm/proof/{slug}.md`. Schema in
+`docs/WORKSPACE.md`, section "Proof record".
+
+Before writing any client result, metric, name, quote, or case detail:
+
+1. Read `workspace/firm/proof/` for a record matching the service and ICP.
+2. Cite only what a record supports, and list the records you used.
+3. If no record exists, emit `proof_needed` and say what is missing. Do not
+   estimate, illustrate, or write a plausible number.
+
+Three flags decide what may be written, and they are **not interchangeable**:
+
+| Flag | Controls |
+|------|----------|
+| `client_public` | Whether the client may be **named**. False means describe anonymously. |
+| `quote_approved` | Whether a client quote may be reproduced. |
+| `usable_publicly` | Whether the result may be used in **public** material — case studies, website, social. |
+
+A private proposal may cite a record with `usable_publicly: false`, as long as it
+respects `client_public` and `quote_approved`. Public content requires
+`usable_publicly: true`. Conflating these leaks a client's private result onto a
+website.
+
+`verified: true` on a metric means **a human confirmed that number**. An agent may
+never set it from inference or from its own earlier output.
+
+Records are created by `sales-outcome-log` — on a win, or in `backfill` mode for
+past engagements.
+
+## Proposal Gate
+
+Before `sales-proposal` runs, verify in the opportunity folder
+`workspace/sales/opportunities/{account}--{service}--{YYYY-MM}/`:
+
+- `!_discovery.md` exists;
+- `brief_quality` is `workable` or `strong` — never `thin`;
+- `bid_decision` is `bid` or `conditional`, and any `bid_condition` is met;
+- `workspace/firm/services/{service}.md` exists and declares `service_type`;
+- the ICP and persona named in the brief exist.
+
+If any fails, stop and run `sales-discovery-brief` or `sales-bid-qualification`
+first. A proposal written from a thin brief is the single most expensive artifact
+this repo can produce: it costs hours and loses.
+
+Every proposal must carry non-empty `## Out of scope`, `## Assumptions`, and
+`## Change control`, and exactly one pricing table whose `price_model` matches the
+service's `service_type`.
+
+After writing a proposal, run:
+
+```bash
+scripts/validate-proposal.sh {proposal-path}
+```
+
+Treat a non-zero exit as a hard stop. Keep these checks in the script; do not
+restate them in each sales skill.
+
 ## Measurement Loop
 
 Most skills in this repo generate artifacts. `workspace/pdca/` is where the firm
@@ -224,6 +287,10 @@ Run workflows exactly as documented in each skill.
 | Skill | Purpose |
 |-------|---------|
 | `sales-prospecting-sequence` | B2B email sequence |
+| `sales-discovery-brief` | Call notes, inbound mail, or RFP → structured brief with open questions |
+| `sales-bid-qualification` | Bid / no-bid / conditional against service fit and ICP anti-fit criteria |
+| `sales-proposal` | Assemble proposal or SOW with scope boundaries, verified proof, one pricing table |
+| `sales-outcome-log` | Record won/lost/no-decision; create the verified proof record on a win |
 
 ### Measurement
 
@@ -257,6 +324,9 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 - Content drafts → type-specific subfolder under `content/drafts/` (blog, linkedin, x, case-studies)
 - Standalone landing pages → `workspace/marketing/landing-pages/{slug}/`
 - Prospecting → `workspace/sales/prospecting/`
+- Client proof → `workspace/firm/proof/{slug}.md`
+- Opportunity → `workspace/sales/opportunities/{account}--{service}--{YYYY-MM}/`
+  (`!_discovery.md`, `proposal.md`, `outcome.md`)
 - PDCA area → `workspace/pdca/{area}/` (`README.md`, `scoreboard.md`, `evals.md`, `errors.md`)
 - PDCA cycle → `workspace/pdca/{area}/cycles/{YYYY}-W{ww}--{slug}.md`
 

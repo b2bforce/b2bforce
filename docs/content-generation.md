@@ -99,9 +99,32 @@ Before any idea → draft skill:
    validates.
 
 Case studies have an additional proof gate: if `proof_source` says
-`needs real client proof before draft`, or the title contains `[Client]`, stop and
-ask for real client facts, metrics, and quote. Do not draft a fake case study with
-placeholder proof.
+`needs real client proof before draft`, or the title contains `[Client]`, read
+`workspace/firm/proof/` for a matching record before asking the user anything. A
+case study is public material and needs `usable_publicly: true`. If no usable record
+exists, stop, collect the client facts, and have `sales-outcome-log` write the record
+— then draft. Do not draft a fake case study with placeholder proof.
+
+## Client proof in content
+
+All content types share one source of truth for client results:
+`workspace/firm/proof/{slug}.md`. The canonical rules are the Proof Gate in
+`AGENTS.md`; the short version for content:
+
+- Public material — blog, case study, service page, social — requires
+  `usable_publicly: true`.
+- Name a client only with `client_public: true`; otherwise use the record's approved
+  anonymized label.
+- Quote a client only with `quote_approved: true`.
+- Use only metrics with `verified: true`.
+- No usable record? Write what is true without the client claim, and say what proof
+  is missing.
+
+Proposals are **not** part of the idea → draft pipeline. They use
+`sales-proposal`, a different gate, and `scripts/validate-proposal.sh`. They do
+reuse the shared writing-quality rules below and the same proof rules, with one
+difference: a proposal is private, so it may cite a record with
+`usable_publicly: false` as long as naming and quote flags are respected.
 
 ## Shared writing quality
 
@@ -109,7 +132,8 @@ These rules come from the old app prompt stack and apply to every content draft:
 
 - Open with a specific buyer problem, observation, or tension. No generic intros.
 - Every section should move from problem/context → insight → action.
-- Use concrete examples only from workspace context, reference notes, or real proof.
+- Use concrete examples only from workspace context, reference notes, or a
+  `workspace/firm/proof/` record.
 - Never invent case results, metrics, quotes, client names, or external research.
 - Acknowledge boundaries where useful: when an approach fits, and when it does not.
 - Match buying mode: reactive buyers need urgency, empathy, and quick wins;

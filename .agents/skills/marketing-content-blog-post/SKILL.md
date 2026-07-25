@@ -71,7 +71,8 @@ Requirements:
 - Match buying stage framework (see format requirements)
 - Brand voice from firm profile
 - Hook opening — no generic intro
-- Use proof only from workspace, idea proof_source, or reference notes
+- Use proof only from workspace/firm/proof/ records (public use requires
+  usable_publicly: true), idea proof_source, or reference notes
 - CTA aligned to buying stage
 - Language: {language}
 
