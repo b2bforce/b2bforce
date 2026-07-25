@@ -17,10 +17,10 @@ Source: David Maister, [*Managing the Professional Service Firm*](https://en.wik
 
 | Maister concept | Workspace | Skills (examples) |
 |-----------------|-----------|-------------------|
-| Visible expertise | `workspace/marketing/` | content-ideas, content-generation, landing-page |
+| Visible expertise | `workspace/marketing/` | content-ideas, content-generation, landing-page, geo-placement |
 | Client development | `workspace/sales/` | prospecting-sequence, discovery-brief, bid-qualification, proposal, outcome-log |
 | Client relationships and service quality | `workspace/clients/` | client-onboarding, client-account-plan, client-qbr, client-health-review |
-| Market intelligence | `workspace/intelligence/` | competitor-monitoring, weekly-report |
+| Market intelligence | `workspace/intelligence/` | competitor-monitoring, ai-visibility, weekly-report |
 | Firm identity | `workspace/firm/` | company-profile, service, proof library |
 
 Maister's central claim is that **delivered quality is the marketing engine**. A PSF
@@ -28,6 +28,12 @@ does not grow mainly by reaching more strangers; it grows because existing clien
 again and tell others. That makes `workspace/clients/` and `workspace/sales/` two halves
 of one dimension — winning the work, then keeping and growing it — and the second half
 is the cheaper one.
+
+The same claim explains why `marketing-geo-placement` sits under visible expertise
+rather than being a technical SEO concern. Maister's position is that a firm's reputation
+is built by other people talking about it, not by the firm talking about itself. Answer
+engines have made that mechanical: for service-firm queries they cite third-party
+listicles and communities more than they cite firms' own websites.
 
 ## Typical firm types (examples)
 

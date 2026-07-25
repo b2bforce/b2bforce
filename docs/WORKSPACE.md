@@ -25,6 +25,9 @@ File naming and output paths for B2BForce skills + workspace.
 | Service page | `workspace/marketing/landing-pages/{slug}/page.md` | Brief/service/URL + optional SERP — see `competitor-research.md` |
 | Competitor | `workspace/intelligence/competitors/{slug}/` | `competitors/acme-agency/!_profile.md` |
 | Weekly report | `workspace/intelligence/reports/{date}-{slug}.md` | `reports/2026-05-26-acme-agency.md` |
+| AI visibility panel | `workspace/intelligence/ai-visibility/!_prompts.md` | Versioned prompt panel, max 30 active |
+| AI visibility run | `workspace/intelligence/ai-visibility/runs/{YYYY-MM-DD}/{prompt-slug}.md` | One file per prompt per batch, all engines inside |
+| Placement target | `workspace/marketing/placements/{domain}.md` | `placements/clutch.co.md` |
 | Prospecting sequence | `workspace/sales/prospecting/{service}--{icp}--{persona}--{campaign-slug}.md` | Email sequence — separate from social drafts |
 | Proof record | `workspace/firm/proof/{slug}.md` | `proof/northwind-release-automation.md` |
 | Opportunity | `workspace/sales/opportunities/{account}--{service}--{YYYY-MM}/` | `opportunities/acme-industrial--platform-migration--2026-07/` |
@@ -84,6 +87,41 @@ workspace/intelligence/competitors/{slug}/
 ├── snapshots/            # Timestamped page snapshots
 └── changes/              # Timestamped change artifacts
 ```
+
+## AI visibility folder
+
+```text
+workspace/intelligence/ai-visibility/
+├── !_prompts.md                      # the panel — max 30 active prompts, versioned
+├── runs/{YYYY-MM-DD}/{prompt-slug}.md  # one file per prompt per batch
+└── share-of-answer.md                # append-only rollup, one row per prompt per batch
+```
+
+**One run file per prompt per batch, with every engine and run inside it.** A file per
+engine per run would produce well over a hundred files a month for a normal panel, which
+breaks the Minimal Files Rule for no gain.
+
+The panel is versioned and stable: change it by adding a prompt and marking the old one
+`retired`, never by editing a prompt in place. Runs from a drifting panel are not
+comparable, and comparability is the only reason to keep this history.
+
+`share-of-answer.md` grows by **appended rows** and past rows are never rewritten, the
+same discipline as `pdca/scoreboard.md`.
+
+Retention: rollup rows are permanent; `runs/` folders older than six months may be
+pruned. Sampling rules for these artifacts: "Answer Engine Sampling" in `AGENTS.md`.
+
+## Placement target
+
+`workspace/marketing/placements/{domain}.md` — one file per domain, flat folder, filename
+is the index. One per third-party surface an answer engine cites.
+
+`status` moves `new` → `pitched` → `listed`, with `declined` and `not_viable` as
+terminal. `not_viable` is deliberate: a surface that does not accept outside listings
+should be closed once rather than resurfacing in every review.
+
+`citation_count` must be countable from files in `ai-visibility/runs/`. A domain that
+appears in no run does not get a file.
 
 ## Landing page folder (standalone workflow)
 

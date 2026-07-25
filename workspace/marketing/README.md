@@ -11,6 +11,8 @@
 | `content/drafts/x/` | X/Twitter posts or threads (≤280 chars/tweet) |
 | `content/drafts/case-studies/` | Case studies (PASTOR, vendor/decision stages) |
 | `landing-pages/` | Standalone service pages from brief/service/URL + optional SERP |
+| `placements/` | Third-party surfaces answer engines cite — one file per domain, with a status and an owner |
+| `seo/` | Keyword research per topic |
 
 ## ICP first
 
@@ -42,3 +44,18 @@ Do not treat all drafts the same. See [docs/content-generation.md](../../docs/co
 | Service page | `marketing-service-page` | Brief/service/URL → optional SEO/SERP → differentiated copy |
 
 Skills: `marketing-icp`, `marketing-content-ideas`, plus per-type content skills above.
+
+## Two channels, not one
+
+`seo/` optimizes for search results. `placements/` works on being cited by answer
+engines, which is a different channel with surprisingly little overlap — only around a
+tenth of what answer engines cite sits in the top 10 organic results.
+
+For service-firm queries, third-party listicles and rankings collect more citations than
+firms' own websites do, so `placements/` is about getting onto surfaces the firm does not
+own. `intel-ai-visibility` measures where the firm stands; `marketing-geo-placement`
+turns that into this folder.
+
+The on-site half is the answer-first opening rule in
+[docs/content-generation.md](../../docs/content-generation.md), which every long-form
+draft follows.

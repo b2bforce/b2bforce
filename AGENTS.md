@@ -23,7 +23,7 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   ├── marketing/            # ICP, content, landing pages
 │   ├── sales/                # Prospecting, opportunities, proposals, outcomes
 │   ├── clients/              # Won accounts — onboarding, account plans, QBRs, health
-│   ├── intelligence/         # Competitors, snapshots, changes, reports
+│   ├── intelligence/         # Competitors, snapshots, changes, reports, AI visibility
 │   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
 ├── data/                     # Optional machine metadata only when a tool needs it
 ├── docs/                     # SETUP-PROMPT, WORKSPACE conventions
@@ -251,6 +251,31 @@ expensive sequencing mistake available here.
 `client-health-review` produces the full sweep. Treat its findings as work, not as a
 report — a portfolio review nobody acts on is the reason this folder can rot.
 
+## Answer Engine Sampling
+
+Applies to every workflow that reads an answer engine — `intel-ai-visibility`,
+`marketing-geo-placement`, and the visibility section of `intel-weekly-report`. Stated
+once here rather than in each skill.
+
+Answer engines are **non-deterministic**: the same prompt returns different answers on
+different runs, and model versions change underneath a panel.
+
+- **One run is a sample, never a fact.** Minimum three runs per prompt per engine before
+  claiming presence or a trend.
+- **Report a rate, not a boolean.** "Named in 2 of 3 runs" is supportable; "we rank in
+  ChatGPT" is not.
+- **First batch is a baseline.** No drift claims, the same rule as the first competitor
+  crawl.
+- **Store verbatim answers.** The wording is the evidence; a paraphrase is the agent's
+  opinion about the evidence.
+- **A missing mention is one sample without the firm, not proof of absence.**
+- **Never explain why a result changed.** Engines do not disclose ranking mechanics, and
+  an invented mechanism is worse than reporting the change alone.
+- **Never average rank across engines.** Report per engine.
+
+Every run artifact carries `engine`, `model`, `run_index`, and a date. Without those the
+file cannot be compared to anything and should not be written.
+
 ## Measurement Loop
 
 Most skills in this repo generate artifacts. `workspace/pdca/` is where the firm
@@ -313,6 +338,7 @@ Run workflows exactly as documented in each skill.
 | `intel-competitor-monitoring` | Files-only competitor snapshots and change notes |
 | `intel-competitor-discovery` | Find competitors via SERP, dedupe by domain |
 | `intel-weekly-report` | Weekly intel digest with AI business-impact summary |
+| `intel-ai-visibility` | Answer-engine share of voice — prompt panel, dated runs, share-of-answer rollup |
 
 ### Marketing — firm and positioning
 
@@ -333,6 +359,7 @@ Run workflows exactly as documented in each skill.
 | `marketing-content-case-study` | Case study (PASTOR) |
 | `marketing-service-page` | Standalone service page from brief/service/URL + optional SERP |
 | `marketing-seo-research` | Keyword research + target keyword + SEO context |
+| `marketing-geo-placement` | Cited domains → ranked backlog of third-party surfaces to get onto |
 
 ### Sales
 
@@ -370,7 +397,7 @@ needs no credentials.
 | Skill | Purpose |
 |-------|---------|
 | `tool-firecrawl` | Scrape URL → markdown; map site URLs |
-| `tool-dataforseo` | Google SERP results; keyword volume |
+| `tool-dataforseo` | Google SERP results; keyword volume; answer-engine responses + citations |
 | `tool-exa` | Neural search, contents, similar, cited answer |
 | `tool-weasyprint` | Markdown → print-ready PDF (proposals, reports); no API key |
 
@@ -381,6 +408,9 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 - **Always** write deliverables to `workspace/` paths — never only to chat.
 - Competitor profiles → `workspace/intelligence/competitors/{slug}/`
 - Reports → `workspace/intelligence/reports/`
+- AI visibility → `workspace/intelligence/ai-visibility/` (`!_prompts.md`,
+  `runs/{YYYY-MM-DD}/{prompt-slug}.md`, `share-of-answer.md`)
+- Placement target → `workspace/marketing/placements/{domain}.md`
 - ICP → `workspace/marketing/icp/`
 - Content ideas → `workspace/marketing/content/ideas/{content_type}--{buying_stage}--{slug}.md`
   (frontmatter: `content_type`, `buying_stage`, `status`, `service`, `icp`, `persona`)

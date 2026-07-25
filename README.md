@@ -65,7 +65,7 @@ context every skill reads before it runs:
 | `marketing/` | **Get known** | Define your ideal client; generate blog posts, case studies, LinkedIn/X posts, and SEO landing pages — output to your repo, not someone else's cloud |
 | `sales/` | **Win clients** | Prospecting, discovery briefs, bid/no-bid calls, proposals with enforced scope boundaries, and win-loss records that make your win rate computable |
 | `clients/` | **Keep and grow them** | Won accounts: a written definition of what success means, day 14/30/90 checkpoints for the window where most churn happens, expansion plans, QBRs, and a portfolio health sweep |
-| `intelligence/` | **Watch the market** | Track competitors, snapshots, changes, and weekly digests as repo files |
+| `intelligence/` | **Watch the market** | Track competitors, snapshots, changes, and weekly digests as repo files — plus whether ChatGPT, Claude, Gemini, and Perplexity actually name your firm when a buyer asks |
 | `firm/` | **Shared context** | Your services, positioning, guardrails, and a library of verified client proof — every skill reads the same firm facts, and none may invent a client result |
 | `pdca/` | **Know if it worked** | Baseline, target, measured result, and an explicit decision per cycle — the scoreboard is a table in your repo, not a dashboard subscription |
 
@@ -76,11 +76,17 @@ Maister's point is that delivered quality *is* the marketing engine — which is
 `sales/` stops at the win and `clients/` picks it up there. `pdca/` cuts across all of
 them, and is where you find out whether any of it worked.
 
-Plus **30 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
-reports, company/service/ICP setup, content ideas, 4 content draft types, SEO
-research, landing page pipelines, prospecting, a discovery → proposal → win-loss
-pipeline, client onboarding through QBRs and portfolio health, a PDCA measurement loop,
-and 4 tool wrappers (Firecrawl, DataForSEO, Exa, WeasyPrint for print-ready PDFs).
+Plus **32 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
+reports, answer-engine visibility tracking, company/service/ICP setup, content ideas,
+4 content draft types, SEO research, GEO placement, landing page pipelines, prospecting,
+a discovery → proposal → win-loss pipeline, client onboarding through QBRs and portfolio
+health, a PDCA measurement loop, and 4 tool wrappers (Firecrawl, DataForSEO, Exa,
+WeasyPrint for print-ready PDFs).
+
+One of those replaces a product category. AI-visibility SaaS runs a few hundred dollars
+a month to tell a firm whether answer engines recommend it; the same job here is a
+prompt panel in `workspace/`, a few dollars a month of API calls, and a history the firm
+owns.
 
 Content type rules: [docs/content-generation.md](docs/content-generation.md)
 

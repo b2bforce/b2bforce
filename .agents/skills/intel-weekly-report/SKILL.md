@@ -95,7 +95,29 @@ Body sections:
 2. **Changed pages** — per URL: what changed (1–2 lines from the diff).
 3. **No-change note** — if applicable.
 
-### 4. Optional: roll-up across all competitors
+### 4. Optional: answer-engine visibility drift
+
+If `workspace/intelligence/ai-visibility/share-of-answer.md` exists, add an
+**AI visibility** section comparing the two most recent batches:
+
+- citation rate this batch vs last, as a rate over the same active prompts;
+- prompts where the firm gained or lost a mention;
+- competitors that gained mentions;
+- new domains appearing in `cited_domains`.
+
+Rules, inherited from `intel-ai-visibility` and not restated per report:
+
+- Skip this section entirely if only one batch exists. A baseline is not a trend.
+- Compare batches, never individual runs. Engines are non-deterministic, and a single
+  run flipping is noise.
+- Never explain **why** a mention changed. Engines do not disclose that, and an
+  invented mechanism is worse than reporting the change alone.
+
+Visibility batches are usually monthly while this report is weekly, so most weeks this
+section is absent or unchanged. Say "no new batch since {date}" rather than repeating
+last month's numbers as if they were fresh.
+
+### 5. Optional: roll-up across all competitors
 
 A combined `workspace/intelligence/reports/{YYYY-MM-DD}-weekly-rollup.md`
 linking each per-competitor report.
@@ -118,4 +140,5 @@ generator is period-agnostic and accepts any `[period_start, period_end]`;
 |-------|------|
 | `intel-competitor-monitoring` | Produces the snapshot/change files this report consumes |
 | `intel-competitor-discovery` | Expand the monitored set before reporting |
+| `intel-ai-visibility` | Produces the share-of-answer batches for the visibility section |
 | `firm-context` | Competitor list and firm scope |
