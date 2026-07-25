@@ -22,7 +22,9 @@ Please:
 - [ ] Main competitors or accounts to monitor (names + URLs)
 - [ ] Content language(s): en / de / pl / other
 - [ ] Which workflows matter most? (pick: monitoring, ICP, content ideas,
-      content generation, prospecting, landing pages, JSON import)
+      content generation, prospecting, landing pages, measurement, JSON import)
+- [ ] If measurement: which business outcome matters most, and where does the
+      number for it already live? (system, report, or spreadsheet)
 - [ ] Where will outputs live? (this repo workspace/ — confirm)
 
 STOP after Step 1 — wait for my answers before continuing.
@@ -48,6 +50,8 @@ STOP after Step 1 — wait for my answers before continuing.
 - [ ] Confirm workspace/firm/profile.md is readable
 - [ ] Confirm at least one workspace/firm/services/{slug}.md exists, unless I said the firm has no defined service yet
 - [ ] Suggest first task: generate ICP + buyer personas for one service
+- [ ] If measurement selected: suggest `firm-pdca-setup` for one area only, using
+      the `content` metric pack unless I named a source of truth for another pack
 - [ ] Delete ./tmp/b2bforce-setup-tasks.md
 --- CHECKLIST END ---
 

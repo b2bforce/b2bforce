@@ -11,6 +11,7 @@ to git — it is your firm's workspace, not throwaway output.
 | `marketing/` | Visible expertise | ICP, content ideas, drafts, landing pages |
 | `sales/` | Client development | Prospecting sequences |
 | `intelligence/` | Market awareness | Competitor profiles, weekly reports |
+| `pdca/` | Cross-cutting | Measurement areas, cycles, scoreboards, evals |
 
 ## Conventions
 

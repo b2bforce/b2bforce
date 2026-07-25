@@ -66,15 +66,17 @@ context every skill reads before it runs:
 | `sales/` | **Win clients** | Prospecting sequences — built for founder-led B2B sales |
 | `intelligence/` | **Watch the market** | Track competitors, snapshots, changes, and weekly digests as repo files |
 | `firm/` | **Shared context** | Your services, positioning, and guardrails — every skill reads the same firm facts |
+| `pdca/` | **Know if it worked** | Baseline, target, measured result, and an explicit decision per cycle — the scoreboard is a table in your repo, not a dashboard subscription |
 
-These active workspace areas follow David Maister's
+The first four areas follow David Maister's
 [*Managing the Professional Service Firm*](https://en.wikipedia.org/wiki/Managing_the_Professional_Service_Firm)
-framework: market your expertise, develop clients, and watch the market.
+framework: market your expertise, develop clients, and watch the market. `pdca/`
+cuts across all of them — it is where you find out whether any of it worked.
 
-Plus **18 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
+Plus **21 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
 reports, company/service/ICP setup, content ideas, 4 content draft types, SEO
-research, landing page pipelines, prospecting, and 3 tool wrappers (Firecrawl,
-DataForSEO, Exa).
+research, landing page pipelines, prospecting, a PDCA measurement loop, and 3 tool
+wrappers (Firecrawl, DataForSEO, Exa).
 
 Content type rules: [docs/content-generation.md](docs/content-generation.md)
 
@@ -101,6 +103,9 @@ You fill `.env` locally (never paste API keys in chat).
 
 **Step 4** — Generate ICP + buyer personas for a service first, then run content
 ideas, drafts, prospecting, or monitoring.
+
+**Step 5** — Set up one PDCA area with `firm-pdca-setup` so the work you just
+generated gets measured against a baseline instead of assumed to be working.
 
 For the full bootstrap checklist, see [docs/SETUP-PROMPT.md](docs/SETUP-PROMPT.md).
 
