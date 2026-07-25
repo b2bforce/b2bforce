@@ -64,20 +64,23 @@ context every skill reads before it runs:
 |--------|-----|--------------|
 | `marketing/` | **Get known** | Define your ideal client; generate blog posts, case studies, LinkedIn/X posts, and SEO landing pages — output to your repo, not someone else's cloud |
 | `sales/` | **Win clients** | Prospecting, discovery briefs, bid/no-bid calls, proposals with enforced scope boundaries, and win-loss records that make your win rate computable |
+| `clients/` | **Keep and grow them** | Won accounts: a written definition of what success means, day 14/30/90 checkpoints for the window where most churn happens, expansion plans, QBRs, and a portfolio health sweep |
 | `intelligence/` | **Watch the market** | Track competitors, snapshots, changes, and weekly digests as repo files |
 | `firm/` | **Shared context** | Your services, positioning, guardrails, and a library of verified client proof — every skill reads the same firm facts, and none may invent a client result |
 | `pdca/` | **Know if it worked** | Baseline, target, measured result, and an explicit decision per cycle — the scoreboard is a table in your repo, not a dashboard subscription |
 
-The first four areas follow David Maister's
+The first five areas follow David Maister's
 [*Managing the Professional Service Firm*](https://en.wikipedia.org/wiki/Managing_the_Professional_Service_Firm)
-framework: market your expertise, develop clients, and watch the market. `pdca/`
-cuts across all of them — it is where you find out whether any of it worked.
+framework: market your expertise, win clients, keep them, and watch the market.
+Maister's point is that delivered quality *is* the marketing engine — which is why
+`sales/` stops at the win and `clients/` picks it up there. `pdca/` cuts across all of
+them, and is where you find out whether any of it worked.
 
-Plus **26 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
+Plus **30 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
 reports, company/service/ICP setup, content ideas, 4 content draft types, SEO
 research, landing page pipelines, prospecting, a discovery → proposal → win-loss
-pipeline, a PDCA measurement loop, and 4 tool wrappers (Firecrawl, DataForSEO, Exa,
-WeasyPrint for print-ready PDFs).
+pipeline, client onboarding through QBRs and portfolio health, a PDCA measurement loop,
+and 4 tool wrappers (Firecrawl, DataForSEO, Exa, WeasyPrint for print-ready PDFs).
 
 Content type rules: [docs/content-generation.md](docs/content-generation.md)
 
@@ -109,7 +112,12 @@ ideas, drafts, prospecting, or monitoring.
 `sales-outcome-log` in `backfill` mode. Case studies and proposals cannot cite proof
 that is not written down, and this is what unblocks them.
 
-**Step 6** — Set up one PDCA area with `firm-pdca-setup` so the work you just
+**Step 6** — Open an account for each active client with `client-onboarding`, then run
+`scripts/validate-account.sh`. It will tell you which clients have no written
+definition of what success means — usually most of them, and it is the strongest
+leading indicator for whether they renew.
+
+**Step 7** — Set up one PDCA area with `firm-pdca-setup` so the work you just
 generated gets measured against a baseline instead of assumed to be working.
 
 For the full bootstrap checklist, see [docs/SETUP-PROMPT.md](docs/SETUP-PROMPT.md).

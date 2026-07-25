@@ -22,12 +22,15 @@ Please:
 - [ ] Main competitors or accounts to monitor (names + URLs)
 - [ ] Content language(s): en / de / pl / other
 - [ ] Which workflows matter most? (pick: monitoring, ICP, content ideas,
-      content generation, prospecting, proposals, landing pages, measurement,
-      JSON import)
+      content generation, prospecting, proposals, client retention, landing pages,
+      measurement, JSON import)
 - [ ] Will this repo ever be public or shared outside the firm? (decides whether
-      client proof and proposals get committed or gitignored — see SECURITY.md)
+      client proof, proposals, and client accounts get committed or gitignored —
+      see SECURITY.md)
 - [ ] Your 2-3 best client results, and for each: may we name the client, may we
       quote them, may we use it publicly?
+- [ ] Your current active clients: name, which service, retainer or project, and
+      renewal date if there is one
 - [ ] If measurement: which business outcome matters most, and where does the
       number for it already live? (system, report, or spreadsheet)
 - [ ] Where will outputs live? (this repo workspace/ — confirm)
@@ -57,8 +60,16 @@ STOP after Step 1 — wait for my answers before continuing.
 - [ ] Suggest first task: generate ICP + buyer personas for one service
 - [ ] If I gave client results: write them to workspace/firm/proof/ with
       `sales-outcome-log` in backfill mode, flags false unless I approved otherwise
-- [ ] If I said this repo may be public: add workspace/firm/proof/ and
-      workspace/sales/opportunities/ to .gitignore before writing anything into them
+- [ ] If I said this repo may be public: add workspace/firm/proof/,
+      workspace/sales/opportunities/, and workspace/clients/ to .gitignore before
+      writing anything into them
+- [ ] If I named active clients: create workspace/clients/{slug}/!_account.md for
+      each with `client-onboarding`, then tell me which ones have no written success
+      definition. Do not invent one — ask me, or mark it as needing the next call.
+      This is the highest-value backfill in the repo: it is the leading indicator
+      for retention and most firms have it written down nowhere.
+- [ ] If I have active clients: run `scripts/validate-account.sh` and show me what
+      it reports
 - [ ] If measurement selected: suggest `firm-pdca-setup` for one area only, using
       the `content` metric pack unless I named a source of truth for another pack
 - [ ] Delete ./tmp/b2bforce-setup-tasks.md
