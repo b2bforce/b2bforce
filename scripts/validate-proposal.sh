@@ -8,14 +8,23 @@
 # client claim resolves to a record in workspace/firm/proof/), the mandatory scope
 # boundaries, one pricing table consistent with the service definition, and the
 # length limit.
+#
+# Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
+# scripts/demo-check.sh against the demo firm in examples/.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
+WS="${B2BFORCE_ROOT:-workspace}"
+[[ -d "${WS}" ]] || {
+  echo "B2BFORCE_ROOT is not a directory: ${WS}"
+  exit 1
+}
+
 PROPOSAL_FILE="${1:-}"
-PROOF_DIR="workspace/firm/proof"
+PROOF_DIR="${WS}/firm/proof"
 MAX_WORDS=3000
 errors=()
 
@@ -114,8 +123,8 @@ fi
 
 if [[ -f "${PROPOSAL_FILE}" ]]; then
   case "${PROPOSAL_FILE}" in
-    workspace/sales/opportunities/*/proposal.md) ;;
-    *) error "${PROPOSAL_FILE}: proposals must be at workspace/sales/opportunities/{opportunity}/proposal.md" ;;
+    "${WS}"/sales/opportunities/*/proposal.md) ;;
+    *) error "${PROPOSAL_FILE}: proposals must be at ${WS}/sales/opportunities/{opportunity}/proposal.md" ;;
   esac
 
   opportunity_dir="$(dirname "${PROPOSAL_FILE}")"
@@ -185,7 +194,7 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
   # --- price_model must match the service definition ------------------------
   service="$(frontmatter_value "${PROPOSAL_FILE}" "service")"
   price_model="$(frontmatter_value "${PROPOSAL_FILE}" "price_model")"
-  service_file="workspace/firm/services/${service}.md"
+  service_file="${WS}/firm/services/${service}.md"
 
   if [[ -n "${service}" && ! -f "${service_file}" ]]; then
     error "${PROPOSAL_FILE}: service '${service}' has no definition at ${service_file}"

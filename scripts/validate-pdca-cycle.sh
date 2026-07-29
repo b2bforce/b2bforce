@@ -7,11 +7,20 @@
 # Enforces the structural discipline the loop depends on: acceptance criteria
 # exist before any work is logged, a closed cycle carries an explicit decision
 # backed by an evaluation, and only an outcome-cadence cycle may scale or stop.
+#
+# Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
+# scripts/demo-check.sh against the demo firm in examples/.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
+
+WS="${B2BFORCE_ROOT:-workspace}"
+[[ -d "${WS}" ]] || {
+  echo "B2BFORCE_ROOT is not a directory: ${WS}"
+  exit 1
+}
 
 CYCLE_FILE="${1:-}"
 errors=()
@@ -73,8 +82,8 @@ fi
 
 if [[ -f "${CYCLE_FILE}" ]]; then
   case "${CYCLE_FILE}" in
-    workspace/pdca/*/cycles/*.md) ;;
-    *) error "${CYCLE_FILE}: cycles must live in workspace/pdca/{area}/cycles/" ;;
+    "${WS}"/pdca/*/cycles/*.md) ;;
+    *) error "${CYCLE_FILE}: cycles must live in ${WS}/pdca/{area}/cycles/" ;;
   esac
 
   base_name="$(basename "${CYCLE_FILE}")"

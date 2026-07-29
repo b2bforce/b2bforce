@@ -3,11 +3,20 @@
 #
 # Usage:
 #   scripts/validate-content-draft.sh workspace/marketing/content/drafts/blog/example.md
+#
+# Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
+# scripts/demo-check.sh against the demo firm in examples/.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
+
+WS="${B2BFORCE_ROOT:-workspace}"
+[[ -d "${WS}" ]] || {
+  echo "B2BFORCE_ROOT is not a directory: ${WS}"
+  exit 1
+}
 
 DRAFT_FILE="${1:-}"
 errors=()
@@ -71,10 +80,10 @@ char_count() {
 
 expected_dir_for_type() {
   case "$1" in
-    blog_post) echo "workspace/marketing/content/drafts/blog/" ;;
-    linkedin_post) echo "workspace/marketing/content/drafts/linkedin/" ;;
-    x_post) echo "workspace/marketing/content/drafts/x/" ;;
-    case_study) echo "workspace/marketing/content/drafts/case-studies/" ;;
+    blog_post) echo "${WS}/marketing/content/drafts/blog/" ;;
+    linkedin_post) echo "${WS}/marketing/content/drafts/linkedin/" ;;
+    x_post) echo "${WS}/marketing/content/drafts/x/" ;;
+    case_study) echo "${WS}/marketing/content/drafts/case-studies/" ;;
     *) echo "" ;;
   esac
 }
