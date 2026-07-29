@@ -5,6 +5,9 @@
 #   scripts/validate-account.sh                              # every account
 #   scripts/validate-account.sh workspace/clients/northwind   # one account
 #
+# Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
+# scripts/demo-check.sh against the demo firm in examples/.
+#
 # Enforces the Client Context Gate (a real engagement model and at least one named
 # contact), the account schema, and the staleness rules from workspace/clients/README.md.
 #
@@ -18,7 +21,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-CLIENTS_DIR="workspace/clients"
+WS="${B2BFORCE_ROOT:-workspace}"
+[[ -d "${WS}" ]] || {
+  echo "B2BFORCE_ROOT is not a directory: ${WS}"
+  exit 1
+}
+
+CLIENTS_DIR="${WS}/clients"
 STALE_DAYS=90
 QUIET_DAYS=42
 errors=()
@@ -148,7 +157,7 @@ validate_account() {
   # --- No exact money in this folder ---------------------------------------
   for banned in contract_value mrr arr margin utilization hours_logged rate; do
     if grep -qE "^${banned}:[[:space:]]*[^[:space:]]" "${file}"; then
-      error "${file}: '${banned}' does not belong in workspace/clients/ — use mrr_band (see workspace/clients/README.md)"
+      error "${file}: '${banned}' does not belong in ${CLIENTS_DIR}/ — use mrr_band (see workspace/clients/README.md)"
     fi
   done
 

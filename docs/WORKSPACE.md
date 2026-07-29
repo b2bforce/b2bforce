@@ -39,6 +39,20 @@ File naming and output paths for B2BForce skills + workspace.
 
 Per-type length, format, and research rules: [content-generation.md](content-generation.md).
 
+## Worked example
+
+`examples/demo-firm/` is a filled version of this path map: one fictional firm carried
+from profile through ICP, content, discovery, proposal, win, client account, QBR, and a
+closed PDCA cycle. When a schema here is ambiguous, that directory is the canonical
+shape, and `scripts/demo-check.sh` keeps it honest by running every gate against it.
+
+It is fiction and marked `fixture: true` in every file — read
+[examples/README.md](../examples/README.md) before using anything from it.
+
+Paths in this document are relative to `workspace/`. The validators in `scripts/`
+resolve that prefix from `B2BFORCE_ROOT`, which defaults to `workspace/` and is set to
+the demo copy only by `scripts/demo-check.sh`.
+
 ## Content idea frontmatter (example)
 
 Path:

@@ -25,10 +25,13 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   ├── clients/              # Won accounts — onboarding, account plans, QBRs, health
 │   ├── intelligence/         # Competitors, snapshots, changes, reports, AI visibility
 │   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
+├── examples/demo-firm/       # Fictional firm — readable example and validator fixture
 ├── data/                     # Optional machine metadata only when a tool needs it
 ├── docs/                     # SETUP-PROMPT, WORKSPACE conventions
 └── scripts/bootstrap.sh      # Clone template for new firm instances
 ```
+
+`examples/` is never firm context — see the Firm Context Gate below.
 
 ## Before any task
 
@@ -104,6 +107,17 @@ If either is missing, stop the requested workflow and insist on completing setup
 first. Ask for the missing firm/service details until there is enough context to
 write the files. Without a firm profile and service definitions, the skills have no
 useful grounding and should not generate downstream artifacts.
+
+**`examples/` is fiction and never satisfies this gate.** `examples/demo-firm/` holds a
+fictional firm used as a readable example and as the regression fixture for the
+validators. Every file in it carries `fixture: true` in its frontmatter.
+
+- Never read it as the user's firm context, and never fill a missing profile from it.
+- Never cite its proof records, metrics, quotes, or client names. A file with
+  `fixture: true` is not evidence, whatever its permission flags say.
+- Copy its **structure** freely — that is what it is for. Never copy its facts.
+- Write deliverables to `workspace/`. Only `scripts/demo-check.sh` and a deliberate
+  change to the demo itself write under `examples/`.
 
 ## ICP Gate
 

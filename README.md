@@ -92,6 +92,12 @@ Content type rules: [docs/content-generation.md](docs/content-generation.md)
 
 ## Quickstart
 
+**Step 0** — See what it produces: [`examples/demo-firm/`](examples/demo-firm/) is a
+fictional consultancy carried through one full engagement — positioning, ICP, a blog
+draft, discovery, proposal, the win, the client account, a QBR, and a closed PDCA
+cycle. It reads in five minutes and costs nothing. Start with
+[examples/README.md](examples/README.md).
+
 **Step 1** — Clone:
 
 ```bash

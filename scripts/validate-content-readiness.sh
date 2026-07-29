@@ -6,11 +6,20 @@
 #   scripts/validate-content-readiness.sh service-slug
 #   scripts/validate-content-readiness.sh service-slug icp-slug
 #   scripts/validate-content-readiness.sh service-slug icp-slug persona-slug
+#
+# Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
+# scripts/demo-check.sh against the demo firm in examples/.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
+
+WS="${B2BFORCE_ROOT:-workspace}"
+[[ -d "${WS}" ]] || {
+  echo "B2BFORCE_ROOT is not a directory: ${WS}"
+  exit 1
+}
 
 SERVICE_SLUG="${1:-}"
 ICP_SLUG="${2:-}"
@@ -57,28 +66,28 @@ file_has_real_content() {
   [[ -s "${file}" ]] && ! grep -qi 'status.*template' "${file}"
 }
 
-if [[ ! -f "workspace/firm/profile.md" ]]; then
-  error "Missing workspace/firm/profile.md"
-elif ! file_has_real_content "workspace/firm/profile.md"; then
-  error "workspace/firm/profile.md still looks like a template"
+if [[ ! -f "${WS}/firm/profile.md" ]]; then
+  error "Missing ${WS}/firm/profile.md"
+elif ! file_has_real_content "${WS}/firm/profile.md"; then
+  error "${WS}/firm/profile.md still looks like a template"
 fi
 
 service_files=()
 while IFS= read -r file; do
   service_files+=("${file}")
-done < <(non_gitkeep_md_files "workspace/firm/services")
+done < <(non_gitkeep_md_files "${WS}/firm/services")
 
 if [[ -z "${SERVICE_SLUG}" ]]; then
   if [[ "${#service_files[@]}" -eq 1 ]]; then
     SERVICE_SLUG="$(slug_from_path "${service_files[0]}")"
   elif [[ "${#service_files[@]}" -eq 0 ]]; then
-    error "Missing service file in workspace/firm/services/{slug}.md"
+    error "Missing service file in ${WS}/firm/services/{slug}.md"
   else
     error "Multiple services found; pass the service slug explicitly"
   fi
 fi
 
-SERVICE_FILE="workspace/firm/services/${SERVICE_SLUG}.md"
+SERVICE_FILE="${WS}/firm/services/${SERVICE_SLUG}.md"
 if [[ -n "${SERVICE_SLUG}" ]]; then
   if [[ ! -f "${SERVICE_FILE}" ]]; then
     error "Missing service file: ${SERVICE_FILE}"
@@ -90,7 +99,7 @@ fi
 if [[ -z "${ICP_SLUG}" && -f "${SERVICE_FILE}" ]]; then
   target_icps="$(frontmatter_value "${SERVICE_FILE}" "target_icps" | normalize_list_value || true)"
   for candidate in ${target_icps}; do
-    if [[ -f "workspace/marketing/icp/${candidate}.md" ]]; then
+    if [[ -f "${WS}/marketing/icp/${candidate}.md" ]]; then
       ICP_SLUG="${candidate}"
       break
     fi
@@ -101,7 +110,7 @@ if [[ -z "${ICP_SLUG}" && -n "${SERVICE_SLUG}" ]]; then
     error "Selected service has no linked ICP. Add target_icps in ${SERVICE_FILE} or run marketing-icp"
 fi
 
-ICP_FILE="workspace/marketing/icp/${ICP_SLUG}.md"
+ICP_FILE="${WS}/marketing/icp/${ICP_SLUG}.md"
 if [[ -n "${ICP_SLUG}" ]]; then
   if [[ ! -f "${ICP_FILE}" ]]; then
     error "Missing ICP file: ${ICP_FILE}"
@@ -120,7 +129,7 @@ fi
 persona_files=()
 while IFS= read -r file; do
   persona_files+=("${file}")
-done < <(find "workspace/marketing/icp/personas" -maxdepth 1 -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+done < <(find "${WS}/marketing/icp/personas" -maxdepth 1 -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
 matching_personas=()
 
 if [[ -n "${ICP_SLUG}" ]]; then
@@ -136,13 +145,13 @@ if [[ -z "${PERSONA_SLUG}" && -n "${ICP_SLUG}" ]]; then
   if [[ "${#matching_personas[@]}" -eq 1 ]]; then
     PERSONA_SLUG="$(slug_from_path "${matching_personas[0]}")"
   elif [[ "${#matching_personas[@]}" -eq 0 ]]; then
-    error "Missing persona for ICP '${ICP_SLUG}' in workspace/marketing/icp/personas/"
+    error "Missing persona for ICP '${ICP_SLUG}' in ${WS}/marketing/icp/personas/"
   else
     error "Multiple personas found for ICP '${ICP_SLUG}'; pass the persona slug explicitly"
   fi
 fi
 
-PERSONA_FILE="workspace/marketing/icp/personas/${PERSONA_SLUG}.md"
+PERSONA_FILE="${WS}/marketing/icp/personas/${PERSONA_SLUG}.md"
 if [[ -n "${PERSONA_SLUG}" ]]; then
   if [[ ! -f "${PERSONA_FILE}" ]]; then
     error "Missing persona file: ${PERSONA_FILE}"
