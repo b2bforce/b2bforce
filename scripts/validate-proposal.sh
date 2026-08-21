@@ -9,6 +9,10 @@
 # boundaries, one pricing table consistent with the service definition, and the
 # length limit.
 #
+# In multi-brand mode (Brand Scope Gate in AGENTS.md) the opportunity lives at
+# workspace/sales/opportunities/{brand}/{opportunity}/ — the brand is read from
+# the path, and service/icp/persona must resolve inside that brand's segment.
+#
 # Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
 # scripts/demo-check.sh against the demo firm in examples/.
 
@@ -36,10 +40,26 @@ elif [[ ! -f "${PROPOSAL_FILE}" ]]; then
 fi
 
 if [[ -f "${PROPOSAL_FILE}" ]]; then
-  case "${PROPOSAL_FILE}" in
-    "${WS}"/sales/opportunities/*/proposal.md) ;;
-    *) error "${PROPOSAL_FILE}: proposals must be at ${WS}/sales/opportunities/{opportunity}/proposal.md" ;;
-  esac
+  # In multi-brand mode the opportunity sits one brand segment deeper and the
+  # brand is read from the path (Brand Scope Gate in AGENTS.md).
+  PROPOSAL_BRAND=""
+  if is_multi_brand; then
+    case "${PROPOSAL_FILE}" in
+      "${WS}"/sales/opportunities/*/*/proposal.md)
+        PROPOSAL_BRAND="$(brand_from_path "${PROPOSAL_FILE}" "${WS}/sales/opportunities" || true)"
+        if ! brand_exists "${PROPOSAL_BRAND}"; then
+          error "${PROPOSAL_FILE}: '${PROPOSAL_BRAND}' is not a brand in $(brands_dir)/"
+          PROPOSAL_BRAND=""
+        fi
+        ;;
+      *) error "${PROPOSAL_FILE}: multi-brand mode — proposals must be at ${WS}/sales/opportunities/{brand}/{opportunity}/proposal.md" ;;
+    esac
+  else
+    case "${PROPOSAL_FILE}" in
+      "${WS}"/sales/opportunities/*/proposal.md) ;;
+      *) error "${PROPOSAL_FILE}: proposals must be at ${WS}/sales/opportunities/{opportunity}/proposal.md" ;;
+    esac
+  fi
 
   opportunity_dir="$(dirname "${PROPOSAL_FILE}")"
   discovery_file="${opportunity_dir}/!_discovery.md"
@@ -108,7 +128,34 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
   # --- price_model must match the service definition ------------------------
   service="$(frontmatter_value "${PROPOSAL_FILE}" "service")"
   price_model="$(frontmatter_value "${PROPOSAL_FILE}" "price_model")"
-  service_file="${WS}/firm/services/${service}.md"
+
+  if is_multi_brand; then
+    # Bare slugs only, resolved in the opportunity's own brand — the same-brand
+    # rule of the Brand Scope Gate.
+    for kind in service icp persona; do
+      ref="$(frontmatter_value "${PROPOSAL_FILE}" "${kind}")"
+      is_empty_value "${ref}" && continue
+      case "${ref}" in
+        */*) error "${PROPOSAL_FILE}: ${kind} '${ref}' — path-scoped artifacts use bare slugs, resolved in their own brand" ;;
+      esac
+    done
+    if [[ -n "${PROPOSAL_BRAND}" ]]; then
+      for kind in icp persona; do
+        ref="$(frontmatter_value "${PROPOSAL_FILE}" "${kind}")"
+        is_empty_value "${ref}" && continue
+        case "${ref}" in */*) continue ;; esac
+        ref_file="$(resolve_ref "${kind}" "${ref}" "${PROPOSAL_BRAND}")"
+        if [[ ! -f "${ref_file}" ]]; then
+          error "${PROPOSAL_FILE}: ${kind} '${ref}' does not resolve in brand '${PROPOSAL_BRAND}' (expected ${ref_file})"
+        fi
+      done
+    fi
+  fi
+
+  service_file="$(resolve_ref service "${service}" "${PROPOSAL_BRAND:-}" 2>/dev/null || true)"
+  if [[ -z "${service_file}" ]]; then
+    service_file="${WS}/firm/services/${service}.md"
+  fi
 
   if [[ -n "${service}" && ! -f "${service_file}" ]]; then
     error "${PROPOSAL_FILE}: service '${service}' has no definition at ${service_file}"

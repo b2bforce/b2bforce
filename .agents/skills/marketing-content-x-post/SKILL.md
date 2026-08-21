@@ -57,6 +57,8 @@ Use `buyer_question`, `unique_angle`, `proof_source`, `next_action`, and
 
 ## Output
 
+**Brand scope.** In a multi-brand workspace the draft inherits the idea file's brand: write to `workspace/marketing/content/{brand}/drafts/…` — same brand segment as the idea. See the Brand Scope Gate in `AGENTS.md`.
+
 `workspace/marketing/content/drafts/x/{slug}.md` — plain text body
 
 For threads, document tweet count in frontmatter.

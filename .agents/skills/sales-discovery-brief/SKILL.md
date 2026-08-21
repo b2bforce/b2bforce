@@ -38,6 +38,8 @@ still unknown, is what makes a later proposal fast and specific.
 
 ## Core Rules
 
+**Brand scope.** In a multi-brand workspace (2+ files in `workspace/firm/brands/`), every workspace path this skill reads or writes gains a `{brand}/` segment directly under its entity root, and the working brand comes from the user's choice or `B2BFORCE_BRAND` — never guessed. Rules: Brand Scope Gate in `AGENTS.md`; paths: `docs/WORKSPACE.md`.
+
 1. One opportunity = one folder. Do not create a folder per conversation.
 2. **Record only what was said.** Everything else goes in `## Open questions`.
    A brief that reads as complete when it is not is how a firm ends up proposing

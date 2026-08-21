@@ -16,8 +16,13 @@ Please:
 
 ## Step 1: Firm interview (ASK ME — do not guess)
 - [ ] Firm name and website URL
+- [ ] Does the firm sell under more than one brand (separate names/domains)?
+      If yes: list each brand with its website — one brand means nothing extra,
+      two or more switch the workspace to multi-brand (Brand Scope Gate in
+      AGENTS.md)
 - [ ] Industry / niche (e.g. digital agency, SaaS consulting, legal)
-- [ ] Primary services (1–5, with short descriptions)
+- [ ] Primary services (1–5, with short descriptions; multi-brand: say which
+      brand each belongs to)
 - [ ] Target clients (ICP summary: industry, size, geography)
 - [ ] Main competitors or accounts to monitor (names + URLs)
 - [ ] Content language(s): en / de / pl / other
@@ -39,6 +44,9 @@ STOP after Step 1 — wait for my answers before continuing.
 
 ## Step 2: Personalize this repo
 - [ ] Fill workspace/firm/profile.md from my answers (primary firm context)
+- [ ] If I named 2+ brands: create workspace/firm/brands/{slug}.md per brand and
+      use {brand}/ path segments for services, ICP, content, and sales artifacts
+      (docs/WORKSPACE.md, "Multi-brand layout"); then run scripts/validate-brands.sh
 - [ ] If I provided a website URL, run `marketing-company-profile` in enrich mode
       to improve workspace/firm/profile.md. If web/API access is unavailable,
       keep the interview-based profile and note that enrichment can be run later.

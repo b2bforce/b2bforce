@@ -85,6 +85,8 @@ Optional Exa: 5 reference case studies/articles on topic for quality benchmark
 
 ## Output
 
+**Brand scope.** In a multi-brand workspace the draft inherits the idea file's brand: write to `workspace/marketing/content/{brand}/drafts/…` — same brand segment as the idea. See the Brand Scope Gate in `AGENTS.md`.
+
 `workspace/marketing/content/drafts/case-studies/{slug}.md` — Markdown
 
 Headline pattern: "[Client Result] in [Timeframe]" or "How [Client] Achieved [Result]"

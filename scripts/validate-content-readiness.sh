@@ -2,10 +2,14 @@
 # Validate that the workspace has enough context to generate B2B content ideas.
 #
 # Usage:
-#   scripts/validate-content-readiness.sh
-#   scripts/validate-content-readiness.sh service-slug
-#   scripts/validate-content-readiness.sh service-slug icp-slug
-#   scripts/validate-content-readiness.sh service-slug icp-slug persona-slug
+#   scripts/validate-content-readiness.sh [--brand brand-slug]
+#   scripts/validate-content-readiness.sh [--brand brand-slug] service-slug
+#   scripts/validate-content-readiness.sh [--brand brand-slug] service-slug icp-slug
+#   scripts/validate-content-readiness.sh [--brand brand-slug] service-slug icp-slug persona-slug
+#
+# In multi-brand mode (Brand Scope Gate in AGENTS.md) the brand comes from
+# --brand or B2BFORCE_BRAND — never guessed — and service, ICP, and persona all
+# resolve inside that brand's segment. Single-brand workspaces need none of this.
 #
 # Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
 # scripts/demo-check.sh against the demo firm in examples/.
@@ -18,6 +22,12 @@ cd "${ROOT_DIR}"
 source "${ROOT_DIR}/scripts/lib/workspace.sh"
 require_workspace
 
+BRAND=""
+if [[ "${1:-}" == "--brand" ]]; then
+  BRAND="${2:-}"
+  shift 2
+fi
+
 SERVICE_SLUG="${1:-}"
 ICP_SLUG="${2:-}"
 PERSONA_SLUG="${3:-}"
@@ -28,6 +38,28 @@ error() {
   errors+=("$1")
 }
 
+# --- Brand scope --------------------------------------------------------------
+if is_multi_brand; then
+  [[ -z "${BRAND}" ]] && BRAND="${B2BFORCE_BRAND:-}"
+  if [[ -z "${BRAND}" ]]; then
+    echo "Content readiness: FAIL"
+    echo ""
+    echo "- Multiple brands in $(brands_dir)/ — pass --brand {slug} or set B2BFORCE_BRAND"
+    exit 1
+  elif ! brand_exists "${BRAND}"; then
+    echo "Content readiness: FAIL"
+    echo ""
+    echo "- Unknown brand '${BRAND}' — no file at $(brands_dir)/${BRAND}.md"
+    exit 1
+  fi
+else
+  BRAND=""
+fi
+
+SERVICES_DIR="$(entity_dir services "${BRAND}")"
+ICP_DIR="$(entity_dir icp "${BRAND}")"
+PERSONAS_DIR="$(entity_dir personas "${BRAND}")"
+
 if [[ ! -f "${WS}/firm/profile.md" ]]; then
   error "Missing ${WS}/firm/profile.md"
 elif ! file_has_real_content "${WS}/firm/profile.md"; then
@@ -37,19 +69,19 @@ fi
 service_files=()
 while IFS= read -r file; do
   service_files+=("${file}")
-done < <(non_gitkeep_md_files "${WS}/firm/services")
+done < <(non_gitkeep_md_files "${SERVICES_DIR%/}")
 
 if [[ -z "${SERVICE_SLUG}" ]]; then
   if [[ "${#service_files[@]}" -eq 1 ]]; then
     SERVICE_SLUG="$(slug_from_path "${service_files[0]}")"
   elif [[ "${#service_files[@]}" -eq 0 ]]; then
-    error "Missing service file in ${WS}/firm/services/{slug}.md"
+    error "Missing service file in ${SERVICES_DIR}{slug}.md"
   else
     error "Multiple services found; pass the service slug explicitly"
   fi
 fi
 
-SERVICE_FILE="${WS}/firm/services/${SERVICE_SLUG}.md"
+SERVICE_FILE="${SERVICES_DIR}${SERVICE_SLUG}.md"
 if [[ -n "${SERVICE_SLUG}" ]]; then
   if [[ ! -f "${SERVICE_FILE}" ]]; then
     error "Missing service file: ${SERVICE_FILE}"
@@ -61,7 +93,7 @@ fi
 if [[ -z "${ICP_SLUG}" && -f "${SERVICE_FILE}" ]]; then
   target_icps="$(frontmatter_value "${SERVICE_FILE}" "target_icps" | normalize_list_value || true)"
   for candidate in ${target_icps}; do
-    if [[ -f "${WS}/marketing/icp/${candidate}.md" ]]; then
+    if [[ -f "${ICP_DIR}${candidate}.md" ]]; then
       ICP_SLUG="${candidate}"
       break
     fi
@@ -72,7 +104,7 @@ if [[ -z "${ICP_SLUG}" && -n "${SERVICE_SLUG}" ]]; then
     error "Selected service has no linked ICP. Add target_icps in ${SERVICE_FILE} or run marketing-icp"
 fi
 
-ICP_FILE="${WS}/marketing/icp/${ICP_SLUG}.md"
+ICP_FILE="${ICP_DIR}${ICP_SLUG}.md"
 if [[ -n "${ICP_SLUG}" ]]; then
   if [[ ! -f "${ICP_FILE}" ]]; then
     error "Missing ICP file: ${ICP_FILE}"
@@ -91,7 +123,7 @@ fi
 persona_files=()
 while IFS= read -r file; do
   persona_files+=("${file}")
-done < <(find "${WS}/marketing/icp/personas" -maxdepth 1 -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+done < <(non_gitkeep_md_files "${PERSONAS_DIR%/}")
 matching_personas=()
 
 if [[ -n "${ICP_SLUG}" ]]; then
@@ -107,13 +139,13 @@ if [[ -z "${PERSONA_SLUG}" && -n "${ICP_SLUG}" ]]; then
   if [[ "${#matching_personas[@]}" -eq 1 ]]; then
     PERSONA_SLUG="$(slug_from_path "${matching_personas[0]}")"
   elif [[ "${#matching_personas[@]}" -eq 0 ]]; then
-    error "Missing persona for ICP '${ICP_SLUG}' in ${WS}/marketing/icp/personas/"
+    error "Missing persona for ICP '${ICP_SLUG}' in ${PERSONAS_DIR}"
   else
     error "Multiple personas found for ICP '${ICP_SLUG}'; pass the persona slug explicitly"
   fi
 fi
 
-PERSONA_FILE="${WS}/marketing/icp/personas/${PERSONA_SLUG}.md"
+PERSONA_FILE="${PERSONAS_DIR}${PERSONA_SLUG}.md"
 if [[ -n "${PERSONA_SLUG}" ]]; then
   if [[ ! -f "${PERSONA_FILE}" ]]; then
     error "Missing persona file: ${PERSONA_FILE}"
@@ -139,6 +171,7 @@ if [[ "${#errors[@]}" -gt 0 ]]; then
 fi
 
 echo "Content readiness: OK"
+[[ -n "${BRAND}" ]] && echo "Brand: ${BRAND}"
 echo "Service: ${SERVICE_SLUG}"
 echo "ICP: ${ICP_SLUG}"
 echo "Persona: ${PERSONA_SLUG}"
