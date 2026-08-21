@@ -39,6 +39,62 @@ File naming and output paths for B2BForce skills + workspace.
 
 Per-type length, format, and research rules: [content-generation.md](content-generation.md).
 
+## Multi-brand layout
+
+The path map above is the **single-brand** layout — the default, and unchanged as
+long as `workspace/firm/brands/` holds at most one brand file. With two or more
+brand files the workspace is **multi-brand** (Brand Scope Gate in `AGENTS.md`) and
+market-side paths gain a `{brand}/` segment directly under the entity root:
+
+| Entity | Multi-brand path pattern |
+|--------|--------------------------|
+| Brand | `workspace/firm/brands/{brand}.md` |
+| Service | `workspace/firm/services/{brand}/{slug}.md` |
+| ICP | `workspace/marketing/icp/{brand}/{slug}.md` |
+| Buyer persona | `workspace/marketing/icp/{brand}/personas/{slug}.md` |
+| Content idea | `workspace/marketing/content/{brand}/ideas/{content_type}--{buying_stage}--{slug}.md` |
+| Content draft | `workspace/marketing/content/{brand}/drafts/{type}/{slug}.md` |
+| Service page | `workspace/marketing/landing-pages/{brand}/{slug}/page.md` |
+| Placement target | `workspace/marketing/placements/{brand}/{domain}.md` |
+| Prospecting sequence | `workspace/sales/prospecting/{brand}/{service}--{icp}--{persona}--{campaign-slug}.md` |
+| Opportunity | `workspace/sales/opportunities/{brand}/{account}--{service}--{YYYY-MM}/` |
+| AI visibility | `workspace/intelligence/ai-visibility/{brand}/…` (panel, runs, rollup per brand) |
+
+One segment per area, always immediately under the entity root — never deeper, and
+never repeated in a filename. Splitting a brand into its own repository is then a
+`git mv` of its segments, not a rename sweep.
+
+Everything else — clients, proof, competitors, weekly reports, PDCA, people — stays
+**shared** at its single-brand path and declares brand membership in frontmatter
+instead (`brands: [...]` on clients and competitors, `brand:` on proof records).
+Shared entities reference brand-scoped entities in the qualified form
+`{brand}/{slug}`; path-scoped artifacts use bare slugs, resolved within the brand
+their path names.
+
+## Brand file
+
+`workspace/firm/brands/{slug}.md` — one market-facing brand: its own name, domain,
+positioning, and service line, sold by the shared firm. The registry's file count
+is what switches the workspace between single-brand and multi-brand; there is no
+config flag.
+
+```yaml
+---
+brand: brand-a                     # must equal the filename
+website: https://example.com
+positioning: One sentence — who this brand serves and with what.
+content_language: en
+status: active                     # active | sunset
+---
+```
+
+Body: what the brand sells, tone constraints, and what it must never claim.
+Firm-level facts (legal entity, delivery model, people) stay in
+`firm/profile.md` — a brand file that repeats them will drift.
+
+A `sunset` brand accepts no new artifacts; its history stays where it is.
+Validated by `scripts/validate-brands.sh`.
+
 ## Worked example
 
 `examples/demo-firm/` is a filled version of this path map: one fictional firm carried
