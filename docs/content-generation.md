@@ -223,8 +223,9 @@ unless it owns a new persisted artifact and workflow.
 
 ## Distribution channels
 
-`workspace/marketing/channels/` (multi-brand: `channels/{brand}/`) is the registry
-of **owned** surfaces content ships to — blog, X, LinkedIn, newsletter, Medium.
+`workspace/marketing/channels/` (multi-brand: `firm/brands/{brand}/channels/`)
+is the registry of **owned** surfaces content ships to — blog, X, LinkedIn,
+newsletter, Medium.
 Schema: `docs/WORKSPACE.md`, section "Distribution channel".
 
 - **When the registry has active channels, it decides distribution.**

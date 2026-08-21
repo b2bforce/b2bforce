@@ -53,5 +53,6 @@ review call per month, a change queue with agreed turnaround.
 
 ## Proof points
 
-None yet under this brand. Comparable evidence exists under `bramblegate` —
-usable only as the Proof Gate's cross-brand rule allows.
+None yet under this brand. Comparable evidence exists in
+`firm/brands/bramblegate/proof/` — citable only as the Proof Gate's cross-brand
+rule allows, via the qualified `bramblegate/{slug}` reference.

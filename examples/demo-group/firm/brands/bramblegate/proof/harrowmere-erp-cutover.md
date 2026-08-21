@@ -4,7 +4,6 @@ client: harrowmere-distribution
 client_public: true
 quote_approved: true
 usable_publicly: false
-brand: bramblegate
 cross_brand: true
 service: erp-integration
 icp: mid-market-distributors
@@ -52,4 +51,5 @@ Harrowmere agreed to be named and quoted, and to reference calls — but **not**
 public material: `usable_publicly` is `false`, so this record can support a
 proposal and never a case study. `cross_brand: true` records their explicit
 agreement that the group's other brand may cite this result with attribution —
-the multi-brand rule this demo exists to show.
+the multi-brand rule this demo exists to show. Which brand delivered is the
+record's path: it lives in Bramblegate's brand home.

@@ -128,26 +128,28 @@ Some firms run more than one brand: separate names, domains, and service lines,
 sold by one legal firm with one shared team and one shared client base. The
 workspace supports that without taxing the single-brand majority.
 
-**The mode is detected, never configured.** `workspace/firm/brands/{slug}.md` is
-the registry — one file per brand, schema in `docs/WORKSPACE.md`. Zero or one
-file means **single-brand**: flat paths, no brand fields anywhere, every rule in
-this document exactly as written. Two or more files mean **multi-brand**, and
-three rules apply on top:
+**The mode is detected, never configured.** `workspace/firm/brands/{slug}/` is
+the registry — one **directory per brand** with `!_brand.md` inside, schema in
+`docs/WORKSPACE.md`. Zero or one brand home means **single-brand**: flat paths,
+no brand fields anywhere, every rule in this document exactly as written. Two or
+more mean **multi-brand**, and three rules apply on top:
 
-1. **Market-side paths carry a `{brand}/` segment** directly under the entity
-   root: `firm/services/{brand}/`, `marketing/icp/{brand}/` (personas inside),
-   `marketing/channels/{brand}/`, `marketing/content/{brand}/`,
-   `marketing/landing-pages/{brand}/`, `marketing/placements/{brand}/`,
-   `sales/prospecting/{brand}/`, `sales/opportunities/{brand}/`,
-   `intelligence/ai-visibility/{brand}/`.
-   The path is the **only** source of a path-scoped artifact's brand — never
+1. **A brand's definitional entities live in its brand home** —
+   `firm/brands/{brand}/services/`, `…/icp/` (personas inside), `…/proof/`, and
+   `…/channels/`; nothing else belongs there. **Working pipelines stay in their
+   Maister areas** under a `{brand}/` segment directly beneath the entity root:
+   `marketing/content/{brand}/`, `marketing/landing-pages/{brand}/`,
+   `marketing/placements/{brand}/`, `sales/prospecting/{brand}/`,
+   `sales/opportunities/{brand}/`, `intelligence/ai-visibility/{brand}/`.
+   The path is the **only** source of a brand-scoped artifact's brand — never
    repeat it in frontmatter, because the copy is what drifts.
-2. **Firm-side entities stay shared** — one client account, one proof record,
-   one competitor profile, whichever brands are involved — and declare brands in
-   frontmatter: `brands: [...]` on clients and competitors, `brand:` on proof.
-   Only these shared entities use the qualified reference form `{brand}/{slug}`
-   (e.g. in a client's `services:` list). Everywhere else references stay bare
-   slugs and resolve within the artifact's own brand.
+2. **Firm-side entities stay shared** — one client account, one competitor
+   profile, whichever brands are involved — and declare brands in frontmatter:
+   `brands: [...]` on clients and competitors. Proof lives in the delivering
+   brand's home. Shared entities and cross-brand citations use the qualified
+   reference form `{brand}/{slug}` (a client's `services:` list, a sibling
+   brand's `proof_refs`). Everywhere else references stay bare slugs and
+   resolve within the artifact's own brand.
 3. **A service and the ICP and personas it targets belong to the same brand.**
    Content, prospecting, and proposals inherit the brand of their path and may
    reference only that brand's service, ICP, and persona. Cross-brand content
@@ -253,15 +255,17 @@ website.
 `verified: true` on a metric means **a human confirmed that number**. An agent may
 never set it from inference or from its own earlier output.
 
-In multi-brand mode each record also carries `brand:` — the brand that delivered
-the result — and `cross_brand:` (default `false`). A sibling brand may cite the
-record only when `cross_brand: true`, and must attribute the result to the
-delivering brand rather than present it as its own. `false` is the safe default:
-some groups deliberately do not connect their brands in public, and an agent
-cannot know which kind it is working for.
+In multi-brand mode records live in the **delivering brand's home**,
+`firm/brands/{brand}/proof/{slug}.md` — the path names the brand, so a `brand:`
+field is rejected as the copy that drifts. Each record carries `cross_brand:`
+(default `false`): a sibling brand may cite it, via the qualified
+`{brand}/{slug}` form in `proof_refs`, only when `cross_brand: true` — and must
+attribute the result to the delivering brand rather than present it as its own.
+`false` is the safe default: some groups deliberately do not connect their
+brands in public, and an agent cannot know which kind it is working for.
 
 Records are created by `sales-outcome-log` — on a win, or in `backfill` mode for
-past engagements. The record's `brand` comes from the opportunity's path segment.
+past engagements. The record's location follows the opportunity's brand segment.
 
 ## Proposal Gate
 
@@ -504,9 +508,10 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 ## Output rules
 
 - **Always** write deliverables to `workspace/` paths — never only to chat.
-- In multi-brand mode, every market-side path below gains a `{brand}/` segment
-  directly under the entity root — see the Brand Scope Gate. Single-brand paths
-  are exactly as listed.
+- In multi-brand mode, definitional entities (services, ICP, proof, channels)
+  move into `workspace/firm/brands/{brand}/…`, and the remaining market-side
+  paths below gain a `{brand}/` segment directly under the entity root — see
+  the Brand Scope Gate. Single-brand paths are exactly as listed.
 - Distribution channels → `workspace/marketing/channels/{slug}.md` (owned
   surfaces: URL, which draft types feed it, how publishing happens, schedule)
 - Competitor profiles → `workspace/intelligence/competitors/{slug}/`

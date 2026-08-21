@@ -49,11 +49,12 @@ market-side paths gain a `{brand}/` segment directly under the entity root:
 
 | Entity | Multi-brand path pattern |
 |--------|--------------------------|
-| Brand | `workspace/firm/brands/{brand}.md` |
-| Service | `workspace/firm/services/{brand}/{slug}.md` |
-| ICP | `workspace/marketing/icp/{brand}/{slug}.md` |
-| Buyer persona | `workspace/marketing/icp/{brand}/personas/{slug}.md` |
-| Distribution channel | `workspace/marketing/channels/{brand}/{slug}.md` |
+| Brand home | `workspace/firm/brands/{brand}/!_brand.md` |
+| Service | `workspace/firm/brands/{brand}/services/{slug}.md` |
+| ICP | `workspace/firm/brands/{brand}/icp/{slug}.md` |
+| Buyer persona | `workspace/firm/brands/{brand}/icp/personas/{slug}.md` |
+| Proof record | `workspace/firm/brands/{brand}/proof/{slug}.md` |
+| Distribution channel | `workspace/firm/brands/{brand}/channels/{slug}.md` |
 | Content idea | `workspace/marketing/content/{brand}/ideas/{content_type}--{buying_stage}--{slug}.md` |
 | Content draft | `workspace/marketing/content/{brand}/drafts/{type}/{slug}.md` |
 | Service page | `workspace/marketing/landing-pages/{brand}/{slug}/page.md` |
@@ -62,27 +63,46 @@ market-side paths gain a `{brand}/` segment directly under the entity root:
 | Opportunity | `workspace/sales/opportunities/{brand}/{account}--{service}--{YYYY-MM}/` |
 | AI visibility | `workspace/intelligence/ai-visibility/{brand}/…` (panel, runs, rollup per brand) |
 
-One segment per area, always immediately under the entity root — never deeper, and
-never repeated in a filename. Splitting a brand into its own repository is then a
-`git mv` of its segments, not a rename sweep.
+Definitional entities (the first six rows) live in the **brand home** — one
+directory per brand holding everything that defines it. Working pipelines keep
+their Maister areas with one `{brand}/` segment immediately under the entity
+root — never deeper, never repeated in a filename. Splitting a brand into its
+own repository is then a `git mv` of its home plus its segments, not a rename
+sweep.
 
-Everything else — clients, proof, competitors, weekly reports, PDCA, people — stays
+Everything else — clients, competitors, weekly reports, PDCA, people — stays
 **shared** at its single-brand path and declares brand membership in frontmatter
-instead (`brands: [...]` on clients and competitors, `brand:` on proof records).
-Shared entities reference brand-scoped entities in the qualified form
-`{brand}/{slug}`; path-scoped artifacts use bare slugs, resolved within the brand
-their path names.
+(`brands: [...]` on clients and competitors). Shared entities and cross-brand
+citations reference brand-scoped entities in the qualified form
+`{brand}/{slug}`; brand-scoped artifacts use bare slugs, resolved within the
+brand their path names.
 
-## Brand file
+## Brand home
 
-`workspace/firm/brands/{slug}.md` — one market-facing brand: its own name, domain,
-positioning, and service line, sold by the shared firm. The registry's file count
-is what switches the workspace between single-brand and multi-brand; there is no
-config flag.
+`workspace/firm/brands/{slug}/` — one directory per market-facing brand: its own
+name, domain, positioning, and everything definitional about it, sold by the
+shared firm. The registry's directory count is what switches the workspace
+between single-brand and multi-brand; there is no config flag.
+
+```text
+workspace/firm/brands/{brand}/
+├── !_brand.md            # the brand record — required
+├── services/{slug}.md    # this brand's service definitions
+├── icp/{slug}.md         # this brand's ICPs…
+│   └── personas/…        # …and the personas inside them
+├── proof/{slug}.md       # results this brand delivered
+└── channels/{slug}.md    # this brand's owned distribution surfaces
+```
+
+Only these four subdirectories belong in a brand home — working pipelines
+(content, opportunities, prospecting…) stay in their Maister areas, and the
+validator rejects anything else here.
+
+`!_brand.md`:
 
 ```yaml
 ---
-brand: brand-a                     # must equal the filename
+brand: brand-a                     # must equal the directory name
 website: https://example.com
 positioning: One sentence — who this brand serves and with what.
 content_language: en
@@ -92,7 +112,7 @@ status: active                     # active | sunset
 
 Body: what the brand sells, tone constraints, and what it must never claim.
 Firm-level facts (legal entity, delivery model, people) stay in
-`firm/profile.md` — a brand file that repeats them will drift.
+`firm/profile.md` — a brand record that repeats them will drift.
 
 A `sunset` brand accepts no new artifacts; its history stays where it is.
 Validated by `scripts/validate-brands.sh`.
@@ -218,8 +238,9 @@ pruned. Sampling rules for these artifacts: "Answer Engine Sampling" in `AGENTS.
 `workspace/marketing/channels/{slug}.md` — one file per **owned** distribution
 surface: the blog, the X account, the LinkedIn page, the newsletter, a Medium
 publication. The mirror of `placements/`, which holds the third-party surfaces the
-firm wants onto but does not control. Multi-brand: `channels/{brand}/{slug}.md` —
-each brand distributes under its own name, so channels are never shared.
+firm wants onto but does not control. Multi-brand:
+`firm/brands/{brand}/channels/{slug}.md` — each brand distributes under its own
+name, so channels are never shared.
 
 ```yaml
 ---
@@ -295,7 +316,6 @@ service: platform-migration
 icp: mid-market-logistics
 engagement_type: project          # project | retainer
 period: 2025-03..2025-09
-brand: brand-a                    # multi-brand only: the brand that delivered
 cross_brand: false                # multi-brand only: may sibling brands cite this?
 metrics:
   - { label: "Deployment lead time", before: "6 weeks", after: "4 days", verified: true }
@@ -314,10 +334,11 @@ The three permission flags are independent and must not be treated as one:
 `usable_publicly` governs public material. A private proposal may cite a record
 that is not publicly usable; a case study may not.
 
-`brand` and `cross_brand` exist only in multi-brand mode: the record belongs to
-the brand that delivered, and a sibling brand may cite it only when
-`cross_brand: true` — with attribution to the delivering brand (Proof Gate in
-`AGENTS.md`).
+In multi-brand mode the record lives in the delivering brand's home,
+`firm/brands/{brand}/proof/{slug}.md` — the path names the brand, so a `brand:`
+field is rejected. A sibling brand may cite it, via the qualified
+`{brand}/{slug}` form in `proof_refs`, only when `cross_brand: true` — with
+attribution to the delivering brand (Proof Gate in `AGENTS.md`).
 
 `verified: true` means a human confirmed the number. An agent must never set it.
 

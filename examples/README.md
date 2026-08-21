@@ -35,12 +35,12 @@ with a second brand:
 
 | File | What to notice |
 |------|----------------|
-| `firm/brands/*.md` | Two files is what switches the mode — there is no config flag |
-| `firm/services/{brand}/…`, `marketing/icp/{brand}/…`, `marketing/content/{brand}/…` | The `{brand}/` segment, always directly under the entity root; frontmatter stays bare slugs |
+| `firm/brands/{brand}/` | Two brand homes is what switches the mode — there is no config flag; each holds `!_brand.md` plus the brand's `services/`, `icp/`, `proof/`, `channels/` |
+| `marketing/content/{brand}/…`, `sales/opportunities/{brand}/…` | Working pipelines keep their Maister areas, with the `{brand}/` segment directly under the entity root; frontmatter stays bare slugs |
 | `firm/people/rhea-alcott.md` | One marketing lead, `brands: all` — the shared team made explicit |
-| `marketing/channels/{brand}/…` | Each brand's own distribution surfaces — URL, what to publish, how (Buffer/CMS/mailing tool), and the schedule; both brands' queues run by the same person |
-| `firm/proof/harrowmere-erp-cutover.md` | `brand:` names who delivered; `cross_brand: true` is the client's explicit permission for the sibling brand to cite it |
-| `sales/opportunities/ledgerline/…/proposal.md` | A retainer brand citing the project brand's result, with attribution — the cross-brand rule in action |
+| `firm/brands/{brand}/channels/…` | Each brand's own distribution surfaces — URL, what to publish, how (Buffer/CMS/mailing tool), and the schedule; both brands' queues run by the same person |
+| `firm/brands/bramblegate/proof/harrowmere-erp-cutover.md` | The path names who delivered; `cross_brand: true` is the client's explicit permission for the sibling brand to cite it |
+| `sales/opportunities/ledgerline/…/proposal.md` | A retainer brand citing the project brand's result via the qualified `bramblegate/{slug}` proof ref, with attribution — the cross-brand rule in action |
 | `clients/harrowmere-distribution/!_account.md` | **One** account for a client bought from both brands: `brands: [...]`, `services` in qualified `{brand}/{slug}` form |
 | `pdca/retainer-attribution/README.md` | A brand-scoped measurement area with a person-slug `owner` |
 

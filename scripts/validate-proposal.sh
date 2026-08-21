@@ -189,7 +189,11 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
   proof_quote_approved="no"
 
   for ref in ${proof_refs}; do
-    proof_file="${PROOF_DIR}/${ref}.md"
+    # Multi-brand: a bare ref is the proposal's own brand's record; the
+    # qualified {brand}/{slug} form cites a sibling brand's record and needs
+    # its cross_brand consent (Brand Scope Gate in AGENTS.md).
+    proof_file="$(resolve_ref proof "${ref}" "${PROPOSAL_BRAND:-}" 2>/dev/null || true)"
+    [[ -z "${proof_file}" ]] && proof_file="${PROOF_DIR}/${ref}.md"
     if [[ ! -f "${proof_file}" ]]; then
       error "${PROPOSAL_FILE}: proof_refs '${ref}' has no record at ${proof_file}"
       continue
@@ -200,13 +204,14 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
       proof_quote_approved="yes"
     fi
 
-    # Cross-brand citation: a sibling brand's result may be cited only when the
-    # record opts in with cross_brand: true (Brand Scope Gate in AGENTS.md).
     if is_multi_brand && [[ -n "${PROPOSAL_BRAND:-}" ]]; then
-      proof_brand="$(frontmatter_value "${proof_file}" "brand")"
-      if [[ -n "${proof_brand}" && "${proof_brand}" != "${PROPOSAL_BRAND}" ]]; then
+      case "${ref}" in
+        */*) ref_brand="${ref%%/*}" ;;
+        *) ref_brand="${PROPOSAL_BRAND}" ;;
+      esac
+      if [[ "${ref_brand}" != "${PROPOSAL_BRAND}" ]]; then
         if [[ "$(frontmatter_value "${proof_file}" "cross_brand")" != "true" ]]; then
-          error "${PROPOSAL_FILE}: cites proof '${ref}' delivered by brand '${proof_brand}' — needs cross_brand: true on ${proof_file}"
+          error "${PROPOSAL_FILE}: cites proof '${ref}' delivered by brand '${ref_brand}' — needs cross_brand: true on ${proof_file}"
         fi
       fi
     fi

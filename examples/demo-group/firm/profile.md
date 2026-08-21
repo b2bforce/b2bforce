@@ -17,7 +17,7 @@ brands, because the buyers are different people with different vocabularies.
 
 ## What we do
 
-Two brands, defined in `firm/brands/`:
+Two brands, each a directory under `firm/brands/` holding its own services, ICP, proof, and channels:
 
 - **Bramblegate** sells fixed-scope ERP integration projects to mid-market
   distributors. The buyer is a COO with a stock number nobody trusts.
@@ -38,7 +38,7 @@ which is why `cross_brand` on proof records matters here.
 ## Who we sell to
 
 Mid-market distribution companies in the EU, 100–500 employees. Each brand has
-its own ICP and personas under `marketing/icp/{brand}/`.
+its own ICP and personas inside its brand home, `firm/brands/{brand}/icp/`.
 
 ## Delivery model
 

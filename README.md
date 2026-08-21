@@ -173,11 +173,12 @@ service firm actually operates.
 [Agent Skills spec](https://cursor.com/docs/skills): Cursor, Claude Code, Codex,
 Windsurf.
 
-**We sell under more than one brand — does this work?** Yes. Add one file per brand
-in `workspace/firm/brands/` and the market side (services, ICPs, content, sales
-pipelines, AI visibility) splits into per-brand segments, while clients, proof, and
-the team stay shared — so a client bought from one brand shows up as an expansion
-candidate for the other. One brand: change nothing, the flat layout is the default.
+**We sell under more than one brand — does this work?** Yes. Give each brand a home
+directory in `workspace/firm/brands/{brand}/` — its services, ICPs, proof, and
+distribution channels live inside it — while content and sales pipelines split into
+per-brand segments, and clients, competitors, and the team stay shared. A client
+bought from one brand then shows up as an expansion candidate for the other. One
+brand: change nothing, the flat layout is the default.
 See `examples/demo-group/` and the Brand Scope Gate in [AGENTS.md](AGENTS.md).
 
 **Can I contribute?** Yes — MIT-licensed and public. See [CONTRIBUTING.md](CONTRIBUTING.md)

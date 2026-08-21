@@ -48,16 +48,19 @@ STOP after Step 1 — wait for my answers before continuing.
 
 ## Step 2: Personalize this repo
 - [ ] Fill workspace/firm/profile.md from my answers (primary firm context)
-- [ ] If I named 2+ brands: create workspace/firm/brands/{slug}.md per brand and
-      use {brand}/ path segments for services, ICP, content, and sales artifacts
-      (docs/WORKSPACE.md, "Multi-brand layout"); then run scripts/validate-brands.sh
+- [ ] If I named 2+ brands: create workspace/firm/brands/{slug}/!_brand.md per
+      brand, put each brand's services, ICP, proof, and channels inside its
+      brand home, and use {brand}/ path segments for content and sales
+      artifacts (docs/WORKSPACE.md, "Multi-brand layout"); then run
+      scripts/validate-brands.sh
 - [ ] If I provided a website URL, run `marketing-company-profile` in enrich mode
       to improve workspace/firm/profile.md. If web/API access is unavailable,
       keep the interview-based profile and note that enrichment can be run later.
 - [ ] For each primary service: create workspace/firm/services/{slug}.md with a minimal service definition
 - [ ] For each named channel: create workspace/marketing/channels/{slug}.md
-      (multi-brand: channels/{brand}/{slug}.md) with URL, content_types,
-      publish_via, schedule, and a short "what to publish here" body
+      (multi-brand: workspace/firm/brands/{brand}/channels/{slug}.md) with URL,
+      content_types, publish_via, schedule, and a short "what to publish here"
+      body
 - [ ] For each competitor URL: create workspace/intelligence/competitors/{slug}/!_profile.md
 - [ ] Update README.md title to "{Firm Name} — B2BForce Workspace"
 

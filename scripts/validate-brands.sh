@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
-# Validate the firm identity registries: brands in workspace/firm/brands/, the
-# brand layout, people in workspace/firm/people/, and the distribution channels
-# in workspace/marketing/channels/.
+# Validate the firm identity registries: brand homes in workspace/firm/brands/,
+# the multi-brand layout, people in workspace/firm/people/, and the distribution
+# channels registry.
 #
 # Usage:
 #   scripts/validate-brands.sh
 #
 # The mode is detected from the registry, never configured (Brand Scope Gate in
-# AGENTS.md): 0 or 1 brand file means single-brand and the layout stays flat —
-# exactly the pre-brand layout, no new fields anywhere. 2+ brand files mean
-# multi-brand: every market-side entity root must hold only brand-slug segments,
-# and every flat straggler from before the migration is an error.
+# AGENTS.md): 0 or 1 brand home means single-brand and the layout stays flat —
+# exactly the pre-brand layout, no new fields anywhere. 2+ brand homes mean
+# multi-brand: each brand's definitional entities (services, icp with personas,
+# proof, channels) live inside firm/brands/{slug}/, working pipelines carry a
+# {brand}/ segment in their Maister areas, and every flat straggler from before
+# the migration is an error.
 #
 # Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
 # scripts/demo-check.sh against the demo fixtures in examples/.
@@ -33,13 +35,22 @@ dir_has_md() {
   find "$1" -type f -name '*.md' 2>/dev/null | head -1 | grep -q .
 }
 
-# --- Brand files --------------------------------------------------------------
+# --- Brand homes --------------------------------------------------------------
+# firm/brands/{slug}/ with !_brand.md inside. A flat firm/brands/{slug}.md is
+# the pre-directory shape and errors in any mode, because the mode detection
+# would silently ignore it.
 
-brand_slugs=()
 while IFS= read -r file; do
   [[ -n "${file}" ]] || continue
-  slug="$(slug_from_path "${file}")"
-  brand_slugs+=("${slug}")
+  error "${file}: brands are directories now — move to $(brands_dir)/$(slug_from_path "${file}")/!_brand.md"
+done < <(non_gitkeep_md_files "$(brands_dir)")
+
+BRAND_HOME_DIRS="services icp proof channels"
+
+while IFS= read -r brand; do
+  [[ -n "${brand}" ]] || continue
+  home="$(brand_home "${brand}")"
+  file="${home}/!_brand.md"
 
   for key in brand website status; do
     value="$(frontmatter_value "${file}" "${key}")"
@@ -48,13 +59,13 @@ while IFS= read -r file; do
     fi
   done
 
-  brand="$(frontmatter_value "${file}" "brand")"
-  if [[ -n "${brand}" && "${brand}" != "${slug}" ]]; then
-    error "${file}: brand '${brand}' does not match filename '${slug}'"
+  fm_brand="$(frontmatter_value "${file}" "brand")"
+  if [[ -n "${fm_brand}" && "${fm_brand}" != "${brand}" ]]; then
+    error "${file}: brand '${fm_brand}' does not match directory '${brand}'"
   fi
 
-  if ! [[ "${slug}" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
-    error "${file}: brand slug must be kebab-case"
+  if ! [[ "${brand}" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+    error "${home}: brand slug must be kebab-case"
   fi
 
   status="$(frontmatter_value "${file}" "status")"
@@ -62,25 +73,50 @@ while IFS= read -r file; do
     active | sunset | "") ;;
     *) error "${file}: invalid status '${status}' (active | sunset)" ;;
   esac
-done < <(non_gitkeep_md_files "$(brands_dir)")
+
+  # Only definitional entities live in a brand home. Working pipelines (content,
+  # opportunities, prospecting…) stay in their Maister areas — a content/ folder
+  # appearing here is the drift this check exists to catch.
+  for dir in "${home}"/*/; do
+    [[ -d "${dir}" ]] || continue
+    name="$(basename "${dir}")"
+    if ! grep -qE "(^| )${name}( |$)" <<<"${BRAND_HOME_DIRS}" && dir_has_md "${dir}"; then
+      error "${dir%/}: '${name}' does not belong in a brand home (${BRAND_HOME_DIRS// /, }) — working pipelines stay in their Maister areas"
+    fi
+  done
+done < <(list_brands)
 
 # --- Multi-brand layout -------------------------------------------------------
-# Each market-side root may contain only brand segments. Flat .md files are
-# pre-migration stragglers. A non-brand subdirectory is tolerated only while it
-# holds no markdown — the committed .gitkeep skeleton stays harmless.
 
 if is_multi_brand; then
-  check_root() {
+  # Definitional roots are empty in multi-brand mode — everything moved into
+  # the brand homes. Any markdown left behind is a pre-migration straggler.
+  check_empty_root() {
+    local root="$1" kind="$2"
+    [[ -d "${root}" ]] || return 0
+    while IFS= read -r file; do
+      [[ -n "${file}" ]] || continue
+      error "${file}: multi-brand mode — ${kind} live in $(brands_dir)/{brand}/${kind}/ (see Brand Scope Gate in AGENTS.md)"
+    done < <(find "${root}" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+  }
+
+  check_empty_root "${WS}/firm/services" "services"
+  check_empty_root "${WS}/firm/proof" "proof"
+  check_empty_root "${WS}/marketing/icp" "icp"
+  check_empty_root "${WS}/marketing/channels" "channels"
+
+  # Working-pipeline roots hold brand segments only.
+  check_segment_root() {
     local root="$1"
     [[ -d "${root}" ]] || return 0
 
     while IFS= read -r file; do
       [[ -n "${file}" ]] || continue
       error "${file}: multi-brand mode — move into a {brand}/ segment (see Brand Scope Gate in AGENTS.md)"
-    done < <(non_gitkeep_md_files "${root}")
+    done < <(non_gitkeep_md_files "${root%/}")
 
     local dir name
-    for dir in "${root}"*/; do
+    for dir in "${root%/}"/*/; do
       [[ -d "${dir}" ]] || continue
       name="$(basename "${dir}")"
       if ! brand_exists "${name}" && dir_has_md "${dir}"; then
@@ -89,35 +125,33 @@ if is_multi_brand; then
     done
   }
 
-  check_root "${WS}/firm/services/"
-  check_root "${WS}/marketing/icp/"
-  check_root "${WS}/marketing/channels/"
-  check_root "${WS}/marketing/content/"
-  check_root "${WS}/marketing/placements/"
-  check_root "${WS}/marketing/landing-pages/"
-  check_root "${WS}/sales/opportunities/"
-  check_root "${WS}/sales/prospecting/"
-  check_root "${WS}/intelligence/ai-visibility/"
+  check_segment_root "${WS}/marketing/content/"
+  check_segment_root "${WS}/marketing/placements/"
+  check_segment_root "${WS}/marketing/landing-pages/"
+  check_segment_root "${WS}/sales/opportunities/"
+  check_segment_root "${WS}/sales/prospecting/"
+  check_segment_root "${WS}/intelligence/ai-visibility/"
 
-  # --- Shared entities declare their brands in frontmatter -------------------
-  # Proof records carry the brand that delivered the result; cross_brand gates
-  # whether a sibling brand may cite it. Competitor profiles list the brands
-  # they compete with. Client accounts are checked by validate-account.sh.
+  # --- Proof in brand homes --------------------------------------------------
+  # The path names the delivering brand, so a brand: field would be the copy
+  # that drifts. cross_brand gates whether a sibling brand may cite the record.
 
-  while IFS= read -r file; do
-    [[ -n "${file}" ]] || continue
-    proof_brand="$(frontmatter_value "${file}" "brand")"
-    if is_empty_value "${proof_brand}"; then
-      error "${file}: multi-brand mode — proof records declare 'brand:' (the brand that delivered)"
-    elif ! brand_exists "${proof_brand}"; then
-      error "${file}: brand '${proof_brand}' has no file at $(brands_dir)/${proof_brand}.md"
-    fi
-    cross_brand="$(frontmatter_value "${file}" "cross_brand")"
-    case "${cross_brand}" in
-      true | false | "") ;;
-      *) error "${file}: cross_brand must be true or false, got '${cross_brand}'" ;;
-    esac
-  done < <(non_gitkeep_md_files "${WS}/firm/proof")
+  while IFS= read -r brand; do
+    [[ -n "${brand}" ]] || continue
+    while IFS= read -r file; do
+      [[ -n "${file}" ]] || continue
+      if [[ -n "$(frontmatter_value "${file}" "brand")" ]]; then
+        error "${file}: drop 'brand:' — the proof record's brand is its path (Brand Scope Gate)"
+      fi
+      cross_brand="$(frontmatter_value "${file}" "cross_brand")"
+      case "${cross_brand}" in
+        true | false | "") ;;
+        *) error "${file}: cross_brand must be true or false, got '${cross_brand}'" ;;
+      esac
+    done < <(non_gitkeep_md_files "$(brand_home "${brand}")/proof")
+  done < <(list_brands)
+
+  # --- Competitors stay shared and declare their brands ----------------------
 
   if [[ -d "${WS}/intelligence/competitors" ]]; then
     for comp_dir in "${WS}/intelligence/competitors"/*/; do
@@ -131,7 +165,7 @@ if is_multi_brand; then
         while IFS= read -r brand_item; do
           [[ -n "${brand_item}" ]] || continue
           if ! brand_exists "${brand_item}"; then
-            error "${profile}: brand '${brand_item}' has no file at $(brands_dir)/${brand_item}.md"
+            error "${profile}: brand '${brand_item}' has no home at $(brand_home "${brand_item}")/!_brand.md"
           fi
         done <<<"${comp_brands}"
       fi
@@ -140,11 +174,11 @@ if is_multi_brand; then
 fi
 
 # --- Distribution channels ----------------------------------------------------
-# workspace/marketing/channels/ holds the OWNED distribution surfaces — the
-# brand's blog, X, LinkedIn, newsletter, Medium — the mirror of placements/,
-# which holds third-party ones. One file per channel: the URL, which draft
-# types feed it, how publishing happens, and on what schedule. Works in both
-# modes; per-brand segments in multi-brand.
+# The OWNED distribution surfaces — the brand's blog, X, LinkedIn, newsletter,
+# Medium — the mirror of placements/, which holds third-party ones. One file per
+# channel: the URL, which draft types feed it, how publishing happens, and on
+# what schedule. Single-brand: workspace/marketing/channels/; multi-brand:
+# firm/brands/{brand}/channels/.
 
 KNOWN_CONTENT_TYPES="blog_post linkedin_post x_post case_study landing_page prospecting_sequence"
 
@@ -193,7 +227,7 @@ if is_multi_brand; then
     while IFS= read -r file; do
       [[ -n "${file}" ]] || continue
       check_channel_file "${file}"
-    done < <(non_gitkeep_md_files "${WS}/marketing/channels/${brand}")
+    done < <(non_gitkeep_md_files "$(brand_home "${brand}")/channels")
   done < <(list_brands)
 else
   while IFS= read -r file; do
@@ -206,9 +240,9 @@ fi
 # workspace/firm/people/ is optional in both modes: the shared team, one file per
 # person. It is an assignment registry, never a PSA — rates, hours, utilization,
 # capacity, and salary are rejected outright, the same guard as exact money in
-# workspace/clients/. Once people exist, every 'owner:' in placements and PDCA
-# area READMEs must resolve to a person slug — free-text owners stop being
-# checkable the day two brands share one team.
+# workspace/clients/. Once people exist, every 'owner:' in placements, channels,
+# and PDCA area READMEs must resolve to a person slug — free-text owners stop
+# being checkable the day two brands share one team.
 
 PEOPLE_DIR="${WS}/firm/people"
 people_slugs=""
@@ -247,7 +281,7 @@ while IFS= read -r file; do
       [[ -n "${brand_item}" ]] || continue
       [[ "${brand_item}" == "all" ]] && continue
       if ! brand_exists "${brand_item}"; then
-        error "${file}: brand '${brand_item}' has no file at $(brands_dir)/${brand_item}.md"
+        error "${file}: brand '${brand_item}' has no home at $(brand_home "${brand_item}")/!_brand.md"
       fi
     done < <(frontmatter_list "${file}" "brands" || true)
   fi
@@ -266,7 +300,8 @@ if [[ -n "${people_slugs}" ]]; then
   while IFS= read -r file; do
     [[ -n "${file}" ]] || continue
     check_owner "${file}"
-  done < <(find "${WS}/marketing/placements" "${WS}/marketing/channels" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+  done < <(find "${WS}/marketing/placements" "${WS}/marketing/channels" \
+    "$(brands_dir)" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
 
   while IFS= read -r file; do
     [[ -n "${file}" ]] || continue

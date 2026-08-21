@@ -159,20 +159,29 @@ days_since() {
 }
 
 # --- Brands -------------------------------------------------------------------
-# The mode is detected, never configured: 0 or 1 file in firm/brands/ means
-# single-brand (flat paths, exactly the pre-brand layout), 2+ means multi-brand
-# (market-side paths carry a {brand}/ segment). See the Brand Scope Gate in
-# AGENTS.md and the path map in docs/WORKSPACE.md.
+# The mode is detected, never configured: 0 or 1 brand home in firm/brands/
+# means single-brand (flat paths, exactly the pre-brand layout), 2+ means
+# multi-brand. A brand home is firm/brands/{slug}/ with !_brand.md inside; it
+# also holds the brand's definitional entities (services/, icp/ with personas/,
+# proof/, channels/), while working pipelines (content, opportunities,
+# prospecting, AI visibility, placements, landing pages) stay in their Maister
+# areas under a {brand}/ segment. See the Brand Scope Gate in AGENTS.md and the
+# path map in docs/WORKSPACE.md.
 
 brands_dir() {
   echo "${WS}/firm/brands"
 }
 
+brand_home() {
+  echo "$(brands_dir)/$1"
+}
+
 list_brands() {
-  local file
-  while IFS= read -r file; do
-    slug_from_path "${file}"
-  done < <(non_gitkeep_md_files "$(brands_dir)")
+  local dir
+  for dir in "$(brands_dir)"/*/; do
+    [[ -f "${dir}!_brand.md" ]] || continue
+    basename "${dir}"
+  done
 }
 
 brand_count() {
@@ -184,7 +193,7 @@ is_multi_brand() {
 }
 
 brand_exists() {
-  [[ -f "$(brands_dir)/$1.md" ]]
+  [[ -f "$(brand_home "$1")/!_brand.md" ]]
 }
 
 # Picks the working brand in multi-brand mode: an explicit argument wins, then
@@ -243,43 +252,56 @@ resolve_ref() {
     brand=""
   fi
 
-  local segment=""
-  [[ -n "${brand}" ]] && segment="${brand}/"
-
-  case "${kind}" in
-    service) echo "${WS}/firm/services/${segment}${slug}.md" ;;
-    icp) echo "${WS}/marketing/icp/${segment}${slug}.md" ;;
-    persona)
-      if [[ -n "${brand}" ]]; then
-        echo "${WS}/marketing/icp/${brand}/personas/${slug}.md"
-      else
-        echo "${WS}/marketing/icp/personas/${slug}.md"
-      fi
-      ;;
-    *) return 1 ;;
-  esac
+  if [[ -n "${brand}" ]]; then
+    case "${kind}" in
+      service) echo "$(brand_home "${brand}")/services/${slug}.md" ;;
+      icp) echo "$(brand_home "${brand}")/icp/${slug}.md" ;;
+      persona) echo "$(brand_home "${brand}")/icp/personas/${slug}.md" ;;
+      proof) echo "$(brand_home "${brand}")/proof/${slug}.md" ;;
+      *) return 1 ;;
+    esac
+  else
+    case "${kind}" in
+      service) echo "${WS}/firm/services/${slug}.md" ;;
+      icp) echo "${WS}/marketing/icp/${slug}.md" ;;
+      persona) echo "${WS}/marketing/icp/personas/${slug}.md" ;;
+      proof) echo "${WS}/firm/proof/${slug}.md" ;;
+      *) return 1 ;;
+    esac
+  fi
 }
 
-# Prints the directory for a market-side entity, brand-segmented in multi-brand mode.
+# Prints the directory for a brand-scoped entity. Definitional entities
+# (services, icp, personas, proof, channels) live in the brand home in
+# multi-brand mode; working pipelines stay in their Maister areas under a
+# {brand}/ segment.
 #
-#   entity_dir {services|icp|personas|channels|ideas|drafts|opportunities|prospecting|ai-visibility|placements|landing-pages} [brand]
+#   entity_dir {services|icp|personas|proof|channels|ideas|drafts|opportunities|prospecting|ai-visibility|placements|landing-pages} [brand]
 entity_dir() {
   local kind="$1" brand="${2:-}"
-  local segment=""
+  local in_brand=""
   if is_multi_brand && [[ -n "${brand}" ]]; then
-    segment="${brand}/"
+    in_brand="yes"
   fi
+
+  if [[ -n "${in_brand}" ]]; then
+    case "${kind}" in
+      services) echo "$(brand_home "${brand}")/services/"; return 0 ;;
+      icp) echo "$(brand_home "${brand}")/icp/"; return 0 ;;
+      personas) echo "$(brand_home "${brand}")/icp/personas/"; return 0 ;;
+      proof) echo "$(brand_home "${brand}")/proof/"; return 0 ;;
+      channels) echo "$(brand_home "${brand}")/channels/"; return 0 ;;
+    esac
+  fi
+
+  local segment=""
+  [[ -n "${in_brand}" ]] && segment="${brand}/"
   case "${kind}" in
-    services) echo "${WS}/firm/services/${segment}" ;;
-    icp) echo "${WS}/marketing/icp/${segment}" ;;
-    personas)
-      if [[ -n "${segment}" ]]; then
-        echo "${WS}/marketing/icp/${segment}personas/"
-      else
-        echo "${WS}/marketing/icp/personas/"
-      fi
-      ;;
-    channels) echo "${WS}/marketing/channels/${segment}" ;;
+    services) echo "${WS}/firm/services/" ;;
+    icp) echo "${WS}/marketing/icp/" ;;
+    personas) echo "${WS}/marketing/icp/personas/" ;;
+    proof) echo "${WS}/firm/proof/" ;;
+    channels) echo "${WS}/marketing/channels/" ;;
     ideas) echo "${WS}/marketing/content/${segment}ideas/" ;;
     drafts) echo "${WS}/marketing/content/${segment}drafts/" ;;
     opportunities) echo "${WS}/sales/opportunities/${segment}" ;;

@@ -12,7 +12,7 @@ persona: cfo-mid-market-distribution
 price_model: retainer
 currency: EUR
 proof_refs:
-  - harrowmere-erp-cutover
+  - bramblegate/harrowmere-erp-cutover
 proof_needed: false
 status: sent
 generated_at: 2026-06-19

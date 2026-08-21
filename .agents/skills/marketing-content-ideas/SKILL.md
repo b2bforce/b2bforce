@@ -156,7 +156,7 @@ If landing_page with research, also write:
 ### 5. Default distribution (if user doesn't specify)
 
 **Channel registry first.** If `workspace/marketing/channels/` (multi-brand:
-`channels/{brand}/`) holds channel files, they decide distribution: enable only
+`firm/brands/{brand}/channels/`) holds channel files, they decide distribution: enable only
 the content types some **active** channel lists in `content_types`, and size
 counts to the channels' `schedule` lines — a channel posting once a week does not
 need five ideas a week. Read each channel's body ("what to publish here") as
