@@ -21,11 +21,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 CLIENTS_DIR="${WS}/clients"
 STALE_DAYS=90
@@ -35,64 +32,6 @@ warnings=()
 
 error() { errors+=("$1"); }
 warn() { warnings+=("$1"); }
-
-frontmatter_value() {
-  awk -v key="$2" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      print
-      exit
-    }
-  ' "$1"
-}
-
-# Counts items of a YAML block list, or of an inline [a, b] list.
-frontmatter_list_count() {
-  awk -v key="$2" '
-    BEGIN { in_fm = 0; seen = 0; in_list = 0; n = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    !in_fm { next }
-    $0 ~ "^" key ":" {
-      rest = $0
-      sub("^" key ":[[:space:]]*", "", rest)
-      gsub(/[][]/, "", rest)
-      if (rest != "") {
-        n = split(rest, parts, ",")
-        for (i = 1; i <= n; i++) if (parts[i] ~ /[^[:space:]]/) count++
-        print count + 0
-        exit
-      }
-      in_list = 1
-      next
-    }
-    in_list && /^[[:space:]]*-[[:space:]]/ { count++; next }
-    in_list && /^[^[:space:]]/ { in_list = 0 }
-    END { if (in_list || count > 0) print count + 0; else print 0 }
-  ' "$1"
-}
-
-is_empty_value() {
-  [[ -z "$1" || "$1" == "null" || "$1" == "~" ]]
-}
-
-# Whole days between an ISO date and today. Negative means the date is in the future.
-days_since() {
-  local date_str="$1" then now
-  then="$(date -j -f "%Y-%m-%d" "${date_str}" "+%s" 2>/dev/null ||
-    date -d "${date_str}" "+%s" 2>/dev/null || echo "")"
-  [[ -z "${then}" ]] && return 1
-  now="$(date "+%s")"
-  echo $(((now - then) / 86400))
-}
 
 validate_account() {
   local dir="$1"

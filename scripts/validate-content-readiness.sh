@@ -15,11 +15,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 SERVICE_SLUG="${1:-}"
 ICP_SLUG="${2:-}"
@@ -29,41 +26,6 @@ errors=()
 
 error() {
   errors+=("$1")
-}
-
-non_gitkeep_md_files() {
-  local dir="$1"
-  find "${dir}" -maxdepth 1 -type f -name '*.md' ! -name '.gitkeep' | sort
-}
-
-slug_from_path() {
-  basename "$1" .md
-}
-
-frontmatter_value() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      print
-      exit
-    }
-  ' "${file}"
-}
-
-normalize_list_value() {
-  tr -d '[]",' | tr "'" " " | tr ',' ' ' | xargs
-}
-
-file_has_real_content() {
-  local file="$1"
-  [[ -s "${file}" ]] && ! grep -qi 'status.*template' "${file}"
 }
 
 if [[ ! -f "${WS}/firm/profile.md" ]]; then

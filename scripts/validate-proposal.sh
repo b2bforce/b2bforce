@@ -17,11 +17,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 PROPOSAL_FILE="${1:-}"
 PROOF_DIR="${WS}/firm/proof"
@@ -30,89 +27,6 @@ errors=()
 
 error() {
   errors+=("$1")
-}
-
-frontmatter_value() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      print
-      exit
-    }
-  ' "${file}"
-}
-
-# Prints items of a YAML block list ("key:" followed by "  - value" lines).
-frontmatter_list() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0; in_list = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    !in_fm { next }
-    $0 ~ "^" key ":" {
-      rest = $0
-      sub("^" key ":[[:space:]]*", "", rest)
-      gsub(/[][]/, "", rest)
-      if (rest != "") { print rest }
-      in_list = 1
-      next
-    }
-    in_list && /^[[:space:]]*-[[:space:]]*/ {
-      sub(/^[[:space:]]*-[[:space:]]*/, "")
-      gsub(/^"|"$/, "")
-      print
-      next
-    }
-    in_list && /^[^[:space:]]/ { in_list = 0 }
-  ' "${file}"
-}
-
-is_empty_value() {
-  local value="$1"
-  [[ -z "${value}" || "${value}" == "null" || "${value}" == "~" ]]
-}
-
-body_text() {
-  awk '
-    BEGIN { in_fm = 0; seen = 0; done_fm = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { in_fm = 0; done_fm = 1; next }
-    }
-    done_fm || !seen { print }
-  ' "$1"
-}
-
-section_body() {
-  awk -v heading="## $2" '
-    $0 == heading { in_section = 1; next }
-    in_section && /^## / { exit }
-    in_section { print }
-  ' "$1"
-}
-
-section_is_empty() {
-  local body
-  body="$(section_body "$1" "$2" | sed -e 's/^[[:space:]]*//' -e '/^$/d')"
-  body="$(printf "%s\n" "${body}" | grep -viE '^(none\.?|n/a|tbd|todo|-)$' || true)"
-  [[ -z "${body}" ]]
-}
-
-# Turns a kebab-case slug into a loose regex: acme-corp -> acme[ _-]*corp
-slug_to_regex() {
-  printf "%s" "$1" | sed 's/-/[ _-]*/g'
 }
 
 if [[ -z "${PROPOSAL_FILE}" ]]; then
