@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Validate the firm identity registries: brands in workspace/firm/brands/, the
-# brand layout, and people in workspace/firm/people/.
+# brand layout, people in workspace/firm/people/, and the distribution channels
+# in workspace/marketing/channels/.
 #
 # Usage:
 #   scripts/validate-brands.sh
@@ -90,6 +91,7 @@ if is_multi_brand; then
 
   check_root "${WS}/firm/services/"
   check_root "${WS}/marketing/icp/"
+  check_root "${WS}/marketing/channels/"
   check_root "${WS}/marketing/content/"
   check_root "${WS}/marketing/placements/"
   check_root "${WS}/marketing/landing-pages/"
@@ -135,6 +137,69 @@ if is_multi_brand; then
       fi
     done
   fi
+fi
+
+# --- Distribution channels ----------------------------------------------------
+# workspace/marketing/channels/ holds the OWNED distribution surfaces — the
+# brand's blog, X, LinkedIn, newsletter, Medium — the mirror of placements/,
+# which holds third-party ones. One file per channel: the URL, which draft
+# types feed it, how publishing happens, and on what schedule. Works in both
+# modes; per-brand segments in multi-brand.
+
+KNOWN_CONTENT_TYPES="blog_post linkedin_post x_post case_study landing_page prospecting_sequence"
+
+check_channel_file() {
+  local file="$1"
+  local slug
+  slug="$(slug_from_path "${file}")"
+
+  for key in channel platform url status content_types publish_via schedule; do
+    value="$(frontmatter_value "${file}" "${key}")"
+    if [[ "${key}" == "content_types" ]]; then
+      value="$(frontmatter_list "${file}" "content_types" | head -1 || true)"
+    fi
+    if is_empty_value "${value}"; then
+      error "${file}: missing or empty frontmatter '${key}'"
+    fi
+  done
+
+  channel="$(frontmatter_value "${file}" "channel")"
+  if [[ -n "${channel}" && "${channel}" != "${slug}" ]]; then
+    error "${file}: channel '${channel}' does not match filename '${slug}'"
+  fi
+
+  url="$(frontmatter_value "${file}" "url")"
+  if [[ -n "${url}" ]] && ! [[ "${url}" =~ ^https?:// ]]; then
+    error "${file}: url must start with http:// or https://, got '${url}'"
+  fi
+
+  status="$(frontmatter_value "${file}" "status")"
+  case "${status}" in
+    active | paused | retired | "") ;;
+    *) error "${file}: invalid status '${status}' (active | paused | retired)" ;;
+  esac
+
+  while IFS= read -r ctype; do
+    [[ -n "${ctype}" ]] || continue
+    if ! grep -qE "(^| )${ctype}( |$)" <<<"${KNOWN_CONTENT_TYPES}"; then
+      error "${file}: unknown content_types value '${ctype}' (${KNOWN_CONTENT_TYPES// /, })"
+    fi
+  done < <(frontmatter_list "${file}" "content_types" || true)
+}
+
+if is_multi_brand; then
+  while IFS= read -r brand; do
+    [[ -n "${brand}" ]] || continue
+    while IFS= read -r file; do
+      [[ -n "${file}" ]] || continue
+      check_channel_file "${file}"
+    done < <(non_gitkeep_md_files "${WS}/marketing/channels/${brand}")
+  done < <(list_brands)
+else
+  while IFS= read -r file; do
+    [[ -n "${file}" ]] || continue
+    check_channel_file "${file}"
+  done < <(non_gitkeep_md_files "${WS}/marketing/channels")
 fi
 
 # --- People -------------------------------------------------------------------
@@ -201,7 +266,7 @@ if [[ -n "${people_slugs}" ]]; then
   while IFS= read -r file; do
     [[ -n "${file}" ]] || continue
     check_owner "${file}"
-  done < <(find "${WS}/marketing/placements" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+  done < <(find "${WS}/marketing/placements" "${WS}/marketing/channels" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
 
   while IFS= read -r file; do
     [[ -n "${file}" ]] || continue

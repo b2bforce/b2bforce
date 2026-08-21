@@ -41,12 +41,19 @@ Hub skill for B2BForce. Establishes who the firm is before any other workflow ru
    - Target clients (ICP summary)
    - Competitors to monitor (name + URL) — in multi-brand, which brand(s) each
      competes with
+   - Distribution channels the firm actually publishes on (blog, X, LinkedIn,
+     newsletter, Medium…): for each, the URL, how publishing happens (e.g.
+     Buffer, native, CMS, mailing tool), and the posting rhythm — in
+     multi-brand, per brand
    - Content language
    - Priority workflows
 
 2. **Write files:**
    - `workspace/firm/profile.md` — primary firm profile and context
    - `workspace/firm/services/{slug}.md` — one minimal file per primary service
+   - `workspace/marketing/channels/{slug}.md` — one per distribution channel the
+     user named (schema: `docs/WORKSPACE.md`, "Distribution channel"); skip
+     channels the firm does not actually use
    - `workspace/intelligence/competitors/{slug}/!_profile.md` — one per competitor
 
 3. **Website enrichment** — if the user provided a website URL, run
@@ -85,8 +92,8 @@ Brand Scope Gate in `AGENTS.md`; this skill only executes them.
    the moment the workspace switches to multi-brand:
    - `git mv` every existing market-side artifact into the first brand's
      segment: `firm/services/{slug}.md` → `firm/services/{brand}/{slug}.md`,
-     same move for `marketing/icp/` (with `personas/`), `marketing/content/`
-     (`ideas/`, `drafts/`), `marketing/landing-pages/`,
+     same move for `marketing/icp/` (with `personas/`), `marketing/channels/`,
+     `marketing/content/` (`ideas/`, `drafts/`), `marketing/landing-pages/`,
      `marketing/placements/`, `sales/prospecting/`, `sales/opportunities/`,
      and `intelligence/ai-visibility/`.
    - Frontmatter stays untouched: bare slugs now resolve within the segment's
@@ -108,6 +115,7 @@ Brand Scope Gate in `AGENTS.md`; this skill only executes them.
 | Firm profile | `workspace/firm/profile.md` |
 | Brand (multi-brand only) | `workspace/firm/brands/{slug}.md` |
 | Services | `workspace/firm/services/{slug}.md` — multi-brand: `services/{brand}/{slug}.md` |
+| Distribution channels | `workspace/marketing/channels/{slug}.md` — multi-brand: `channels/{brand}/{slug}.md` |
 | Competitors | `workspace/intelligence/competitors/{slug}/!_profile.md` |
 
 ## Related Skills

@@ -17,6 +17,7 @@ File naming and output paths for B2BForce skills + workspace.
 | Service | `workspace/firm/services/{slug}.md` | `services/seo-retainer.md` |
 | ICP | `workspace/marketing/icp/{slug}.md` | `icp/mid-market-saas.md` |
 | Buyer persona | `workspace/marketing/icp/personas/{slug}.md` | `personas/cmo-mid-market.md` |
+| Distribution channel | `workspace/marketing/channels/{slug}.md` | `channels/linkedin.md` — owned surface: URL, feed, schedule |
 | Content idea | `workspace/marketing/content/ideas/{content_type}--{buying_stage}--{slug}.md` | One backlog folder; filename indexes type + stage |
 | Blog draft | `workspace/marketing/content/drafts/blog/{slug}.md` | 800–1500 words, Markdown |
 | LinkedIn draft | `workspace/marketing/content/drafts/linkedin/{slug}.md` | Plain text, ~150–250 words |
@@ -52,6 +53,7 @@ market-side paths gain a `{brand}/` segment directly under the entity root:
 | Service | `workspace/firm/services/{brand}/{slug}.md` |
 | ICP | `workspace/marketing/icp/{brand}/{slug}.md` |
 | Buyer persona | `workspace/marketing/icp/{brand}/personas/{slug}.md` |
+| Distribution channel | `workspace/marketing/channels/{brand}/{slug}.md` |
 | Content idea | `workspace/marketing/content/{brand}/ideas/{content_type}--{buying_stage}--{slug}.md` |
 | Content draft | `workspace/marketing/content/{brand}/drafts/{type}/{slug}.md` |
 | Service page | `workspace/marketing/landing-pages/{brand}/{slug}/page.md` |
@@ -118,8 +120,8 @@ Body: what this person owns, at most a few lines.
 This is an **assignment registry, never a PSA**: `rate`, `hours`, `utilization`,
 `capacity`, `salary`, and `cost` are rejected by the validator — the same guard as
 exact money in `workspace/clients/`. Once any person file exists, every `owner:`
-in `marketing/placements/` and in PDCA area READMEs must be a person slug.
-Validated by `scripts/validate-brands.sh`.
+in `marketing/placements/`, `marketing/channels/`, and PDCA area READMEs must be
+a person slug. Validated by `scripts/validate-brands.sh`.
 
 ## Worked example
 
@@ -210,6 +212,43 @@ same discipline as `pdca/scoreboard.md`.
 
 Retention: rollup rows are permanent; `runs/` folders older than six months may be
 pruned. Sampling rules for these artifacts: "Answer Engine Sampling" in `AGENTS.md`.
+
+## Distribution channel
+
+`workspace/marketing/channels/{slug}.md` — one file per **owned** distribution
+surface: the blog, the X account, the LinkedIn page, the newsletter, a Medium
+publication. The mirror of `placements/`, which holds the third-party surfaces the
+firm wants onto but does not control. Multi-brand: `channels/{brand}/{slug}.md` —
+each brand distributes under its own name, so channels are never shared.
+
+```yaml
+---
+channel: linkedin                # must equal the filename
+platform: linkedin               # blog | x | linkedin | newsletter | medium | youtube | other
+url: https://example.com/company/page
+status: active                   # active | paused | retired
+content_types: [linkedin_post]   # which draft types feed this channel
+publish_via: buffer              # how content gets there: buffer | native | cms | mailing tool…
+schedule: "3x per week, Tue/Thu/Fri morning"
+owner: a-c                       # person slug, once firm/people/ exists
+---
+```
+
+The frontmatter is the registry; the **body is the channel's operating doc** — the
+part a URL list cannot hold:
+
+- **What to publish here** — topics and angles that work on this surface, and what
+  never goes here.
+- **How publishing happens** — the concrete mechanics: scheduled through Buffer,
+  pasted natively, sent via the mailing tool; who approves before it goes out.
+- **Rhythm** — what the `schedule` line means in practice (e.g. "one post each
+  Friday 09:00, queued the Monday before").
+
+A channel file with an empty body is a bookmark, not a channel. Content skills read
+this registry: `marketing-content-ideas` proposes only types some **active** channel
+accepts via `content_types`, and the per-channel body constrains the drafts headed
+there. `retired` closes a surface for good, the same finality as `not_viable` on a
+placement. Validated by `scripts/validate-brands.sh`.
 
 ## Placement target
 

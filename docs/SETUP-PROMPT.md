@@ -25,6 +25,10 @@ Please:
       brand each belongs to)
 - [ ] Target clients (ICP summary: industry, size, geography)
 - [ ] Main competitors or accounts to monitor (names + URLs)
+- [ ] Distribution channels you actually publish on (blog, X, LinkedIn,
+      newsletter, Medium…): for each — URL, how you publish (Buffer, native,
+      CMS, mailing tool), and how often (e.g. every Friday, daily);
+      multi-brand: per brand
 - [ ] Content language(s): en / de / pl / other
 - [ ] Which workflows matter most? (pick: monitoring, AI visibility, ICP, content
       ideas, content generation, prospecting, proposals, client retention, landing
@@ -51,6 +55,9 @@ STOP after Step 1 — wait for my answers before continuing.
       to improve workspace/firm/profile.md. If web/API access is unavailable,
       keep the interview-based profile and note that enrichment can be run later.
 - [ ] For each primary service: create workspace/firm/services/{slug}.md with a minimal service definition
+- [ ] For each named channel: create workspace/marketing/channels/{slug}.md
+      (multi-brand: channels/{brand}/{slug}.md) with URL, content_types,
+      publish_via, schedule, and a short "what to publish here" body
 - [ ] For each competitor URL: create workspace/intelligence/competitors/{slug}/!_profile.md
 - [ ] Update README.md title to "{Firm Name} — B2BForce Workspace"
 

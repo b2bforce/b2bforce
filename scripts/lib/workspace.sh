@@ -262,7 +262,7 @@ resolve_ref() {
 
 # Prints the directory for a market-side entity, brand-segmented in multi-brand mode.
 #
-#   entity_dir {services|icp|personas|ideas|drafts|opportunities|prospecting|ai-visibility|placements|landing-pages} [brand]
+#   entity_dir {services|icp|personas|channels|ideas|drafts|opportunities|prospecting|ai-visibility|placements|landing-pages} [brand]
 entity_dir() {
   local kind="$1" brand="${2:-}"
   local segment=""
@@ -279,6 +279,7 @@ entity_dir() {
         echo "${WS}/marketing/icp/personas/"
       fi
       ;;
+    channels) echo "${WS}/marketing/channels/${segment}" ;;
     ideas) echo "${WS}/marketing/content/${segment}ideas/" ;;
     drafts) echo "${WS}/marketing/content/${segment}drafts/" ;;
     opportunities) echo "${WS}/sales/opportunities/${segment}" ;;

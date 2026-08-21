@@ -38,6 +38,7 @@ with a second brand:
 | `firm/brands/*.md` | Two files is what switches the mode — there is no config flag |
 | `firm/services/{brand}/…`, `marketing/icp/{brand}/…`, `marketing/content/{brand}/…` | The `{brand}/` segment, always directly under the entity root; frontmatter stays bare slugs |
 | `firm/people/rhea-alcott.md` | One marketing lead, `brands: all` — the shared team made explicit |
+| `marketing/channels/{brand}/…` | Each brand's own distribution surfaces — URL, what to publish, how (Buffer/CMS/mailing tool), and the schedule; both brands' queues run by the same person |
 | `firm/proof/harrowmere-erp-cutover.md` | `brand:` names who delivered; `cross_brand: true` is the client's explicit permission for the sibling brand to cite it |
 | `sales/opportunities/ledgerline/…/proposal.md` | A retainer brand citing the project brand's result, with attribution — the cross-brand rule in action |
 | `clients/harrowmere-distribution/!_account.md` | **One** account for a client bought from both brands: `brands: [...]`, `services` in qualified `{brand}/{slug}` form |

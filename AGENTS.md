@@ -136,9 +136,10 @@ three rules apply on top:
 
 1. **Market-side paths carry a `{brand}/` segment** directly under the entity
    root: `firm/services/{brand}/`, `marketing/icp/{brand}/` (personas inside),
-   `marketing/content/{brand}/`, `marketing/landing-pages/{brand}/`,
-   `marketing/placements/{brand}/`, `sales/prospecting/{brand}/`,
-   `sales/opportunities/{brand}/`, `intelligence/ai-visibility/{brand}/`.
+   `marketing/channels/{brand}/`, `marketing/content/{brand}/`,
+   `marketing/landing-pages/{brand}/`, `marketing/placements/{brand}/`,
+   `sales/prospecting/{brand}/`, `sales/opportunities/{brand}/`,
+   `intelligence/ai-visibility/{brand}/`.
    The path is the **only** source of a path-scoped artifact's brand — never
    repeat it in frontmatter, because the copy is what drifts.
 2. **Firm-side entities stay shared** — one client account, one proof record,
@@ -183,7 +184,7 @@ restate them in skills.
 registry, useful in both modes and near-mandatory in multi-brand, where one
 marketing or sales team serves several brands. Each person declares `functions`
 and `brands` (`all`, or a list). Once any person file exists, `owner:` fields in
-placements and PDCA areas must resolve to a person slug — checked by
+placements, channels, and PDCA areas must resolve to a person slug — checked by
 `scripts/validate-brands.sh`. The registry holds assignments only: rates, hours,
 utilization, capacity, and salary are rejected, the same line this repo draws
 against ledger data in `workspace/clients/`. Schema: `docs/WORKSPACE.md`.
@@ -506,6 +507,8 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 - In multi-brand mode, every market-side path below gains a `{brand}/` segment
   directly under the entity root — see the Brand Scope Gate. Single-brand paths
   are exactly as listed.
+- Distribution channels → `workspace/marketing/channels/{slug}.md` (owned
+  surfaces: URL, which draft types feed it, how publishing happens, schedule)
 - Competitor profiles → `workspace/intelligence/competitors/{slug}/`
 - Reports → `workspace/intelligence/reports/`
 - AI visibility → `workspace/intelligence/ai-visibility/` (`!_prompts.md`,
