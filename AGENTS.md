@@ -25,7 +25,9 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   ├── clients/              # Won accounts — onboarding, account plans, QBRs, health
 │   ├── intelligence/         # Competitors, snapshots, changes, reports, AI visibility
 │   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
-├── examples/demo-firm/       # Fictional firm — readable example and validator fixture
+├── examples/
+│   ├── demo-firm/            # Fictional single-brand firm — example and validator fixture
+│   └── demo-group/           # Fictional multi-brand group — the Brand Scope Gate demonstrated
 ├── data/                     # Optional machine metadata only when a tool needs it
 ├── docs/                     # SETUP-PROMPT, WORKSPACE conventions
 └── scripts/bootstrap.sh      # Clone template for new firm instances
@@ -108,9 +110,10 @@ first. Ask for the missing firm/service details until there is enough context to
 write the files. Without a firm profile and service definitions, the skills have no
 useful grounding and should not generate downstream artifacts.
 
-**`examples/` is fiction and never satisfies this gate.** `examples/demo-firm/` holds a
-fictional firm used as a readable example and as the regression fixture for the
-validators. Every file in it carries `fixture: true` in its frontmatter.
+**`examples/` is fiction and never satisfies this gate.** `examples/demo-firm/`
+(single-brand) and `examples/demo-group/` (multi-brand) hold fictional firms used as
+readable examples and as the regression fixtures for the validators. Every file in
+them carries `fixture: true` in its frontmatter.
 
 - Never read it as the user's firm context, and never fill a missing profile from it.
 - Never cite its proof records, metrics, quotes, or client names. A file with

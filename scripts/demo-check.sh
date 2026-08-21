@@ -1,38 +1,36 @@
 #!/usr/bin/env bash
-# Validate the demo firm in examples/demo-firm/ against every workspace gate.
+# Validate the demo fixtures in examples/ against every workspace gate.
 #
 # Usage:
 #   scripts/demo-check.sh
 #
-# The demo is both a readable example and the regression fixture for the validators.
-# It is checked on a copy in tmp/ rather than in place, because two rules in
-# scripts/validate-account.sh compare dates against today: a stale reviewed_at with
-# health: green is an error, and a passed renewal_date is a warning. Committed ISO
-# dates would therefore start failing on their own after 90 days. The offsets below
-# are the single source of truth for the dates those rules read.
+# Two demos, one script:
+#   examples/demo-firm/  — single-brand: the default layout, exactly as documented
+#   examples/demo-group/ — multi-brand: two brands, {brand}/ segments, a shared
+#                          client, cross-brand proof, and the people registry
+#
+# Each demo is both a readable example and the regression fixture for the
+# validators — the group demo is additionally the regression test that the
+# single-brand layout stays untouched: demo-firm must pass with no brand fields
+# anywhere. Both are checked on a copy in tmp/ rather than in place, because two
+# rules in scripts/validate-account.sh compare dates against today: a stale
+# reviewed_at with health: green is an error, and a passed renewal_date is a
+# warning. Committed ISO dates would therefore start failing on their own after
+# 90 days. The offsets below are the single source of truth for the dates those
+# rules read.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-DEMO_SRC="examples/demo-firm"
-DEMO_TMP="tmp/demo-firm"
-
 # Frontmatter date fields the validators compare against today, and how far from
-# today they should sit while the demo is being checked.
+# today they should sit while a demo is being checked.
 DATE_OFFSETS=(
   "reviewed_at:-14"
   "last_contact:-9"
   "renewal_date:+120"
 )
-
-SERVICE_SLUG="platform-migration"
-ICP_SLUG="mid-market-logistics"
-PERSONA_SLUG="cto-mid-market-logistics"
-BLOG_DRAFT="marketing/content/drafts/blog/why-your-monthly-release-still-takes-a-weekend.md"
-PROPOSAL="sales/opportunities/northwind-logistics--platform-migration--2026-05/proposal.md"
-PDCA_CYCLE="pdca/content-to-pipeline/cycles/2026-W29--buyer-question-coverage.md"
 
 failures=()
 
@@ -68,67 +66,116 @@ frontmatter_has_fixture_flag() {
   ' "$1"
 }
 
+# --- Every demo file must be marked as a fixture ------------------------------
+check_fixture_markers() {
+  local src="$1"
+  local unmarked=()
+  while IFS= read -r file; do
+    frontmatter_has_fixture_flag "${file}" || unmarked+=("${file}")
+  done < <(find "${src}" -type f -name '*.md' | sort)
+
+  if [[ "${#unmarked[@]}" -gt 0 ]]; then
+    echo "  FAIL  every file in ${src} needs 'fixture: true' in its frontmatter"
+    for file in "${unmarked[@]}"; do
+      echo "        ${file}"
+    done
+    failures+=("${src}: fixture markers")
+  else
+    echo "  OK    all files in ${src} carry fixture: true"
+  fi
+}
+
+# --- Materialize a dated copy -------------------------------------------------
+materialize() {
+  local src="$1" tmp="$2"
+  rm -rf "${tmp}"
+  mkdir -p "$(dirname "${tmp}")"
+  cp -R "${src}" "${tmp}"
+
+  local entry key offset value file
+  for entry in "${DATE_OFFSETS[@]}"; do
+    key="${entry%%:*}"
+    offset="${entry##*:}"
+    value="$(shift_date "${offset}")"
+    while IFS= read -r file; do
+      grep -q "^${key}:" "${file}" || continue
+      set_frontmatter_date "${file}" "${key}" "${value}"
+    done < <(find "${tmp}" -type f -name '*.md')
+  done
+}
+
 run_check() {
-  local label="$1"
-  shift
-  if B2BFORCE_ROOT="${DEMO_TMP}" "$@" >/dev/null 2>&1; then
+  local tmp="$1" label="$2"
+  shift 2
+  if B2BFORCE_ROOT="${tmp}" "$@" >/dev/null 2>&1; then
     echo "  OK    ${label}"
   else
     echo "  FAIL  ${label}"
     failures+=("${label}")
     # Re-run visibly so the reason is in the log rather than only the verdict.
-    B2BFORCE_ROOT="${DEMO_TMP}" "$@" 2>&1 | sed 's/^/        /' || true
+    B2BFORCE_ROOT="${tmp}" "$@" 2>&1 | sed 's/^/        /' || true
   fi
 }
 
-if [[ ! -d "${DEMO_SRC}" ]]; then
+# =============================================================================
+# Demo 1 — single-brand firm
+# =============================================================================
+FIRM_SRC="examples/demo-firm"
+FIRM_TMP="tmp/demo-firm"
+
+if [[ ! -d "${FIRM_SRC}" ]]; then
   echo "Demo check: FAIL"
   echo ""
-  echo "- missing ${DEMO_SRC}/"
+  echo "- missing ${FIRM_SRC}/"
   exit 1
 fi
 
-# --- Every demo file must be marked as a fixture ------------------------------
 echo "Fixture markers:"
-unmarked=()
-while IFS= read -r file; do
-  frontmatter_has_fixture_flag "${file}" || unmarked+=("${file}")
-done < <(find "${DEMO_SRC}" -type f -name '*.md' | sort)
+check_fixture_markers "${FIRM_SRC}"
 
-if [[ "${#unmarked[@]}" -gt 0 ]]; then
-  echo "  FAIL  every file in ${DEMO_SRC} needs 'fixture: true' in its frontmatter"
-  for file in "${unmarked[@]}"; do
-    echo "        ${file}"
-  done
-  failures+=("fixture markers")
-else
-  echo "  OK    all demo files carry fixture: true"
+materialize "${FIRM_SRC}" "${FIRM_TMP}"
+
+echo "Workspace gates (single-brand, ${FIRM_SRC}):"
+run_check "${FIRM_TMP}" "content readiness" bash scripts/validate-content-readiness.sh \
+  "platform-migration" "mid-market-logistics" "cto-mid-market-logistics"
+run_check "${FIRM_TMP}" "content ideas" bash scripts/validate-content-ideas.sh
+run_check "${FIRM_TMP}" "content draft" bash scripts/validate-content-draft.sh \
+  "${FIRM_TMP}/marketing/content/drafts/blog/why-your-monthly-release-still-takes-a-weekend.md"
+run_check "${FIRM_TMP}" "proposal" bash scripts/validate-proposal.sh \
+  "${FIRM_TMP}/sales/opportunities/northwind-logistics--platform-migration--2026-05/proposal.md"
+run_check "${FIRM_TMP}" "client account" bash scripts/validate-account.sh
+run_check "${FIRM_TMP}" "pdca cycle" bash scripts/validate-pdca-cycle.sh \
+  "${FIRM_TMP}/pdca/content-to-pipeline/cycles/2026-W29--buyer-question-coverage.md"
+run_check "${FIRM_TMP}" "brands (single-brand mode)" bash scripts/validate-brands.sh
+
+# =============================================================================
+# Demo 2 — multi-brand group
+# =============================================================================
+GROUP_SRC="examples/demo-group"
+GROUP_TMP="tmp/demo-group"
+
+if [[ ! -d "${GROUP_SRC}" ]]; then
+  echo "Demo check: FAIL"
+  echo ""
+  echo "- missing ${GROUP_SRC}/"
+  exit 1
 fi
 
-# --- Materialize a dated copy -------------------------------------------------
-rm -rf "${DEMO_TMP}"
-mkdir -p "$(dirname "${DEMO_TMP}")"
-cp -R "${DEMO_SRC}" "${DEMO_TMP}"
+echo "Fixture markers:"
+check_fixture_markers "${GROUP_SRC}"
 
-for entry in "${DATE_OFFSETS[@]}"; do
-  key="${entry%%:*}"
-  offset="${entry##*:}"
-  value="$(shift_date "${offset}")"
-  while IFS= read -r file; do
-    grep -q "^${key}:" "${file}" || continue
-    set_frontmatter_date "${file}" "${key}" "${value}"
-  done < <(find "${DEMO_TMP}" -type f -name '*.md')
-done
+materialize "${GROUP_SRC}" "${GROUP_TMP}"
 
-# --- Every gate, against the demo --------------------------------------------
-echo "Workspace gates:"
-run_check "content readiness" bash scripts/validate-content-readiness.sh \
-  "${SERVICE_SLUG}" "${ICP_SLUG}" "${PERSONA_SLUG}"
-run_check "content ideas" bash scripts/validate-content-ideas.sh
-run_check "content draft" bash scripts/validate-content-draft.sh "${DEMO_TMP}/${BLOG_DRAFT}"
-run_check "proposal" bash scripts/validate-proposal.sh "${DEMO_TMP}/${PROPOSAL}"
-run_check "client account" bash scripts/validate-account.sh
-run_check "pdca cycle" bash scripts/validate-pdca-cycle.sh "${DEMO_TMP}/${PDCA_CYCLE}"
+echo "Workspace gates (multi-brand, ${GROUP_SRC}):"
+run_check "${GROUP_TMP}" "brands (multi-brand mode)" bash scripts/validate-brands.sh
+run_check "${GROUP_TMP}" "content readiness (--brand)" bash scripts/validate-content-readiness.sh \
+  --brand bramblegate "erp-integration" "mid-market-distributors" "coo-mid-market-distribution"
+run_check "${GROUP_TMP}" "content ideas (brand sweep)" bash scripts/validate-content-ideas.sh
+run_check "${GROUP_TMP}" "content draft (brand path)" bash scripts/validate-content-draft.sh \
+  "${GROUP_TMP}/marketing/content/bramblegate/drafts/linkedin/the-stock-number-nobody-orders-against.md"
+run_check "${GROUP_TMP}" "proposal (cross-brand proof)" bash scripts/validate-proposal.sh \
+  "${GROUP_TMP}/sales/opportunities/ledgerline/harrowmere-distribution--reporting-retainer--2026-06/proposal.md"
+run_check "${GROUP_TMP}" "client account (shared, qualified services)" bash scripts/validate-account.sh
 
 echo ""
 if [[ "${#failures[@]}" -gt 0 ]]; then
@@ -138,7 +185,7 @@ if [[ "${#failures[@]}" -gt 0 ]]; then
     echo "- ${item}"
   done
   echo ""
-  echo "The demo is the fixture for these gates. Either the demo needs updating for a"
+  echo "The demos are the fixtures for these gates. Either a demo needs updating for a"
   echo "deliberate schema change, or the change broke something real."
   exit 1
 fi

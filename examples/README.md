@@ -1,27 +1,56 @@
 # Examples
 
-**Everything in `demo-firm/` is fiction.** Ferrymark Systems does not exist, Northwind
-Logistics is not a client, and every number, quote, and name in these files was
-invented for the example. Each file carries `fixture: true` in its frontmatter, and a
-file with that flag is never evidence — not in a proposal, not in a case study, not as
-firm context. Copy the structure; never copy the facts. The rule is in
-[AGENTS.md](../AGENTS.md), section "Firm Context Gate".
+**Everything in this directory is fiction.** Ferrymark Systems and Bramblegate Group
+do not exist, their clients are not clients, and every number, quote, and name in
+these files was invented for the example. Each file carries `fixture: true` in its
+frontmatter, and a file with that flag is never evidence — not in a proposal, not in
+a case study, not as firm context. Copy the structure; never copy the facts. The rule
+is in [AGENTS.md](../AGENTS.md), section "Firm Context Gate".
+
+Two demos:
+
+- **`demo-firm/`** — a single-brand consultancy, the default layout. Start here.
+- **`demo-group/`** — a **multi-brand** group: two brands under one firm, `{brand}/`
+  path segments on the market side, one shared client bought from both brands,
+  a proof record cited across brands, and a people registry for the shared team.
+  Read it only if your firm sells under more than one name — the Brand Scope Gate
+  in [AGENTS.md](../AGENTS.md) is the rulebook it demonstrates.
 
 Two jobs, one directory:
 
 1. **See what the workflows produce** before spending an hour on the firm interview.
 2. **Catch schema drift.** `scripts/demo-check.sh` runs every workspace gate against
-   this firm, so a change that breaks a file shape fails in CI instead of failing on a
-   user's first real proposal.
+   both demos — including the check that the single-brand layout stays untouched by
+   multi-brand features — so a change that breaks a file shape fails in CI instead of
+   failing on a user's first real proposal.
 
 ```bash
 scripts/demo-check.sh
 ```
 
+## What `demo-group/` adds
+
+The group demo does not repeat the single-brand story. It shows only what changes
+with a second brand:
+
+| File | What to notice |
+|------|----------------|
+| `firm/brands/*.md` | Two files is what switches the mode — there is no config flag |
+| `firm/services/{brand}/…`, `marketing/icp/{brand}/…`, `marketing/content/{brand}/…` | The `{brand}/` segment, always directly under the entity root; frontmatter stays bare slugs |
+| `firm/people/rhea-alcott.md` | One marketing lead, `brands: all` — the shared team made explicit |
+| `firm/proof/harrowmere-erp-cutover.md` | `brand:` names who delivered; `cross_brand: true` is the client's explicit permission for the sibling brand to cite it |
+| `sales/opportunities/ledgerline/…/proposal.md` | A retainer brand citing the project brand's result, with attribution — the cross-brand rule in action |
+| `clients/harrowmere-distribution/!_account.md` | **One** account for a client bought from both brands: `brands: [...]`, `services` in qualified `{brand}/{slug}` form |
+| `pdca/retainer-attribution/README.md` | A brand-scoped measurement area with a person-slug `owner` |
+
+The account file is the payoff: the win recorded in `outcome.md` came from a QBR
+ask, not outbound — the cross-brand expansion the shared client base exists to
+surface.
+
 ## Read it in this order
 
-The files follow one engagement from positioning to measurement. Reading them in order
-is the fastest way to understand how the folders connect.
+The files in `demo-firm/` follow one engagement from positioning to measurement.
+Reading them in order is the fastest way to understand how the folders connect.
 
 | # | File | Skill that writes it | What to notice |
 |---|------|---------------------|----------------|
