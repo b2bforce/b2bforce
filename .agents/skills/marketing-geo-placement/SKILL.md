@@ -65,6 +65,8 @@ available.
 
 ## Output
 
+**Owner resolution.** Once `workspace/firm/people/` has entries, `owner:` must be a person slug from that registry, not free text (`scripts/validate-brands.sh` checks it).
+
 `workspace/marketing/placements/{domain}.md` — one file per domain, flat folder.
 
 ```yaml

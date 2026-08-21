@@ -36,6 +36,8 @@ and no subscription. The scoreboard is a table in the repo.
 
 ## Core Rules
 
+**Brand and owner.** In a multi-brand workspace the area README declares `brand: {slug}` or `brand: all` — one outcome measured with a brand dimension, never one cloned area per brand; scoreboard rows label the brand and market metrics are never summed across brands (Brand Scope Gate in `AGENTS.md`). Once `workspace/firm/people/` has entries, the area's `owner:` must be a person slug from that registry (`scripts/validate-brands.sh` checks it).
+
 1. One area = one outcome = one folder. Do not create an area that measures
    "marketing" in general.
 2. **Every metric must name a source of truth.** If the user cannot say where the

@@ -176,6 +176,15 @@ scripts/validate-brands.sh
 Treat a non-zero exit as a hard stop. Keep these checks in the script; do not
 restate them in skills.
 
+**People.** `workspace/firm/people/{slug}.md` is the optional shared-team
+registry, useful in both modes and near-mandatory in multi-brand, where one
+marketing or sales team serves several brands. Each person declares `functions`
+and `brands` (`all`, or a list). Once any person file exists, `owner:` fields in
+placements and PDCA areas must resolve to a person slug — checked by
+`scripts/validate-brands.sh`. The registry holds assignments only: rates, hours,
+utilization, capacity, and salary are rejected, the same line this repo draws
+against ledger data in `workspace/clients/`. Schema: `docs/WORKSPACE.md`.
+
 ## ICP Gate
 
 ICP is required after firm setup and before content work.

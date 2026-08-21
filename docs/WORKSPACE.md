@@ -95,6 +95,32 @@ Firm-level facts (legal entity, delivery model, people) stay in
 A `sunset` brand accepts no new artifacts; its history stays where it is.
 Validated by `scripts/validate-brands.sh`.
 
+## People file
+
+`workspace/firm/people/{slug}.md` — optional in both modes: the shared team, one
+file per person. This exists so `owner:` fields stop being free text — the moment
+two brands share one marketing or sales team, "who owns this" must resolve to a
+person, not a word.
+
+```yaml
+---
+person: a-c                        # must equal the filename
+name: A. C.
+role: Head of Marketing
+functions: [marketing, sales]
+brands: all                        # multi-brand: all, or [brand-a, brand-b]
+status: active                     # active | inactive
+---
+```
+
+Body: what this person owns, at most a few lines.
+
+This is an **assignment registry, never a PSA**: `rate`, `hours`, `utilization`,
+`capacity`, `salary`, and `cost` are rejected by the validator — the same guard as
+exact money in `workspace/clients/`. Once any person file exists, every `owner:`
+in `marketing/placements/` and in PDCA area READMEs must be a person slug.
+Validated by `scripts/validate-brands.sh`.
+
 ## Worked example
 
 `examples/demo-firm/` is a filled version of this path map: one fictional firm carried

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Validate the brand registry in workspace/firm/brands/ and the brand layout.
+# Validate the firm identity registries: brands in workspace/firm/brands/, the
+# brand layout, and people in workspace/firm/people/.
 #
 # Usage:
 #   scripts/validate-brands.sh
@@ -134,6 +135,78 @@ if is_multi_brand; then
       fi
     done
   fi
+fi
+
+# --- People -------------------------------------------------------------------
+# workspace/firm/people/ is optional in both modes: the shared team, one file per
+# person. It is an assignment registry, never a PSA — rates, hours, utilization,
+# capacity, and salary are rejected outright, the same guard as exact money in
+# workspace/clients/. Once people exist, every 'owner:' in placements and PDCA
+# area READMEs must resolve to a person slug — free-text owners stop being
+# checkable the day two brands share one team.
+
+PEOPLE_DIR="${WS}/firm/people"
+people_slugs=""
+
+while IFS= read -r file; do
+  [[ -n "${file}" ]] || continue
+  slug="$(slug_from_path "${file}")"
+  people_slugs="${people_slugs} ${slug}"
+
+  for key in person name role; do
+    value="$(frontmatter_value "${file}" "${key}")"
+    if is_empty_value "${value}"; then
+      error "${file}: missing or empty frontmatter '${key}'"
+    fi
+  done
+
+  person="$(frontmatter_value "${file}" "person")"
+  if [[ -n "${person}" && "${person}" != "${slug}" ]]; then
+    error "${file}: person '${person}' does not match filename '${slug}'"
+  fi
+
+  status="$(frontmatter_value "${file}" "status")"
+  case "${status}" in
+    active | inactive | "") ;;
+    *) error "${file}: invalid status '${status}' (active | inactive)" ;;
+  esac
+
+  for banned in rate hours hours_logged utilization capacity salary cost; do
+    if grep -qE "^${banned}:[[:space:]]*[^[:space:]]" "${file}"; then
+      error "${file}: '${banned}' does not belong in ${PEOPLE_DIR}/ — this is an assignment registry, not a PSA"
+    fi
+  done
+
+  if is_multi_brand; then
+    while IFS= read -r brand_item; do
+      [[ -n "${brand_item}" ]] || continue
+      [[ "${brand_item}" == "all" ]] && continue
+      if ! brand_exists "${brand_item}"; then
+        error "${file}: brand '${brand_item}' has no file at $(brands_dir)/${brand_item}.md"
+      fi
+    done < <(frontmatter_list "${file}" "brands" || true)
+  fi
+done < <(non_gitkeep_md_files "${PEOPLE_DIR}")
+
+if [[ -n "${people_slugs}" ]]; then
+  check_owner() {
+    local file="$1" owner
+    owner="$(frontmatter_value "${file}" "owner")"
+    is_empty_value "${owner}" && return 0
+    if ! grep -qE "(^| )${owner}( |$)" <<<"${people_slugs}"; then
+      error "${file}: owner '${owner}' is not a person in ${PEOPLE_DIR}/"
+    fi
+  }
+
+  while IFS= read -r file; do
+    [[ -n "${file}" ]] || continue
+    check_owner "${file}"
+  done < <(find "${WS}/marketing/placements" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+
+  while IFS= read -r file; do
+    [[ -n "${file}" ]] || continue
+    check_owner "${file}"
+  done < <(find "${WS}/pdca" -mindepth 2 -maxdepth 2 -type f -name 'README.md' 2>/dev/null | sort)
 fi
 
 if [[ "${#errors[@]}" -gt 0 ]]; then
