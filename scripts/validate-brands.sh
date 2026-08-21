@@ -95,6 +95,45 @@ if is_multi_brand; then
   check_root "${WS}/sales/opportunities/"
   check_root "${WS}/sales/prospecting/"
   check_root "${WS}/intelligence/ai-visibility/"
+
+  # --- Shared entities declare their brands in frontmatter -------------------
+  # Proof records carry the brand that delivered the result; cross_brand gates
+  # whether a sibling brand may cite it. Competitor profiles list the brands
+  # they compete with. Client accounts are checked by validate-account.sh.
+
+  while IFS= read -r file; do
+    [[ -n "${file}" ]] || continue
+    proof_brand="$(frontmatter_value "${file}" "brand")"
+    if is_empty_value "${proof_brand}"; then
+      error "${file}: multi-brand mode — proof records declare 'brand:' (the brand that delivered)"
+    elif ! brand_exists "${proof_brand}"; then
+      error "${file}: brand '${proof_brand}' has no file at $(brands_dir)/${proof_brand}.md"
+    fi
+    cross_brand="$(frontmatter_value "${file}" "cross_brand")"
+    case "${cross_brand}" in
+      true | false | "") ;;
+      *) error "${file}: cross_brand must be true or false, got '${cross_brand}'" ;;
+    esac
+  done < <(non_gitkeep_md_files "${WS}/firm/proof")
+
+  if [[ -d "${WS}/intelligence/competitors" ]]; then
+    for comp_dir in "${WS}/intelligence/competitors"/*/; do
+      [[ -d "${comp_dir}" ]] || continue
+      profile="${comp_dir}!_profile.md"
+      [[ -f "${profile}" ]] || continue
+      comp_brands="$(frontmatter_list "${profile}" "brands" || true)"
+      if [[ -z "${comp_brands}" ]]; then
+        error "${profile}: multi-brand mode — declare 'brands: [...]' (which brands this competitor competes with)"
+      else
+        while IFS= read -r brand_item; do
+          [[ -n "${brand_item}" ]] || continue
+          if ! brand_exists "${brand_item}"; then
+            error "${profile}: brand '${brand_item}' has no file at $(brands_dir)/${brand_item}.md"
+          fi
+        done <<<"${comp_brands}"
+      fi
+    done
+  fi
 fi
 
 if [[ "${#errors[@]}" -gt 0 ]]; then

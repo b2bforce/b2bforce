@@ -158,6 +158,10 @@ workspace/intelligence/competitors/{slug}/
 └── changes/              # Timestamped change artifacts
 ```
 
+Competitors stay **shared** in multi-brand mode — one profile per company, however
+many brands it competes with — and `!_profile.md` declares `brands: [...]`. The
+"why it matters" section then says why per brand.
+
 ## AI visibility folder
 
 ```text
@@ -193,6 +197,11 @@ should be closed once rather than resurfacing in every review.
 `citation_count` must be countable from files in `ai-visibility/runs/`. A domain that
 appears in no run does not get a file.
 
+Placements are **per brand** in multi-brand mode — `placements/{brand}/{domain}.md` —
+because `status` and `owner` describe the brand×domain pair: the same directory can
+hold one brand as `listed` while a sibling is still `new`. `citation_count` counts
+only that brand's runs; citations are never summed across brands.
+
 ## Landing page folder (standalone workflow)
 
 ```text
@@ -221,6 +230,8 @@ service: platform-migration
 icp: mid-market-logistics
 engagement_type: project          # project | retainer
 period: 2025-03..2025-09
+brand: brand-a                    # multi-brand only: the brand that delivered
+cross_brand: false                # multi-brand only: may sibling brands cite this?
 metrics:
   - { label: "Deployment lead time", before: "6 weeks", after: "4 days", verified: true }
 reference_call_ok: false
@@ -237,6 +248,11 @@ The three permission flags are independent and must not be treated as one:
 `client_public` governs naming, `quote_approved` governs quoting, and
 `usable_publicly` governs public material. A private proposal may cite a record
 that is not publicly usable; a case study may not.
+
+`brand` and `cross_brand` exist only in multi-brand mode: the record belongs to
+the brand that delivered, and a sibling brand may cite it only when
+`cross_brand: true` — with attribution to the delivering brand (Proof Gate in
+`AGENTS.md`).
 
 `verified: true` means a human confirmed the number. An agent must never set it.
 
@@ -292,6 +308,8 @@ goes stale. `!_account.md` carries `services` and links to the opportunities ins
 ---
 client: northwind-logistics
 services: [platform-migration]     # slugs from workspace/firm/services/
+                                   # multi-brand: qualified form, e.g. [brand-a/platform-migration]
+# brands: [brand-a, brand-b]       # multi-brand only: every brand selling to this client
 engagement_type: retainer          # retainer | project | mixed
 start_date: 2026-08-17
 renewal_date: 2027-08-16           # empty for a one-off project

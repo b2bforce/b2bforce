@@ -240,8 +240,15 @@ website.
 `verified: true` on a metric means **a human confirmed that number**. An agent may
 never set it from inference or from its own earlier output.
 
+In multi-brand mode each record also carries `brand:` — the brand that delivered
+the result — and `cross_brand:` (default `false`). A sibling brand may cite the
+record only when `cross_brand: true`, and must attribute the result to the
+delivering brand rather than present it as its own. `false` is the safe default:
+some groups deliberately do not connect their brands in public, and an agent
+cannot know which kind it is working for.
+
 Records are created by `sales-outcome-log` — on a win, or in `backfill` mode for
-past engagements.
+past engagements. The record's `brand` comes from the opportunity's path segment.
 
 ## Proposal Gate
 
@@ -283,7 +290,11 @@ verify `!_account.md` exists with:
 - a real `engagement_type` (`retainer`, `project`, or `mixed`);
 - at least one **named contact with a role** — a relationship the firm cannot name is
   not a relationship it can manage;
-- `reviewed_at`, on an active account.
+- `reviewed_at`, on an active account;
+- in multi-brand mode: `brands: [...]` naming every brand that sells to this
+  client, with `services:` in the qualified `{brand}/{slug}` form. The account
+  stays **one record** however many brands are involved — splitting it per brand
+  would hide exactly the cross-brand picture this folder exists to show.
 
 If any is missing, run `client-onboarding` first. Check it mechanically:
 
@@ -314,7 +325,10 @@ scripts/validate-account.sh
 ```
 
 Surface any account with a `renewal_date` inside 60 days, or with no QBR in two
-quarters, and say so **before** generating new outbound. This is not politeness about
+quarters, and say so **before** generating new outbound. In multi-brand mode also
+surface accounts buying from one brand while a sibling brand has a service fitting
+their profile — the cheapest expansion this structure can see, and the reason
+client accounts stay shared across brands. This is not politeness about
 ordering. Acquiring a client costs several times more than expanding one and closes
 about half as fast, so running acquisition while a renewal quietly lapses is the most
 expensive sequencing mistake available here.

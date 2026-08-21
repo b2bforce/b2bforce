@@ -40,6 +40,8 @@ Before adding or crawling competitors:
 
 ## Core Rules
 
+**Brand scope.** Competitors stay shared in a multi-brand workspace — one profile per company, however many brands it competes with. `!_profile.md` declares `brands: [...]` and the "why it matters" section says why per brand. See the Brand Scope Gate in `AGENTS.md`.
+
 1. One competitor = one folder:
    `workspace/intelligence/competitors/{slug}/`.
 2. Homepage is monitored by default when a competitor is added.

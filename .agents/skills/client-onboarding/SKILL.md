@@ -83,6 +83,11 @@ model and **one named contact with a role**. That is the Client Context Gate in
 `mrr_band` is a band, never an exact figure. Do not record contract value, margin,
 utilization, or hours — that is a PSA tool, not this repo.
 
+In a multi-brand workspace, add `brands: [...]` (the selling brand comes from the
+opportunity's path) and write `services:` in the qualified `{brand}/{slug}` form.
+If the client already has an account through another brand, **extend that record**
+— one client, one folder, however many brands (Client Context Gate).
+
 ### 3. Map the stakeholders
 
 For each person: name, role, whether they are economic buyer / champion / user /

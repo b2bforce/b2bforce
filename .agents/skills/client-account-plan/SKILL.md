@@ -63,6 +63,14 @@ quarterly goal, a stakeholder change, the day-90 checkpoint landing green.
 Two to four hypotheses. A list of eight is a sign the firm is enumerating its service
 catalogue rather than thinking about this client.
 
+**Multi-brand workspaces:** draw candidate services from **every** brand's
+`firm/services/{brand}/` — a sibling brand's service the client has not bought is
+the cheapest expansion the structure can see, and the reason client accounts are
+shared across brands. The hypothesis names the qualified `{brand}/{slug}`, holds
+to that service's own fit criteria, and cites cross-brand proof only where the
+record allows it (`cross_brand: true` — Proof Gate). Skip brands with
+`status: sunset`.
+
 ## Workflow
 
 ### 1. Check the gate

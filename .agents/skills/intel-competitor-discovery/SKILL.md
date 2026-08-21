@@ -25,6 +25,8 @@ have to know every competitor by name.
 
 ## When to Use
 
+**Brand scope.** In a multi-brand workspace run discovery per brand — the search phrase and location belong to one brand's market — but check candidates against the **shared** `workspace/intelligence/competitors/` before proposing, and add the brand to an existing profile's `brands: [...]` instead of duplicating the company. See the Brand Scope Gate in `AGENTS.md`.
+
 - User asks to **find / discover competitors** or **research the market**
 - Seeding the monitoring list for a new firm
 - Expanding monitoring around a specific service or keyword

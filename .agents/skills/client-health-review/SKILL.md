@@ -64,6 +64,7 @@ Each row is a fact plus the skill that resolves it. Nothing here is a judgment c
 | Referral undecided | `referenceable: pending` past day 90 | ask the client |
 | Won, not onboarded | `outcome.md` with `result: won`, no client folder | `client-onboarding` |
 | Single-threaded | one named contact on an active account | `client-account-plan` |
+| Single-brand account (multi-brand only) | `brands` lists one brand while a sibling brand has a service matching the client's profile | `client-account-plan` — cross-brand hypothesis |
 
 **Stale green is the one to take seriously.** A `health: green` last reviewed seven
 months ago is worse than no file at all, because a human will act on it. Unlike a
