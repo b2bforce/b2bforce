@@ -24,7 +24,7 @@ Standalone service-page workflow. **Does not** use the content idea backlog.
 
 ## Prerequisites
 
-**Brand scope.** In a multi-brand workspace (2+ files in `workspace/firm/brands/`), every workspace path this skill reads or writes gains a `{brand}/` segment directly under its entity root, and the working brand comes from the user's choice or `B2BFORCE_BRAND` — never guessed. Rules: Brand Scope Gate in `AGENTS.md`; paths: `docs/WORKSPACE.md`.
+**Brand scope.** In a multi-brand workspace (2+ brand homes in `workspace/firm/brands/`), every path this skill reads or writes is brand-scoped: definitional entities (services, ICP, personas, proof, channels) live in `firm/brands/{brand}/…`, working pipelines carry a `{brand}/` segment under their entity root, and the working brand comes from the user's choice or `B2BFORCE_BRAND` — never guessed. Rules: Brand Scope Gate in `AGENTS.md`; paths: `docs/WORKSPACE.md`.
 
 - `workspace/firm/profile.md`
 - Service name/slug, existing service file, URL, description, or both

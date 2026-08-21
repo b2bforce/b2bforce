@@ -19,8 +19,9 @@ Typical paid work:
   `workspace/clients/`, which holds client names, renewal dates, and health
   assessments that a firm wants versioned but not in a public fork,
 - setting up a multi-brand workspace — migrating an existing single-brand
-  workspace to `{brand}/` segments when a second brand arrives, or splitting one
-  brand's segments into its own repository per team or practice,
+  workspace into brand homes and `{brand}/` segments when a second brand
+  arrives, or splitting one brand's home and segments into its own repository
+  per team or practice,
 - running the answer-engine visibility panel on a schedule — monthly batches across
   several engines, committed automatically, with the rollup and drift section prepared
   for review. The repo ships the workflow for an agent session; putting it on a

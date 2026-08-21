@@ -48,6 +48,16 @@ asks while making an accidental leak far less costly. The moment this folder tri
 hold exact contract values and profitability, it is competing with real PSA tools on
 their ground and losing.
 
+## One account, however many brands
+
+In a multi-brand workspace (Brand Scope Gate in `AGENTS.md`) the account stays a
+single record: `brands: [...]` lists every brand selling to this client, and
+`services:` uses the qualified `{brand}/{slug}` form. Splitting a client per
+brand would hide exactly what this folder exists to show — an account buying
+from one brand while a sibling brand has a fitting service is the cheapest
+expansion signal in the repo. `scripts/validate-account.sh` enforces both
+fields.
+
 ## Staleness is the failure mode
 
 Unlike competitor snapshots, nothing here refreshes itself. A `health: green` from
