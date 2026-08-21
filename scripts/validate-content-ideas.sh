@@ -5,6 +5,10 @@
 #   scripts/validate-content-ideas.sh
 #   scripts/validate-content-ideas.sh workspace/marketing/content/ideas
 #
+# With no argument, multi-brand mode (Brand Scope Gate in AGENTS.md) validates
+# every brand's ideas folder — workspace/marketing/content/{brand}/ideas/ — and
+# a brand with no ideas yet is simply skipped.
+#
 # Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
 # scripts/demo-check.sh against the demo firm in examples/.
 
@@ -13,40 +17,26 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
-IDEAS_DIR="${1:-${WS}/marketing/content/ideas}"
+ideas_dirs=()
+if [[ -n "${1:-}" ]]; then
+  ideas_dirs+=("${1%/}")
+elif is_multi_brand; then
+  while IFS= read -r brand; do
+    [[ -n "${brand}" ]] || continue
+    dir="$(entity_dir ideas "${brand}")"
+    [[ -d "${dir}" ]] && ideas_dirs+=("${dir%/}")
+  done < <(list_brands)
+else
+  ideas_dirs+=("${WS}/marketing/content/ideas")
+fi
+
 errors=()
 
 error() {
   errors+=("$1")
-}
-
-frontmatter_value() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      print
-      exit
-    }
-  ' "${file}"
-}
-
-is_empty_value() {
-  local value="$1"
-  [[ -z "${value}" || "${value}" == "null" || "${value}" == "~" ]]
 }
 
 expected_skill_for_type() {
@@ -61,13 +51,20 @@ expected_skill_for_type() {
   esac
 }
 
-if [[ ! -d "${IDEAS_DIR}" ]]; then
-  error "Missing ideas directory: ${IDEAS_DIR}"
-else
-  idea_count="$(find "${IDEAS_DIR}" -maxdepth 1 -type f -name '*.md' ! -name '.gitkeep' | wc -l | tr -d ' ')"
-  if [[ "${idea_count}" == "0" ]]; then
-    error "No content idea files found in ${IDEAS_DIR}"
+total_ideas=0
+if [[ "${#ideas_dirs[@]}" -eq 0 ]]; then
+  error "No ideas directory yet — run marketing-content-ideas first"
+fi
+for dir in ${ideas_dirs[@]+"${ideas_dirs[@]}"}; do
+  if [[ ! -d "${dir}" ]]; then
+    error "Missing ideas directory: ${dir}"
+    continue
   fi
+  idea_count="$(non_gitkeep_md_files "${dir}" | grep -c '[^[:space:]]' || true)"
+  total_ideas=$((total_ideas + idea_count))
+done
+if [[ "${#ideas_dirs[@]}" -gt 0 && "${total_ideas}" -eq 0 ]]; then
+  error "No content idea files found in: ${ideas_dirs[*]}"
 fi
 
 required_keys=(
@@ -88,7 +85,8 @@ required_keys=(
   research_mode
 )
 
-if [[ -d "${IDEAS_DIR}" ]]; then
+for dir in ${ideas_dirs[@]+"${ideas_dirs[@]}"}; do
+  [[ -d "${dir}" ]] || continue
   while IFS= read -r file; do
     base="$(basename "${file}")"
     content_type="$(frontmatter_value "${file}" "content_type")"
@@ -158,8 +156,8 @@ if [[ -d "${IDEAS_DIR}" ]]; then
         error "${file}: '[Client]' title needs proof_source 'needs real client proof before draft'"
       fi
     fi
-  done < <(find "${IDEAS_DIR}" -maxdepth 1 -type f -name '*.md' ! -name '.gitkeep' | sort)
-fi
+  done < <(non_gitkeep_md_files "${dir}")
+done
 
 if [[ "${#errors[@]}" -gt 0 ]]; then
   echo "Content ideas validation: FAIL"

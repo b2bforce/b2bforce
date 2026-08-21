@@ -4,6 +4,10 @@
 # Usage:
 #   scripts/validate-content-draft.sh workspace/marketing/content/drafts/blog/example.md
 #
+# In multi-brand mode (Brand Scope Gate in AGENTS.md) drafts live at
+# workspace/marketing/content/{brand}/drafts/{type}/ — the brand is read from the
+# path, and service/icp/persona must resolve inside that brand's segment.
+#
 # Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
 # scripts/demo-check.sh against the demo firm in examples/.
 
@@ -12,52 +16,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 DRAFT_FILE="${1:-}"
 errors=()
 
 error() {
   errors+=("$1")
-}
-
-frontmatter_value() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      print
-      exit
-    }
-  ' "${file}"
-}
-
-is_empty_value() {
-  local value="$1"
-  [[ -z "${value}" || "${value}" == "null" || "${value}" == "~" ]]
-}
-
-body_text() {
-  local file="$1"
-  awk '
-    BEGIN { in_fm = 0; seen = 0; done_fm = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { in_fm = 0; done_fm = 1; next }
-    }
-    done_fm || !seen { print }
-  ' "${file}"
 }
 
 word_count() {
@@ -79,11 +45,14 @@ char_count() {
 }
 
 expected_dir_for_type() {
-  case "$1" in
-    blog_post) echo "${WS}/marketing/content/drafts/blog/" ;;
-    linkedin_post) echo "${WS}/marketing/content/drafts/linkedin/" ;;
-    x_post) echo "${WS}/marketing/content/drafts/x/" ;;
-    case_study) echo "${WS}/marketing/content/drafts/case-studies/" ;;
+  local type="$1" brand="${2:-}"
+  local base="${WS}/marketing/content/drafts"
+  [[ -n "${brand}" ]] && base="${WS}/marketing/content/${brand}/drafts"
+  case "${type}" in
+    blog_post) echo "${base}/blog/" ;;
+    linkedin_post) echo "${base}/linkedin/" ;;
+    x_post) echo "${base}/x/" ;;
+    case_study) echo "${base}/case-studies/" ;;
     *) echo "" ;;
   esac
 }
@@ -109,7 +78,36 @@ if [[ -f "${DRAFT_FILE}" ]]; then
     fi
   done
 
-  expected_dir="$(expected_dir_for_type "${content_type}")"
+  # --- Brand scope (multi-brand only) ---------------------------------------
+  # The path is the draft's only source of brand; service/icp/persona refs are
+  # bare slugs and must resolve inside that same brand (Brand Scope Gate).
+  DRAFT_BRAND=""
+  if is_multi_brand; then
+    DRAFT_BRAND="$(brand_from_path "${DRAFT_FILE}" "${WS}/marketing/content" || true)"
+    if [[ -z "${DRAFT_BRAND}" ]]; then
+      error "${DRAFT_FILE}: multi-brand mode — drafts live at ${WS}/marketing/content/{brand}/drafts/{type}/"
+    elif ! brand_exists "${DRAFT_BRAND}"; then
+      error "${DRAFT_FILE}: '${DRAFT_BRAND}' is not a brand in $(brands_dir)/ — multi-brand drafts live at ${WS}/marketing/content/{brand}/drafts/{type}/"
+      DRAFT_BRAND=""
+    else
+      for kind in service icp persona; do
+        ref="$(frontmatter_value "${DRAFT_FILE}" "${kind}")"
+        is_empty_value "${ref}" && continue
+        case "${ref}" in
+          */*)
+            error "${DRAFT_FILE}: ${kind} '${ref}' — path-scoped artifacts use bare slugs, resolved in their own brand"
+            continue
+            ;;
+        esac
+        ref_file="$(resolve_ref "${kind}" "${ref}" "${DRAFT_BRAND}")"
+        if [[ ! -f "${ref_file}" ]]; then
+          error "${DRAFT_FILE}: ${kind} '${ref}' does not resolve in brand '${DRAFT_BRAND}' (expected ${ref_file})"
+        fi
+      done
+    fi
+  fi
+
+  expected_dir="$(expected_dir_for_type "${content_type}" "${DRAFT_BRAND}")"
   if [[ -z "${expected_dir}" ]]; then
     error "${DRAFT_FILE}: invalid content_type '${content_type}'"
   elif [[ "${DRAFT_FILE}" != "${expected_dir}"*.md ]]; then

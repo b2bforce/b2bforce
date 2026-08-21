@@ -16,62 +16,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 CYCLE_FILE="${1:-}"
 errors=()
 
 error() {
   errors+=("$1")
-}
-
-frontmatter_value() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      gsub(/^`|`$/, "")
-      print
-      exit
-    }
-  ' "${file}"
-}
-
-is_empty_value() {
-  local value="$1"
-  [[ -z "${value}" || "${value}" == "null" || "${value}" == "~" ]]
-}
-
-# Prints the body of a "## Heading" section, up to the next H2.
-section_body() {
-  local file="$1"
-  local heading="$2"
-  awk -v heading="## ${heading}" '
-    $0 == heading { in_section = 1; next }
-    in_section && /^## / { exit }
-    in_section { print }
-  ' "${file}"
-}
-
-section_is_empty() {
-  local file="$1"
-  local heading="$2"
-  local body
-  body="$(section_body "${file}" "${heading}" | sed -e 's/^[[:space:]]*//' -e '/^$/d')"
-  # A heading holding only a placeholder counts as empty.
-  body="$(printf "%s\n" "${body}" | grep -viE '^(none\.?|n/a|tbd|todo|-)$' || true)"
-  [[ -z "${body}" ]]
 }
 
 if [[ -z "${CYCLE_FILE}" ]]; then

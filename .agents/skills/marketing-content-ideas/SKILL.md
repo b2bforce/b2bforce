@@ -23,6 +23,8 @@ Generates **15–25 content ideas** mapped to B2B buying stages and content type
 
 ## Prerequisites
 
+**Brand scope.** In a multi-brand workspace (2+ brand homes in `workspace/firm/brands/`), every path this skill reads or writes is brand-scoped: definitional entities (services, ICP, personas, proof, channels) live in `firm/brands/{brand}/…`, working pipelines carry a `{brand}/` segment under their entity root, and the working brand comes from the user's choice or `B2BFORCE_BRAND` — never guessed. Rules: Brand Scope Gate in `AGENTS.md`; paths: `docs/WORKSPACE.md`.
+
 1. `workspace/firm/profile.md`
 2. `workspace/firm/services/{service-slug}.md`
 3. `workspace/marketing/icp/{icp-slug}.md` + at least one persona
@@ -153,12 +155,21 @@ If landing_page with research, also write:
 
 ### 5. Default distribution (if user doesn't specify)
 
-Only content types that are **enabled** are generated. By default just three are
-enabled: **LinkedIn×5, X×5, blog×3** (≈13 ideas). `case_study` has a default
-count of 2 and `landing_page`/`prospecting_sequence` default to 0, but those are
-**off by default** — they are only generated if the user enables them.
-The legacy "total count" mode (no per-type counts) defaults to 20 ideas spread
-across all 5 stages.
+**Channel registry first.** If `workspace/marketing/channels/` (multi-brand:
+`firm/brands/{brand}/channels/`) holds channel files, they decide distribution: enable only
+the content types some **active** channel lists in `content_types`, and size
+counts to the channels' `schedule` lines — a channel posting once a week does not
+need five ideas a week. Read each channel's body ("what to publish here") as
+context for the angles proposed. Rules: `docs/content-generation.md`,
+"Distribution channels".
+
+**Fallback (no channel files).** Only content types that are **enabled** are
+generated. By default just three are enabled: **LinkedIn×5, X×5, blog×3**
+(≈13 ideas). `case_study` has a default count of 2 and
+`landing_page`/`prospecting_sequence` default to 0, but those are **off by
+default** — they are only generated if the user enables them. The legacy
+"total count" mode (no per-type counts) defaults to 20 ideas spread across all
+5 stages.
 
 ## Quality rules
 

@@ -16,10 +16,19 @@ Please:
 
 ## Step 1: Firm interview (ASK ME — do not guess)
 - [ ] Firm name and website URL
+- [ ] Does the firm sell under more than one brand (separate names/domains)?
+      If yes: list each brand with its website — one brand means nothing extra,
+      two or more switch the workspace to multi-brand (Brand Scope Gate in
+      AGENTS.md)
 - [ ] Industry / niche (e.g. digital agency, SaaS consulting, legal)
-- [ ] Primary services (1–5, with short descriptions)
+- [ ] Primary services (1–5, with short descriptions; multi-brand: say which
+      brand each belongs to)
 - [ ] Target clients (ICP summary: industry, size, geography)
 - [ ] Main competitors or accounts to monitor (names + URLs)
+- [ ] Distribution channels you actually publish on (blog, X, LinkedIn,
+      newsletter, Medium…): for each — URL, how you publish (Buffer, native,
+      CMS, mailing tool), and how often (e.g. every Friday, daily);
+      multi-brand: per brand
 - [ ] Content language(s): en / de / pl / other
 - [ ] Which workflows matter most? (pick: monitoring, AI visibility, ICP, content
       ideas, content generation, prospecting, proposals, client retention, landing
@@ -39,10 +48,19 @@ STOP after Step 1 — wait for my answers before continuing.
 
 ## Step 2: Personalize this repo
 - [ ] Fill workspace/firm/profile.md from my answers (primary firm context)
+- [ ] If I named 2+ brands: create workspace/firm/brands/{slug}/!_brand.md per
+      brand, put each brand's services, ICP, proof, and channels inside its
+      brand home, and use {brand}/ path segments for content and sales
+      artifacts (docs/WORKSPACE.md, "Multi-brand layout"); then run
+      scripts/validate-brands.sh
 - [ ] If I provided a website URL, run `marketing-company-profile` in enrich mode
       to improve workspace/firm/profile.md. If web/API access is unavailable,
       keep the interview-based profile and note that enrichment can be run later.
 - [ ] For each primary service: create workspace/firm/services/{slug}.md with a minimal service definition
+- [ ] For each named channel: create workspace/marketing/channels/{slug}.md
+      (multi-brand: workspace/firm/brands/{brand}/channels/{slug}.md) with URL,
+      content_types, publish_via, schedule, and a short "what to publish here"
+      body
 - [ ] For each competitor URL: create workspace/intelligence/competitors/{slug}/!_profile.md
 - [ ] Update README.md title to "{Firm Name} — B2BForce Workspace"
 

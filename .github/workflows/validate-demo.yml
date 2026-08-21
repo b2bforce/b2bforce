@@ -1,4 +1,4 @@
-name: Validate Demo Firm
+name: Validate Demo Fixtures
 
 # Deliberately no path filter. A schema change anywhere — a validator, a skill's
 # documented output, a workspace convention — can invalidate the demo, and filtering on

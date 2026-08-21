@@ -17,6 +17,7 @@ File naming and output paths for B2BForce skills + workspace.
 | Service | `workspace/firm/services/{slug}.md` | `services/seo-retainer.md` |
 | ICP | `workspace/marketing/icp/{slug}.md` | `icp/mid-market-saas.md` |
 | Buyer persona | `workspace/marketing/icp/personas/{slug}.md` | `personas/cmo-mid-market.md` |
+| Distribution channel | `workspace/marketing/channels/{slug}.md` | `channels/linkedin.md` — owned surface: URL, feed, schedule |
 | Content idea | `workspace/marketing/content/ideas/{content_type}--{buying_stage}--{slug}.md` | One backlog folder; filename indexes type + stage |
 | Blog draft | `workspace/marketing/content/drafts/blog/{slug}.md` | 800–1500 words, Markdown |
 | LinkedIn draft | `workspace/marketing/content/drafts/linkedin/{slug}.md` | Plain text, ~150–250 words |
@@ -38,6 +39,109 @@ File naming and output paths for B2BForce skills + workspace.
 | PDCA cycle | `workspace/pdca/{area}/cycles/{YYYY}-W{ww}--{slug}.md` | `cycles/2026-W31--buyer-question-coverage.md` |
 
 Per-type length, format, and research rules: [content-generation.md](content-generation.md).
+
+## Multi-brand layout
+
+The path map above is the **single-brand** layout — the default, and unchanged as
+long as `workspace/firm/brands/` holds at most one brand file. With two or more
+brand files the workspace is **multi-brand** (Brand Scope Gate in `AGENTS.md`) and
+market-side paths gain a `{brand}/` segment directly under the entity root:
+
+| Entity | Multi-brand path pattern |
+|--------|--------------------------|
+| Brand home | `workspace/firm/brands/{brand}/!_brand.md` |
+| Service | `workspace/firm/brands/{brand}/services/{slug}.md` |
+| ICP | `workspace/firm/brands/{brand}/icp/{slug}.md` |
+| Buyer persona | `workspace/firm/brands/{brand}/icp/personas/{slug}.md` |
+| Proof record | `workspace/firm/brands/{brand}/proof/{slug}.md` |
+| Distribution channel | `workspace/firm/brands/{brand}/channels/{slug}.md` |
+| Content idea | `workspace/marketing/content/{brand}/ideas/{content_type}--{buying_stage}--{slug}.md` |
+| Content draft | `workspace/marketing/content/{brand}/drafts/{type}/{slug}.md` |
+| Service page | `workspace/marketing/landing-pages/{brand}/{slug}/page.md` |
+| Placement target | `workspace/marketing/placements/{brand}/{domain}.md` |
+| Prospecting sequence | `workspace/sales/prospecting/{brand}/{service}--{icp}--{persona}--{campaign-slug}.md` |
+| Opportunity | `workspace/sales/opportunities/{brand}/{account}--{service}--{YYYY-MM}/` |
+| AI visibility | `workspace/intelligence/ai-visibility/{brand}/…` (panel, runs, rollup per brand) |
+
+Definitional entities (the first six rows) live in the **brand home** — one
+directory per brand holding everything that defines it. Working pipelines keep
+their Maister areas with one `{brand}/` segment immediately under the entity
+root — never deeper, never repeated in a filename. Splitting a brand into its
+own repository is then a `git mv` of its home plus its segments, not a rename
+sweep.
+
+Everything else — clients, competitors, weekly reports, PDCA, people — stays
+**shared** at its single-brand path and declares brand membership in frontmatter
+(`brands: [...]` on clients and competitors). Shared entities and cross-brand
+citations reference brand-scoped entities in the qualified form
+`{brand}/{slug}`; brand-scoped artifacts use bare slugs, resolved within the
+brand their path names.
+
+## Brand home
+
+`workspace/firm/brands/{slug}/` — one directory per market-facing brand: its own
+name, domain, positioning, and everything definitional about it, sold by the
+shared firm. The registry's directory count is what switches the workspace
+between single-brand and multi-brand; there is no config flag.
+
+```text
+workspace/firm/brands/{brand}/
+├── !_brand.md            # the brand record — required
+├── services/{slug}.md    # this brand's service definitions
+├── icp/{slug}.md         # this brand's ICPs…
+│   └── personas/…        # …and the personas inside them
+├── proof/{slug}.md       # results this brand delivered
+└── channels/{slug}.md    # this brand's owned distribution surfaces
+```
+
+Only these four subdirectories belong in a brand home — working pipelines
+(content, opportunities, prospecting…) stay in their Maister areas, and the
+validator rejects anything else here.
+
+`!_brand.md`:
+
+```yaml
+---
+brand: brand-a                     # must equal the directory name
+website: https://example.com
+positioning: One sentence — who this brand serves and with what.
+content_language: en
+status: active                     # active | sunset
+---
+```
+
+Body: what the brand sells, tone constraints, and what it must never claim.
+Firm-level facts (legal entity, delivery model, people) stay in
+`firm/profile.md` — a brand record that repeats them will drift.
+
+A `sunset` brand accepts no new artifacts; its history stays where it is.
+Validated by `scripts/validate-brands.sh`.
+
+## People file
+
+`workspace/firm/people/{slug}.md` — optional in both modes: the shared team, one
+file per person. This exists so `owner:` fields stop being free text — the moment
+two brands share one marketing or sales team, "who owns this" must resolve to a
+person, not a word.
+
+```yaml
+---
+person: a-c                        # must equal the filename
+name: A. C.
+role: Head of Marketing
+functions: [marketing, sales]
+brands: all                        # multi-brand: all, or [brand-a, brand-b]
+status: active                     # active | inactive
+---
+```
+
+Body: what this person owns, at most a few lines.
+
+This is an **assignment registry, never a PSA**: `rate`, `hours`, `utilization`,
+`capacity`, `salary`, and `cost` are rejected by the validator — the same guard as
+exact money in `workspace/clients/`. Once any person file exists, every `owner:`
+in `marketing/placements/`, `marketing/channels/`, and PDCA area READMEs must be
+a person slug. Validated by `scripts/validate-brands.sh`.
 
 ## Worked example
 
@@ -102,6 +206,10 @@ workspace/intelligence/competitors/{slug}/
 └── changes/              # Timestamped change artifacts
 ```
 
+Competitors stay **shared** in multi-brand mode — one profile per company, however
+many brands it competes with — and `!_profile.md` declares `brands: [...]`. The
+"why it matters" section then says why per brand.
+
 ## AI visibility folder
 
 ```text
@@ -125,6 +233,44 @@ same discipline as `pdca/scoreboard.md`.
 Retention: rollup rows are permanent; `runs/` folders older than six months may be
 pruned. Sampling rules for these artifacts: "Answer Engine Sampling" in `AGENTS.md`.
 
+## Distribution channel
+
+`workspace/marketing/channels/{slug}.md` — one file per **owned** distribution
+surface: the blog, the X account, the LinkedIn page, the newsletter, a Medium
+publication. The mirror of `placements/`, which holds the third-party surfaces the
+firm wants onto but does not control. Multi-brand:
+`firm/brands/{brand}/channels/{slug}.md` — each brand distributes under its own
+name, so channels are never shared.
+
+```yaml
+---
+channel: linkedin                # must equal the filename
+platform: linkedin               # blog | x | linkedin | newsletter | medium | youtube | other
+url: https://example.com/company/page
+status: active                   # active | paused | retired
+content_types: [linkedin_post]   # which draft types feed this channel
+publish_via: buffer              # how content gets there: buffer | native | cms | mailing tool…
+schedule: "3x per week, Tue/Thu/Fri morning"
+owner: a-c                       # person slug, once firm/people/ exists
+---
+```
+
+The frontmatter is the registry; the **body is the channel's operating doc** — the
+part a URL list cannot hold:
+
+- **What to publish here** — topics and angles that work on this surface, and what
+  never goes here.
+- **How publishing happens** — the concrete mechanics: scheduled through Buffer,
+  pasted natively, sent via the mailing tool; who approves before it goes out.
+- **Rhythm** — what the `schedule` line means in practice (e.g. "one post each
+  Friday 09:00, queued the Monday before").
+
+A channel file with an empty body is a bookmark, not a channel. Content skills read
+this registry: `marketing-content-ideas` proposes only types some **active** channel
+accepts via `content_types`, and the per-channel body constrains the drafts headed
+there. `retired` closes a surface for good, the same finality as `not_viable` on a
+placement. Validated by `scripts/validate-brands.sh`.
+
 ## Placement target
 
 `workspace/marketing/placements/{domain}.md` — one file per domain, flat folder, filename
@@ -136,6 +282,11 @@ should be closed once rather than resurfacing in every review.
 
 `citation_count` must be countable from files in `ai-visibility/runs/`. A domain that
 appears in no run does not get a file.
+
+Placements are **per brand** in multi-brand mode — `placements/{brand}/{domain}.md` —
+because `status` and `owner` describe the brand×domain pair: the same directory can
+hold one brand as `listed` while a sibling is still `new`. `citation_count` counts
+only that brand's runs; citations are never summed across brands.
 
 ## Landing page folder (standalone workflow)
 
@@ -165,6 +316,7 @@ service: platform-migration
 icp: mid-market-logistics
 engagement_type: project          # project | retainer
 period: 2025-03..2025-09
+cross_brand: false                # multi-brand only: may sibling brands cite this?
 metrics:
   - { label: "Deployment lead time", before: "6 weeks", after: "4 days", verified: true }
 reference_call_ok: false
@@ -181,6 +333,12 @@ The three permission flags are independent and must not be treated as one:
 `client_public` governs naming, `quote_approved` governs quoting, and
 `usable_publicly` governs public material. A private proposal may cite a record
 that is not publicly usable; a case study may not.
+
+In multi-brand mode the record lives in the delivering brand's home,
+`firm/brands/{brand}/proof/{slug}.md` — the path names the brand, so a `brand:`
+field is rejected. A sibling brand may cite it, via the qualified
+`{brand}/{slug}` form in `proof_refs`, only when `cross_brand: true` — with
+attribution to the delivering brand (Proof Gate in `AGENTS.md`).
 
 `verified: true` means a human confirmed the number. An agent must never set it.
 
@@ -236,6 +394,8 @@ goes stale. `!_account.md` carries `services` and links to the opportunities ins
 ---
 client: northwind-logistics
 services: [platform-migration]     # slugs from workspace/firm/services/
+                                   # multi-brand: qualified form, e.g. [brand-a/platform-migration]
+# brands: [brand-a, brand-b]       # multi-brand only: every brand selling to this client
 engagement_type: retainer          # retainer | project | mixed
 start_date: 2026-08-17
 renewal_date: 2027-08-16           # empty for a one-off project

@@ -81,6 +81,8 @@ Return JSON: { "title": "...", "body": "markdown..." }
 
 ## Output
 
+**Brand scope.** In a multi-brand workspace the draft inherits the idea file's brand: write to `workspace/marketing/content/{brand}/drafts/…` — same brand segment as the idea. See the Brand Scope Gate in `AGENTS.md`.
+
 `workspace/marketing/content/drafts/blog/{slug}.md`
 
 Frontmatter: `idea`, `content_type`, `buying_stage`, `service`, `icp`, `persona`,

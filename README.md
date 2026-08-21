@@ -96,7 +96,10 @@ Content type rules: [docs/content-generation.md](docs/content-generation.md)
 fictional consultancy carried through one full engagement — positioning, ICP, a blog
 draft, discovery, proposal, the win, the client account, a QBR, and a closed PDCA
 cycle. It reads in five minutes and costs nothing. Start with
-[examples/README.md](examples/README.md).
+[examples/README.md](examples/README.md). If your firm sells under **more than one
+brand**, also read [`examples/demo-group/`](examples/demo-group/) — a fictional
+two-brand group showing the multi-brand layout: per-brand services, ICPs, and
+content, with one shared client base and team.
 
 **Step 1** — Clone:
 
@@ -169,6 +172,14 @@ service firm actually operates.
 **Which agents does it work with?** Any agent that supports the
 [Agent Skills spec](https://cursor.com/docs/skills): Cursor, Claude Code, Codex,
 Windsurf.
+
+**We sell under more than one brand — does this work?** Yes. Give each brand a home
+directory in `workspace/firm/brands/{brand}/` — its services, ICPs, proof, and
+distribution channels live inside it — while content and sales pipelines split into
+per-brand segments, and clients, competitors, and the team stay shared. A client
+bought from one brand then shows up as an expansion candidate for the other. One
+brand: change nothing, the flat layout is the default.
+See `examples/demo-group/` and the Brand Scope Gate in [AGENTS.md](AGENTS.md).
 
 **Can I contribute?** Yes — MIT-licensed and public. See [CONTRIBUTING.md](CONTRIBUTING.md)
 and run `./validate-skills.sh` before submitting skill changes.

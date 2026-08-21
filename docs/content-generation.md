@@ -221,6 +221,26 @@ Exa is optional enrichment, not a prerequisite for writing. Use the existing
 skill needs reference articles. Do not create a separate Exa/content-research skill
 unless it owns a new persisted artifact and workflow.
 
+## Distribution channels
+
+`workspace/marketing/channels/` (multi-brand: `firm/brands/{brand}/channels/`)
+is the registry of **owned** surfaces content ships to — blog, X, LinkedIn,
+newsletter, Medium.
+Schema: `docs/WORKSPACE.md`, section "Distribution channel".
+
+- **When the registry has active channels, it decides distribution.**
+  `marketing-content-ideas` proposes only content types some active channel lists
+  in `content_types`, and sizes counts to the channels' `schedule` lines — a
+  channel posting weekly does not need five ideas a week. With no channel files,
+  the hardcoded defaults apply as before.
+- **Draft skills read the target channel's body** — its "what to publish here"
+  and format notes — as one more context input, after the persona.
+- **Publishing mechanics live in the channel file**, not in skills: `publish_via`
+  (Buffer, native, CMS, mailing tool) plus the body's how-to. Skills produce
+  drafts; the channel file says how a draft leaves the repo and who approves it.
+- A `paused` or `retired` channel receives nothing. Retiring the only channel for
+  a type effectively disables that type in idea generation.
+
 ## Workspace output paths
 
 ```text

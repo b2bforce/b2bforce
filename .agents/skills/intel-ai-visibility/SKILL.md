@@ -27,6 +27,8 @@ this skill the repo gives it no way to find out.
 
 ## Read First
 
+**Brand scope.** In a multi-brand workspace (2+ brand homes in `workspace/firm/brands/`), every path this skill reads or writes is brand-scoped: definitional entities (services, ICP, personas, proof, channels) live in `firm/brands/{brand}/…`, working pipelines carry a `{brand}/` segment under their entity root, and the working brand comes from the user's choice or `B2BFORCE_BRAND` — never guessed. Rules: Brand Scope Gate in `AGENTS.md`; paths: `docs/WORKSPACE.md`.
+
 1. `workspace/firm/profile.md` — firm name, aliases, domain, geography.
 2. `workspace/firm/services/*.md` — what the firm actually sells.
 3. `workspace/marketing/icp/*.md` and `icp/personas/*.md` — how buyers describe their

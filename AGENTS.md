@@ -19,13 +19,15 @@ Framework: David Maister's [*Managing the Professional Service Firm*](https://en
 │   └── skills/               # Agent Skills — executable workflows (primary)
 ├── .claude/skills/           # Symlink → .agents/skills (Claude Code)
 ├── workspace/                # Operational artifacts (committed)
-│   ├── firm/                 # Your company profile, services, verified client proof
+│   ├── firm/                 # Your company profile, brands, services, verified client proof
 │   ├── marketing/            # ICP, content, landing pages
 │   ├── sales/                # Prospecting, opportunities, proposals, outcomes
 │   ├── clients/              # Won accounts — onboarding, account plans, QBRs, health
 │   ├── intelligence/         # Competitors, snapshots, changes, reports, AI visibility
 │   └── pdca/                 # Measurement loop — cycles, scoreboards, evals
-├── examples/demo-firm/       # Fictional firm — readable example and validator fixture
+├── examples/
+│   ├── demo-firm/            # Fictional single-brand firm — example and validator fixture
+│   └── demo-group/           # Fictional multi-brand group — the Brand Scope Gate demonstrated
 ├── data/                     # Optional machine metadata only when a tool needs it
 ├── docs/                     # SETUP-PROMPT, WORKSPACE conventions
 └── scripts/bootstrap.sh      # Clone template for new firm instances
@@ -108,9 +110,10 @@ first. Ask for the missing firm/service details until there is enough context to
 write the files. Without a firm profile and service definitions, the skills have no
 useful grounding and should not generate downstream artifacts.
 
-**`examples/` is fiction and never satisfies this gate.** `examples/demo-firm/` holds a
-fictional firm used as a readable example and as the regression fixture for the
-validators. Every file in it carries `fixture: true` in its frontmatter.
+**`examples/` is fiction and never satisfies this gate.** `examples/demo-firm/`
+(single-brand) and `examples/demo-group/` (multi-brand) hold fictional firms used as
+readable examples and as the regression fixtures for the validators. Every file in
+them carries `fixture: true` in its frontmatter.
 
 - Never read it as the user's firm context, and never fill a missing profile from it.
 - Never cite its proof records, metrics, quotes, or client names. A file with
@@ -118,6 +121,75 @@ validators. Every file in it carries `fixture: true` in its frontmatter.
 - Copy its **structure** freely — that is what it is for. Never copy its facts.
 - Write deliverables to `workspace/`. Only `scripts/demo-check.sh` and a deliberate
   change to the demo itself write under `examples/`.
+
+## Brand Scope Gate
+
+Some firms run more than one brand: separate names, domains, and service lines,
+sold by one legal firm with one shared team and one shared client base. The
+workspace supports that without taxing the single-brand majority.
+
+**The mode is detected, never configured.** `workspace/firm/brands/{slug}/` is
+the registry — one **directory per brand** with `!_brand.md` inside, schema in
+`docs/WORKSPACE.md`. Zero or one brand home means **single-brand**: flat paths,
+no brand fields anywhere, every rule in this document exactly as written. Two or
+more mean **multi-brand**, and three rules apply on top:
+
+1. **A brand's definitional entities live in its brand home** —
+   `firm/brands/{brand}/services/`, `…/icp/` (personas inside), `…/proof/`, and
+   `…/channels/`; nothing else belongs there. **Working pipelines stay in their
+   Maister areas** under a `{brand}/` segment directly beneath the entity root:
+   `marketing/content/{brand}/`, `marketing/landing-pages/{brand}/`,
+   `marketing/placements/{brand}/`, `sales/prospecting/{brand}/`,
+   `sales/opportunities/{brand}/`, `intelligence/ai-visibility/{brand}/`.
+   The path is the **only** source of a brand-scoped artifact's brand — never
+   repeat it in frontmatter, because the copy is what drifts.
+2. **Firm-side entities stay shared** — one client account, one competitor
+   profile, whichever brands are involved — and declare brands in frontmatter:
+   `brands: [...]` on clients and competitors. Proof lives in the delivering
+   brand's home. Shared entities and cross-brand citations use the qualified
+   reference form `{brand}/{slug}` (a client's `services:` list, a sibling
+   brand's `proof_refs`). Everywhere else references stay bare slugs and
+   resolve within the artifact's own brand.
+3. **A service and the ICP and personas it targets belong to the same brand.**
+   Content, prospecting, and proposals inherit the brand of their path and may
+   reference only that brand's service, ICP, and persona. Cross-brand content
+   does not exist; what exists is the sibling brand's own pipeline.
+
+Consequences stated once here rather than in each skill:
+
+- **Never aggregate market metrics across brands.** Share-of-answer, citation
+  counts, and SEO metrics are per brand, the same discipline as the per-engine
+  rule in Answer Engine Sampling. A number for "the group" is a number for
+  nothing.
+- **The prompt panel limit (max 30 active) is per brand panel**, not per firm.
+- A brand with `status: sunset` accepts no new artifacts; its history stays.
+- When a workflow needs one brand and several exist, an explicit argument wins,
+  then the `B2BFORCE_BRAND` environment variable; otherwise stop and ask.
+  Auto-selection never guesses between brands.
+- The cross-brand opportunity this structure exists for lives in
+  `workspace/clients/`: an account buying from one brand while a sibling brand
+  has a fitting service is an expansion signal, surfaced by
+  `client-account-plan` and `client-health-review`.
+
+The second brand is the migration moment: creating it moves every market-side
+artifact of the first brand into its `{brand}/` segment in the same change
+(`firm-context`, `add-brand` mode). Check the layout mechanically:
+
+```bash
+scripts/validate-brands.sh
+```
+
+Treat a non-zero exit as a hard stop. Keep these checks in the script; do not
+restate them in skills.
+
+**People.** `workspace/firm/people/{slug}.md` is the optional shared-team
+registry, useful in both modes and near-mandatory in multi-brand, where one
+marketing or sales team serves several brands. Each person declares `functions`
+and `brands` (`all`, or a list). Once any person file exists, `owner:` fields in
+placements, channels, and PDCA areas must resolve to a person slug — checked by
+`scripts/validate-brands.sh`. The registry holds assignments only: rates, hours,
+utilization, capacity, and salary are rejected, the same line this repo draws
+against ledger data in `workspace/clients/`. Schema: `docs/WORKSPACE.md`.
 
 ## ICP Gate
 
@@ -183,8 +255,17 @@ website.
 `verified: true` on a metric means **a human confirmed that number**. An agent may
 never set it from inference or from its own earlier output.
 
+In multi-brand mode records live in the **delivering brand's home**,
+`firm/brands/{brand}/proof/{slug}.md` — the path names the brand, so a `brand:`
+field is rejected as the copy that drifts. Each record carries `cross_brand:`
+(default `false`): a sibling brand may cite it, via the qualified
+`{brand}/{slug}` form in `proof_refs`, only when `cross_brand: true` — and must
+attribute the result to the delivering brand rather than present it as its own.
+`false` is the safe default: some groups deliberately do not connect their
+brands in public, and an agent cannot know which kind it is working for.
+
 Records are created by `sales-outcome-log` — on a win, or in `backfill` mode for
-past engagements.
+past engagements. The record's location follows the opportunity's brand segment.
 
 ## Proposal Gate
 
@@ -226,7 +307,11 @@ verify `!_account.md` exists with:
 - a real `engagement_type` (`retainer`, `project`, or `mixed`);
 - at least one **named contact with a role** — a relationship the firm cannot name is
   not a relationship it can manage;
-- `reviewed_at`, on an active account.
+- `reviewed_at`, on an active account;
+- in multi-brand mode: `brands: [...]` naming every brand that sells to this
+  client, with `services:` in the qualified `{brand}/{slug}` form. The account
+  stays **one record** however many brands are involved — splitting it per brand
+  would hide exactly the cross-brand picture this folder exists to show.
 
 If any is missing, run `client-onboarding` first. Check it mechanically:
 
@@ -257,7 +342,10 @@ scripts/validate-account.sh
 ```
 
 Surface any account with a `renewal_date` inside 60 days, or with no QBR in two
-quarters, and say so **before** generating new outbound. This is not politeness about
+quarters, and say so **before** generating new outbound. In multi-brand mode also
+surface accounts buying from one brand while a sibling brand has a service fitting
+their profile — the cheapest expansion this structure can see, and the reason
+client accounts stay shared across brands. This is not politeness about
 ordering. Acquiring a client costs several times more than expanding one and closes
 about half as fast, so running acquisition while a renewal quietly lapses is the most
 expensive sequencing mistake available here.
@@ -420,6 +508,12 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 ## Output rules
 
 - **Always** write deliverables to `workspace/` paths — never only to chat.
+- In multi-brand mode, definitional entities (services, ICP, proof, channels)
+  move into `workspace/firm/brands/{brand}/…`, and the remaining market-side
+  paths below gain a `{brand}/` segment directly under the entity root — see
+  the Brand Scope Gate. Single-brand paths are exactly as listed.
+- Distribution channels → `workspace/marketing/channels/{slug}.md` (owned
+  surfaces: URL, which draft types feed it, how publishing happens, schedule)
 - Competitor profiles → `workspace/intelligence/competitors/{slug}/`
 - Reports → `workspace/intelligence/reports/`
 - AI visibility → `workspace/intelligence/ai-visibility/` (`!_prompts.md`,

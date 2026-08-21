@@ -21,15 +21,16 @@ Thank you for contributing to B2BForce skills + workspace.
 
 ```bash
 ./validate-skills.sh      # every skill
-scripts/demo-check.sh     # every workspace gate, against examples/demo-firm/
+scripts/demo-check.sh     # every workspace gate, against both demos in examples/
 ```
 
 All skills must pass before merge. If you change a workspace artifact format, also
 run the matching validator in `scripts/` (content readiness, content ideas, content
 draft, proposal, client account, PDCA cycle).
 
-**Changing a file schema or a validator means updating `examples/demo-firm/` in the
-same pull request.** That demo is the only fixture these validators have, and
+**Changing a file schema or a validator means updating `examples/demo-firm/` (and
+`examples/demo-group/` for anything brand-related) in the same pull request.**
+Those demos are the only fixtures these validators have, and
 `scripts/demo-check.sh` runs on every PR. Without this rule the demo drifts from the
 schemas it is supposed to demonstrate, and it becomes actively misleading — worse than
 having no example at all.
@@ -43,7 +44,7 @@ or the demo stops being checkable.
 1. Fork / branch from `main`
 2. Add or update skill + workspace README if output paths change
 3. Run `./validate-skills.sh` and `scripts/demo-check.sh`
-4. Update `examples/demo-firm/` if a schema or validator changed
+4. Update `examples/demo-firm/` (and `examples/demo-group/` if brand-related) when a schema or validator changed
 5. Open PR with description of workflow and test steps
 
 ## License

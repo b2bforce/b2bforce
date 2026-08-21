@@ -10,6 +10,8 @@
 #
 # Enforces the Client Context Gate (a real engagement model and at least one named
 # contact), the account schema, and the staleness rules from workspace/clients/README.md.
+# In multi-brand mode (Brand Scope Gate in AGENTS.md) also enforces brand membership:
+# 'brands: [...]' names existing brands and 'services' uses qualified {brand}/{slug}.
 #
 # Errors exit non-zero. Warnings are reported and do not fail, because a bookkeeping
 # lapse should not block a QBR — with one exception. A stale review combined with
@@ -21,11 +23,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 CLIENTS_DIR="${WS}/clients"
 STALE_DAYS=90
@@ -35,64 +34,6 @@ warnings=()
 
 error() { errors+=("$1"); }
 warn() { warnings+=("$1"); }
-
-frontmatter_value() {
-  awk -v key="$2" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      print
-      exit
-    }
-  ' "$1"
-}
-
-# Counts items of a YAML block list, or of an inline [a, b] list.
-frontmatter_list_count() {
-  awk -v key="$2" '
-    BEGIN { in_fm = 0; seen = 0; in_list = 0; n = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    !in_fm { next }
-    $0 ~ "^" key ":" {
-      rest = $0
-      sub("^" key ":[[:space:]]*", "", rest)
-      gsub(/[][]/, "", rest)
-      if (rest != "") {
-        n = split(rest, parts, ",")
-        for (i = 1; i <= n; i++) if (parts[i] ~ /[^[:space:]]/) count++
-        print count + 0
-        exit
-      }
-      in_list = 1
-      next
-    }
-    in_list && /^[[:space:]]*-[[:space:]]/ { count++; next }
-    in_list && /^[^[:space:]]/ { in_list = 0 }
-    END { if (in_list || count > 0) print count + 0; else print 0 }
-  ' "$1"
-}
-
-is_empty_value() {
-  [[ -z "$1" || "$1" == "null" || "$1" == "~" ]]
-}
-
-# Whole days between an ISO date and today. Negative means the date is in the future.
-days_since() {
-  local date_str="$1" then now
-  then="$(date -j -f "%Y-%m-%d" "${date_str}" "+%s" 2>/dev/null ||
-    date -d "${date_str}" "+%s" 2>/dev/null || echo "")"
-  [[ -z "${then}" ]] && return 1
-  now="$(date "+%s")"
-  echo $(((now - then) / 86400))
-}
 
 validate_account() {
   local dir="$1"
@@ -145,6 +86,45 @@ validate_account() {
   contacts="$(frontmatter_list_count "${file}" "contacts")"
   if [[ "${contacts}" -lt 1 ]]; then
     error "${file}: Client Context Gate — needs at least one named contact in 'contacts'"
+  fi
+
+  # --- Brand membership (multi-brand only) ----------------------------------
+  # The account is shared — one record however many brands sell to the client —
+  # and declares its brands in frontmatter. Its services references use the
+  # qualified {brand}/{slug} form, the only place references are qualified
+  # (Brand Scope Gate in AGENTS.md).
+  if is_multi_brand; then
+    local account_brands brand_item svc_ref svc_brand svc_file
+    account_brands="$(frontmatter_list "${file}" "brands" || true)"
+    if [[ -z "${account_brands}" ]]; then
+      error "${file}: multi-brand mode — declare 'brands: [...]' (which brands sell to this client)"
+    else
+      while IFS= read -r brand_item; do
+        [[ -n "${brand_item}" ]] || continue
+        if ! brand_exists "${brand_item}"; then
+          error "${file}: brand '${brand_item}' has no file at $(brands_dir)/${brand_item}.md"
+        fi
+      done <<<"${account_brands}"
+    fi
+
+    while IFS= read -r svc_ref; do
+      [[ -n "${svc_ref}" ]] || continue
+      case "${svc_ref}" in
+        */*)
+          svc_brand="${svc_ref%%/*}"
+          svc_file="$(resolve_ref service "${svc_ref}")"
+          if [[ ! -f "${svc_file}" ]]; then
+            error "${file}: services '${svc_ref}' does not resolve (expected ${svc_file})"
+          fi
+          if [[ -n "${account_brands}" ]] && ! grep -qx "${svc_brand}" <<<"${account_brands}"; then
+            error "${file}: services '${svc_ref}' names brand '${svc_brand}' missing from 'brands'"
+          fi
+          ;;
+        *)
+          error "${file}: multi-brand mode — services entries use the qualified {brand}/{slug} form, got '${svc_ref}'"
+          ;;
+      esac
+    done < <(frontmatter_list "${file}" "services" || true)
   fi
 
   # A declared problem without a stated cause cannot be acted on.

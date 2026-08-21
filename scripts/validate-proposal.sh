@@ -9,6 +9,10 @@
 # boundaries, one pricing table consistent with the service definition, and the
 # length limit.
 #
+# In multi-brand mode (Brand Scope Gate in AGENTS.md) the opportunity lives at
+# workspace/sales/opportunities/{brand}/{opportunity}/ — the brand is read from
+# the path, and service/icp/persona must resolve inside that brand's segment.
+#
 # Set B2BFORCE_ROOT to validate a workspace other than workspace/ — used by
 # scripts/demo-check.sh against the demo firm in examples/.
 
@@ -17,11 +21,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT_DIR}"
 
-WS="${B2BFORCE_ROOT:-workspace}"
-[[ -d "${WS}" ]] || {
-  echo "B2BFORCE_ROOT is not a directory: ${WS}"
-  exit 1
-}
+source "${ROOT_DIR}/scripts/lib/workspace.sh"
+require_workspace
 
 PROPOSAL_FILE="${1:-}"
 PROOF_DIR="${WS}/firm/proof"
@@ -32,89 +33,6 @@ error() {
   errors+=("$1")
 }
 
-frontmatter_value() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    in_fm && $0 ~ "^" key ":" {
-      sub("^" key ":[[:space:]]*", "")
-      gsub(/^"|"$/, "")
-      print
-      exit
-    }
-  ' "${file}"
-}
-
-# Prints items of a YAML block list ("key:" followed by "  - value" lines).
-frontmatter_list() {
-  local file="$1"
-  local key="$2"
-  awk -v key="${key}" '
-    BEGIN { in_fm = 0; seen = 0; in_list = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { exit }
-    }
-    !in_fm { next }
-    $0 ~ "^" key ":" {
-      rest = $0
-      sub("^" key ":[[:space:]]*", "", rest)
-      gsub(/[][]/, "", rest)
-      if (rest != "") { print rest }
-      in_list = 1
-      next
-    }
-    in_list && /^[[:space:]]*-[[:space:]]*/ {
-      sub(/^[[:space:]]*-[[:space:]]*/, "")
-      gsub(/^"|"$/, "")
-      print
-      next
-    }
-    in_list && /^[^[:space:]]/ { in_list = 0 }
-  ' "${file}"
-}
-
-is_empty_value() {
-  local value="$1"
-  [[ -z "${value}" || "${value}" == "null" || "${value}" == "~" ]]
-}
-
-body_text() {
-  awk '
-    BEGIN { in_fm = 0; seen = 0; done_fm = 0 }
-    /^---[[:space:]]*$/ {
-      if (!seen) { in_fm = 1; seen = 1; next }
-      if (in_fm) { in_fm = 0; done_fm = 1; next }
-    }
-    done_fm || !seen { print }
-  ' "$1"
-}
-
-section_body() {
-  awk -v heading="## $2" '
-    $0 == heading { in_section = 1; next }
-    in_section && /^## / { exit }
-    in_section { print }
-  ' "$1"
-}
-
-section_is_empty() {
-  local body
-  body="$(section_body "$1" "$2" | sed -e 's/^[[:space:]]*//' -e '/^$/d')"
-  body="$(printf "%s\n" "${body}" | grep -viE '^(none\.?|n/a|tbd|todo|-)$' || true)"
-  [[ -z "${body}" ]]
-}
-
-# Turns a kebab-case slug into a loose regex: acme-corp -> acme[ _-]*corp
-slug_to_regex() {
-  printf "%s" "$1" | sed 's/-/[ _-]*/g'
-}
-
 if [[ -z "${PROPOSAL_FILE}" ]]; then
   error "Missing proposal path. Usage: scripts/validate-proposal.sh {proposal-path}"
 elif [[ ! -f "${PROPOSAL_FILE}" ]]; then
@@ -122,10 +40,26 @@ elif [[ ! -f "${PROPOSAL_FILE}" ]]; then
 fi
 
 if [[ -f "${PROPOSAL_FILE}" ]]; then
-  case "${PROPOSAL_FILE}" in
-    "${WS}"/sales/opportunities/*/proposal.md) ;;
-    *) error "${PROPOSAL_FILE}: proposals must be at ${WS}/sales/opportunities/{opportunity}/proposal.md" ;;
-  esac
+  # In multi-brand mode the opportunity sits one brand segment deeper and the
+  # brand is read from the path (Brand Scope Gate in AGENTS.md).
+  PROPOSAL_BRAND=""
+  if is_multi_brand; then
+    case "${PROPOSAL_FILE}" in
+      "${WS}"/sales/opportunities/*/*/proposal.md)
+        PROPOSAL_BRAND="$(brand_from_path "${PROPOSAL_FILE}" "${WS}/sales/opportunities" || true)"
+        if ! brand_exists "${PROPOSAL_BRAND}"; then
+          error "${PROPOSAL_FILE}: '${PROPOSAL_BRAND}' is not a brand in $(brands_dir)/"
+          PROPOSAL_BRAND=""
+        fi
+        ;;
+      *) error "${PROPOSAL_FILE}: multi-brand mode — proposals must be at ${WS}/sales/opportunities/{brand}/{opportunity}/proposal.md" ;;
+    esac
+  else
+    case "${PROPOSAL_FILE}" in
+      "${WS}"/sales/opportunities/*/proposal.md) ;;
+      *) error "${PROPOSAL_FILE}: proposals must be at ${WS}/sales/opportunities/{opportunity}/proposal.md" ;;
+    esac
+  fi
 
   opportunity_dir="$(dirname "${PROPOSAL_FILE}")"
   discovery_file="${opportunity_dir}/!_discovery.md"
@@ -194,7 +128,34 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
   # --- price_model must match the service definition ------------------------
   service="$(frontmatter_value "${PROPOSAL_FILE}" "service")"
   price_model="$(frontmatter_value "${PROPOSAL_FILE}" "price_model")"
-  service_file="${WS}/firm/services/${service}.md"
+
+  if is_multi_brand; then
+    # Bare slugs only, resolved in the opportunity's own brand — the same-brand
+    # rule of the Brand Scope Gate.
+    for kind in service icp persona; do
+      ref="$(frontmatter_value "${PROPOSAL_FILE}" "${kind}")"
+      is_empty_value "${ref}" && continue
+      case "${ref}" in
+        */*) error "${PROPOSAL_FILE}: ${kind} '${ref}' — path-scoped artifacts use bare slugs, resolved in their own brand" ;;
+      esac
+    done
+    if [[ -n "${PROPOSAL_BRAND}" ]]; then
+      for kind in icp persona; do
+        ref="$(frontmatter_value "${PROPOSAL_FILE}" "${kind}")"
+        is_empty_value "${ref}" && continue
+        case "${ref}" in */*) continue ;; esac
+        ref_file="$(resolve_ref "${kind}" "${ref}" "${PROPOSAL_BRAND}")"
+        if [[ ! -f "${ref_file}" ]]; then
+          error "${PROPOSAL_FILE}: ${kind} '${ref}' does not resolve in brand '${PROPOSAL_BRAND}' (expected ${ref_file})"
+        fi
+      done
+    fi
+  fi
+
+  service_file="$(resolve_ref service "${service}" "${PROPOSAL_BRAND:-}" 2>/dev/null || true)"
+  if [[ -z "${service_file}" ]]; then
+    service_file="${WS}/firm/services/${service}.md"
+  fi
 
   if [[ -n "${service}" && ! -f "${service_file}" ]]; then
     error "${PROPOSAL_FILE}: service '${service}' has no definition at ${service_file}"
@@ -228,7 +189,11 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
   proof_quote_approved="no"
 
   for ref in ${proof_refs}; do
-    proof_file="${PROOF_DIR}/${ref}.md"
+    # Multi-brand: a bare ref is the proposal's own brand's record; the
+    # qualified {brand}/{slug} form cites a sibling brand's record and needs
+    # its cross_brand consent (Brand Scope Gate in AGENTS.md).
+    proof_file="$(resolve_ref proof "${ref}" "${PROPOSAL_BRAND:-}" 2>/dev/null || true)"
+    [[ -z "${proof_file}" ]] && proof_file="${PROOF_DIR}/${ref}.md"
     if [[ ! -f "${proof_file}" ]]; then
       error "${PROPOSAL_FILE}: proof_refs '${ref}' has no record at ${proof_file}"
       continue
@@ -237,6 +202,18 @@ if [[ -f "${PROPOSAL_FILE}" ]]; then
 
     if [[ "$(frontmatter_value "${proof_file}" "quote_approved")" == "true" ]]; then
       proof_quote_approved="yes"
+    fi
+
+    if is_multi_brand && [[ -n "${PROPOSAL_BRAND:-}" ]]; then
+      case "${ref}" in
+        */*) ref_brand="${ref%%/*}" ;;
+        *) ref_brand="${PROPOSAL_BRAND}" ;;
+      esac
+      if [[ "${ref_brand}" != "${PROPOSAL_BRAND}" ]]; then
+        if [[ "$(frontmatter_value "${proof_file}" "cross_brand")" != "true" ]]; then
+          error "${PROPOSAL_FILE}: cites proof '${ref}' delivered by brand '${ref_brand}' — needs cross_brand: true on ${proof_file}"
+        fi
+      fi
     fi
 
     # A client that is not public must never be named in the proposal.

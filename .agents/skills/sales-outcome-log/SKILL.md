@@ -144,6 +144,13 @@ On a fresh win the record is a **stub**: flags `false`, `metrics` empty. That is
 correct and honest — the engagement has not produced results yet. Set
 `proof_record: {slug}` in `outcome.md` so the two link.
 
+**Multi-brand workspaces:** the record is written into the **delivering brand's
+home** — `firm/brands/{brand}/proof/{slug}.md`, the brand taken from the
+opportunity's path segment (`sales/opportunities/{brand}/…`), never asked for.
+No `brand:` field — the path carries it. Set `cross_brand: false` unless the
+user explicitly allows sibling brands to cite the result. In `backfill` mode
+ask which brand delivered each result.
+
 The stub becomes useful later, when delivery ends and a human confirms numbers —
 that is `fill` mode. Say this to the user and offer to schedule the follow-up. If the
 firm uses `workspace/clients/`, the QBR is the natural moment: the numbers are already

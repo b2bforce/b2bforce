@@ -30,6 +30,8 @@ answer comes from.
 
 ## Read First
 
+**Brand scope.** In a multi-brand workspace placements are per brand — `workspace/marketing/placements/{brand}/{domain}.md` — because `status` and `owner` describe the brand×domain pair, and `citation_count` counts only that brand's runs. Never sum citations across brands. See the Brand Scope Gate in `AGENTS.md`.
+
 1. `workspace/intelligence/ai-visibility/runs/*/*.md` — the `cited_domains` from every
    run. This is the input; without runs there is nothing to rank.
 2. `workspace/intelligence/ai-visibility/share-of-answer.md` — which prompts the firm
@@ -62,6 +64,8 @@ A surface that cites a tracked competitor and not the firm is the clearest gap
 available.
 
 ## Output
+
+**Owner resolution.** Once `workspace/firm/people/` has entries, `owner:` must be a person slug from that registry, not free text (`scripts/validate-brands.sh` checks it).
 
 `workspace/marketing/placements/{domain}.md` — one file per domain, flat folder.
 
