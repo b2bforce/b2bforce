@@ -100,6 +100,12 @@ Three of these are mandatory for a commercial reason, not a formatting one:
 Scope lives inside the proposal. Do not create a separate scope file; a second
 document drifts from the first and the client only ever reads one of them.
 
+The service file is where the reusable boundary lives. Its `## Out of scope`,
+`## Client responsibilities`, and `## Duration` are the starting point for this
+proposal's `## Out of scope`, `## Assumptions`, and timeline: copy them, then add
+what is specific to this client. Never silently drop a service-level exclusion —
+if this opportunity really does include it, say so in `## Scope` and price it.
+
 ## Commercials
 
 One pricing table. Not three scattered mentions, not a price in prose.
@@ -142,9 +148,15 @@ Approach before outcome reads as a methodology pitch.
 
 ### 5. Draw the boundary
 
-Fill `## Scope`, `## Out of scope`, `## Assumptions`, `## Change control`. Be
-specific in the exclusions: name the adjacent work a client would reasonably
-assume is included, and say it is not.
+Fill `## Scope`, `## Out of scope`, `## Assumptions`, `## Change control`. Start
+from the service file's `## Out of scope`, `## Client responsibilities`, and
+`## Duration`, then add this client's specifics. Be specific in the exclusions:
+name the adjacent work a client would reasonably assume is included, and say it
+is not.
+
+If the service file lacks those sections, write them for this proposal and tell
+the user to add them to the service with `marketing-service` (`enrich`) — the
+next proposal should not start from zero again.
 
 ### 6. Price it
 

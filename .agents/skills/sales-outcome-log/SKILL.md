@@ -187,7 +187,11 @@ Rules:
 3. **Win with results** — the proof record unblocks
    `marketing-content-case-study`, the highest-converting content type the repo
    supports.
-4. **Measurement** — with `workspace/pdca/`, `outcome.md` frontmatter is the source
+4. **Price or scope loss** — a `lost` outcome with `reason_assessed` of `price` or
+   `scope_mismatch`: tell the user the service file is due for review
+   (`marketing-service`, `refresh`), starting with its `## Out of scope` and
+   `reviewed_at`.
+5. **Measurement** — with `workspace/pdca/`, `outcome.md` frontmatter is the source
    of truth for the `pipeline` metric pack. Win rate becomes a `grep`, not an
    estimate.
 

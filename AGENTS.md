@@ -186,7 +186,7 @@ restate them in skills.
 registry, useful in both modes and near-mandatory in multi-brand, where one
 marketing or sales team serves several brands. Each person declares `functions`
 and `brands` (`all`, or a list). Once any person file exists, `owner:` fields in
-placements, channels, and PDCA areas must resolve to a person slug — checked by
+placements, channels, services, and PDCA areas must resolve to a person slug — checked by
 `scripts/validate-brands.sh`. The registry holds assignments only: rates, hours,
 utilization, capacity, and salary are rejected, the same line this repo draws
 against ledger data in `workspace/clients/`. Schema: `docs/WORKSPACE.md`.

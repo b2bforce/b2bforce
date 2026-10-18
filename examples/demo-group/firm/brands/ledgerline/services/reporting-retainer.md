@@ -4,6 +4,8 @@ label: Monthly finance-reporting retainer
 service_type: retainer
 source_url: https://example.com/ledgerline/reporting-retainer
 target_icps: [mid-market-distribution-finance]
+owner: rhea-alcott
+reviewed_at: 2026-07-01
 ---
 
 # Monthly finance-reporting retainer
@@ -38,6 +40,26 @@ stays with the client's accountants.
 
 Versioned pack definition in the client's repository, monthly refresh, one
 review call per month, a change queue with agreed turnaround.
+
+## Out of scope
+
+- Statutory or audit reporting — stays with the client's accountants.
+- Bookkeeping, postings, or corrections in the ERP — we decline it.
+- New data integrations — referred to the group's integration brand, priced
+  there.
+- Ad-hoc analysis outside the pack — handled through the change queue, or
+  priced separately above its turnaround.
+
+## Client responsibilities
+
+- A named owner of the pack definition on the finance team.
+- Read access to the ERP reporting data before the first refresh.
+- The CFO at the monthly review call, or an explicit delegate.
+
+## Duration
+
+Rebuild over the first three months, one pack section per month. Then a fixed
+monthly cadence; 3-month initial term, monthly after that.
 
 ## Fit criteria
 

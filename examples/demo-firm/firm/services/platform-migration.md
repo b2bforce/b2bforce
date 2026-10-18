@@ -4,6 +4,8 @@ label: Platform migration and release automation
 service_type: project
 source_url: https://example.com/ferrymark/platform-migration
 target_icps: [mid-market-logistics]
+owner: founder
+reviewed_at: 2026-07-01
 ---
 
 # Platform migration and release automation
@@ -43,6 +45,26 @@ sell.
 Written baseline with timings, automated regression suites for the critical path,
 pipeline in the client's existing CI, two supervised production releases, runbook
 committed to the client's repository, two recorded handover sessions.
+
+## Out of scope
+
+- Application code changes outside the release pipeline — priced separately
+  after the baseline, if the baseline shows they block the pipeline.
+- Cloud infrastructure redesign or cost optimization — we refer it.
+- On-call coverage or production incident response — we decline it; the point
+  is that the client's team owns releases.
+- Training beyond the two handover sessions — priced as a change.
+
+## Client responsibilities
+
+- A named technical contact with four hours a week, from week 1.
+- Repository and CI access in week 1.
+- Pull request reviews within two working days.
+
+## Duration
+
+6–10 weeks from access. Longer when regression starts from zero tests or the
+release path crosses more than three services.
 
 ## Differentiators
 

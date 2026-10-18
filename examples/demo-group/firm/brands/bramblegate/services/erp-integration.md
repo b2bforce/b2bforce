@@ -4,6 +4,8 @@ label: ERP integration for distribution platforms
 service_type: project
 source_url: https://example.com/bramblegate/erp-integration
 target_icps: [mid-market-distributors]
+owner: edwin-sole
+reviewed_at: 2026-07-01
 ---
 
 # ERP integration for distribution platforms
@@ -39,6 +41,25 @@ data, which we do not control.
 
 Documented integration contract, mapping layer under the client's CI, exception
 alerting, runbook, two recorded handover sessions.
+
+## Out of scope
+
+- ERP selection, installation, or upgrade — we decline it; we integrate an ERP
+  already in production.
+- Master data cleanup — priced separately once the baseline sizes it.
+- Management reporting packs — referred to the group's reporting brand.
+- Warehouse process design — we refer it.
+
+## Client responsibilities
+
+- A named operations contact with two hours a week.
+- Test-environment access to every integrated system in week 1.
+- A decision owner for each mapping conflict, answering within two working days.
+
+## Duration
+
+6–10 weeks from access. Longer with more than three integrated systems, or when
+the baseline finds master data that must be fixed before cutover.
 
 ## Fit criteria
 
