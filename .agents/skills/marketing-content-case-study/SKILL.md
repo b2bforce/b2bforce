@@ -78,19 +78,31 @@ Do not invent metrics, quote, client name, industry, timeline, or result.
 - Before vs after comparison
 - Timeline of engagement
 
-## Research
+## Sources
+
+Run `marketing-content-sources` first: the proof record becomes a `proof` row, and
+any market or product claim beyond it needs its own row. Mark each paragraph with its
+rows (`<!-- S1 -->`); see `docs/content-generation.md`, "Sources and support markers".
 
 Optional Exa: 5 reference case studies/articles on topic for quality benchmark
-(do not copy).
+(do not copy). They are not evidence.
 
 ## Output
 
 **Brand scope.** In a multi-brand workspace the draft inherits the idea file's brand: write to `workspace/marketing/content/{brand}/drafts/…` — same brand segment as the idea. See the Brand Scope Gate in `AGENTS.md`.
 
-`workspace/marketing/content/drafts/case-studies/{slug}.md` — Markdown
+`workspace/marketing/content/drafts/case-studies/{slug}.md` — Markdown, with
+`{slug}.sources.md` and `{slug}.review.md` beside it
 
 Headline pattern: "[Client Result] in [Timeframe]" or "How [Client] Achieved [Result]"
 
 Frontmatter: `idea`, `content_type`, `buying_stage`, `service`, `icp`, `persona`,
 `generated_at`. Run `scripts/validate-content-draft.sh {output}` and update the
 idea to `status: generated` after the draft validates.
+
+## Review
+
+Same four passes and round rules as the blog post: `docs/content-generation.md`,
+"Review passes". A case study is public, so factcheck verifies every metric against
+`verified: true` and the quote against its approved wording. Publishable when
+`scripts/validate-content-draft.sh --reviewed {output}` passes.

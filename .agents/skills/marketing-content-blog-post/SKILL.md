@@ -37,12 +37,14 @@ Optional: `workspace/firm/content-guidelines/blog-post.md` if exists (company ov
 
 Follow the shared draft gate and writing quality rules in `docs/content-generation.md`.
 
-## Research
+## Sources
 
-Optional **Exa reference articles:** search 5 results on idea title via `tool-exa`;
-include highlights for benchmarking. Do not plagiarize.
+Run `marketing-content-sources` first. It writes `{slug}.sources.md` next to the
+draft; the draft may state only what a row there supports (rules:
+`docs/content-generation.md`, "Sources and support markers").
 
-Skip this step when the user wants a quick internal-context draft.
+Optional **Exa reference articles:** search 5 results on idea title via `tool-exa`
+for angle and structure benchmarking. They are not evidence. Do not plagiarize.
 
 ## User prompt template
 
@@ -63,6 +65,9 @@ Target keyword: {if any}
 === CONTEXT ===
 {company, service, ICP, persona from workspace}
 
+=== SOURCES ===
+{rows from {slug}.sources.md}
+
 === REFERENCE ARTICLES ===
 {exa results or none}
 
@@ -71,8 +76,9 @@ Requirements:
 - Match buying stage framework (see format requirements)
 - Brand voice from firm profile
 - Hook opening — no generic intro
-- Use proof only from workspace/firm/proof/ records (public use requires
-  usable_publicly: true), idea proof_source, or reference notes
+- Every factual claim rests on a row in SOURCES; end the paragraph with its
+  marker, e.g. <!-- S2, S5 -->. Missing detail: [ASK: ...], never a plausible value
+- Client proof only via proof rows (public use requires usable_publicly: true)
 - CTA aligned to buying stage
 - Language: {language}
 
@@ -83,7 +89,8 @@ Return JSON: { "title": "...", "body": "markdown..." }
 
 **Brand scope.** In a multi-brand workspace the draft inherits the idea file's brand: write to `workspace/marketing/content/{brand}/drafts/…` — same brand segment as the idea. See the Brand Scope Gate in `AGENTS.md`.
 
-`workspace/marketing/content/drafts/blog/{slug}.md`
+`workspace/marketing/content/drafts/blog/{slug}.md`, with `{slug}.sources.md` and
+`{slug}.review.md` beside it.
 
 Frontmatter: `idea`, `content_type`, `buying_stage`, `service`, `icp`, `persona`,
 `target_keyword`, `generated_at`.
@@ -91,6 +98,15 @@ Frontmatter: `idea`, `content_type`, `buying_stage`, `service`, `icp`, `persona`
 Run `scripts/validate-content-draft.sh {output}`. Update idea frontmatter to
 `status: generated` after the draft validates.
 
+## Review
+
+Run the four review passes and revise per `docs/content-generation.md`, "Review
+passes": `marketing-content-factcheck`, `marketing-content-consistency`,
+`marketing-content-deslop`, `marketing-content-reader-test`, all on the same draft
+version each round, max 3 rounds. Revisions touch only what a report names. The draft
+is publishable when `scripts/validate-content-draft.sh --reviewed {output}` passes.
+
 ## Related Skills
 
-`marketing-content-ideas` (upstream) | other `marketing-content-*` for different types
+`marketing-content-ideas` (upstream) | `marketing-content-sources` (before) |
+review passes (after) | other `marketing-content-*` for different types

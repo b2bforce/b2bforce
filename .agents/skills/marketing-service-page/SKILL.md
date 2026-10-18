@@ -90,8 +90,16 @@ external competitor validation unless competitor research was actually run.
 workspace/marketing/landing-pages/{slug}/
 ├── page.md              # Final service page Markdown
 ├── service-context.md     # Generated service definition
-└── competitor-research.md # SERP/scrape summary
+├── competitor-research.md # SERP/scrape summary
+├── sources.md             # optional — claims → sources (marketing-content-sources)
+└── review.md              # optional — review pass verdicts
 ```
+
+A service page states facts too — about the market, the client's results, the
+firm's capabilities. When it does beyond the service file and proof records, run
+`marketing-content-sources` before step 4 and the review passes after step 5
+(`docs/content-generation.md`, "Review passes"). Recommended, not gated: there is no
+service-page validator yet.
 
 Optionally create content idea stub with `content_type: landing_page`, `buying_stage: vendor` for tracking.
 
@@ -101,6 +109,7 @@ Optionally create content idea stub with `content_type: landing_page`, `buying_s
 - No buzzwords without substance
 - Hook with data, story, or provocative statement
 - No rhetorical question openings
+- Full catalogue and scoring: `marketing-content-deslop`
 
 ## Related Skills
 

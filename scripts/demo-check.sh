@@ -141,6 +141,8 @@ run_check "${FIRM_TMP}" "content readiness" bash scripts/validate-content-readin
 run_check "${FIRM_TMP}" "content ideas" bash scripts/validate-content-ideas.sh
 run_check "${FIRM_TMP}" "content draft" bash scripts/validate-content-draft.sh \
   "${FIRM_TMP}/marketing/content/drafts/blog/why-your-monthly-release-still-takes-a-weekend.md"
+run_check "${FIRM_TMP}" "content draft (--reviewed: sources + review passes)" bash scripts/validate-content-draft.sh \
+  --reviewed "${FIRM_TMP}/marketing/content/drafts/blog/why-your-monthly-release-still-takes-a-weekend.md"
 run_check "${FIRM_TMP}" "proposal" bash scripts/validate-proposal.sh \
   "${FIRM_TMP}/sales/opportunities/northwind-logistics--platform-migration--2026-05/proposal.md"
 run_check "${FIRM_TMP}" "client account" bash scripts/validate-account.sh

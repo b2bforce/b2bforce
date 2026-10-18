@@ -267,6 +267,32 @@ brands in public, and an agent cannot know which kind it is working for.
 Records are created by `sales-outcome-log` — on a win, or in `backfill` mode for
 past engagements. The record's location follows the opportunity's brand segment.
 
+## Content Review Gate
+
+The Proof Gate covers client results; this gate covers every other fact in public
+long-form content, and whether the text works on a reader.
+
+- **Sources before the draft.** A blog post or case study states only what a row in
+  its `{slug}.sources.md` supports — a page fetched in that session, a proof record,
+  a workspace file, or something a named person said. Each paragraph ends with its
+  support marker (`<!-- S2, S5 -->`); a missing detail is `[ASK: …]`, never a
+  plausible value. Written by `marketing-content-sources`.
+- **The writer does not grade its own draft.** Four separate passes — factcheck,
+  consistency, deslop, reader test — each read the draft cold and only report.
+  One round runs all four; revisions touch only what a report names; at most 3
+  rounds, then a human takes over. Only a human may waive a pass (`waived_by`), the
+  same rule as `verified: true`.
+
+Rules, file schemas, and the pass table: `docs/content-generation.md`, sections
+"Sources and support markers" and "Review passes". The publish gate is mechanical:
+
+```bash
+scripts/validate-content-draft.sh --reviewed {draft-path}
+```
+
+Treat a non-zero exit as a hard stop. Keep these checks in the script; do not
+restate them in skills.
+
 ## Proposal Gate
 
 Before `sales-proposal` runs, verify in the opportunity folder
@@ -463,6 +489,18 @@ Run workflows exactly as documented in each skill.
 | `marketing-seo-research` | Keyword research + target keyword + SEO context |
 | `marketing-geo-placement` | Cited domains → ranked backlog of third-party surfaces to get onto |
 
+### Marketing — content review
+
+Shared across content types; rules in `docs/content-generation.md`, "Review passes".
+
+| Skill | Purpose |
+|-------|---------|
+| `marketing-content-sources` | Claims → fetched sources with excerpt, type, tier; written before the draft |
+| `marketing-content-factcheck` | Pass 1: every claim against its source, fetched again |
+| `marketing-content-consistency` | Pass 2: contradictions, numbers, counters, angle, examples vs the text's own rules |
+| `marketing-content-deslop` | Pass 3: AI-writing patterns (EN, PL), 5×10 score, detect or rewrite |
+| `marketing-content-reader-test` | Pass 4: fresh agent with no context reads as the persona |
+
 ### Sales
 
 | Skill | Purpose |
@@ -522,7 +560,8 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 - ICP → `workspace/marketing/icp/`
 - Content ideas → `workspace/marketing/content/ideas/{content_type}--{buying_stage}--{slug}.md`
   (frontmatter: `content_type`, `buying_stage`, `status`, `service`, `icp`, `persona`)
-- Content drafts → type-specific subfolder under `content/drafts/` (blog, linkedin, x, case-studies)
+- Content drafts → type-specific subfolder under `content/drafts/` (blog, linkedin, x, case-studies);
+  long-form drafts carry `{slug}.sources.md` and `{slug}.review.md` beside them
 - Standalone landing pages → `workspace/marketing/landing-pages/{slug}/`
 - Prospecting → `workspace/sales/prospecting/`
 - Client proof → `workspace/firm/proof/{slug}.md`
@@ -538,7 +577,8 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
 different skill, prompt, and output path. See [docs/content-generation.md](docs/content-generation.md).
 After generating content ideas, run `scripts/validate-content-ideas.sh` before
 creating drafts. After writing a draft, run
-`scripts/validate-content-draft.sh {draft-path}` before marking the idea generated.
+`scripts/validate-content-draft.sh {draft-path}` before marking the idea generated,
+and `--reviewed` before publishing a blog post or case study.
 
 See `docs/WORKSPACE.md` for full conventions.
 

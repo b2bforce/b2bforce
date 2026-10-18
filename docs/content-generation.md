@@ -92,11 +92,15 @@ Before any idea → draft skill:
    above. Do not write from title + description only.
 5. Treat `research_mode: dry_run` as an internal-context draft. Do not imply the
    angle has been externally benchmarked.
-6. Treat `research_mode: market_informed` as externally enriched only if a research
-   artifact or cited reference notes are present.
-7. After writing the draft, run `scripts/validate-content-draft.sh {draft-path}`.
-8. Update the source idea to `status: generated` only after the draft exists and
+6. Treat `research_mode: market_informed` as externally enriched only if the
+   draft's sources file exists — see "Sources and support markers" below.
+7. Long-form (blog, case study): run `marketing-content-sources` before drafting.
+   The draft may state only what the sources file supports.
+8. After writing the draft, run `scripts/validate-content-draft.sh {draft-path}`.
+9. Update the source idea to `status: generated` only after the draft exists and
    validates.
+10. Long-form: run the review passes below. A draft is publishable only when
+    `scripts/validate-content-draft.sh --reviewed {draft-path}` passes.
 
 Case studies have an additional proof gate: if `proof_source` says
 `needs real client proof before draft`, or the title contains `[Client]`, read
@@ -125,6 +129,95 @@ Proposals are **not** part of the idea → draft pipeline. They use
 reuse the shared writing-quality rules below and the same proof rules, with one
 difference: a proposal is private, so it may cite a record with
 `usable_publicly: false` as long as naming and quote flags are respected.
+
+## Sources and support markers (blog, case study, service page)
+
+The Proof Gate covers client results. This section covers every other fact: market
+data, product capabilities, regulation, and claims about what other people write.
+Every factual claim in long-form content points to a row in the draft's sources file.
+
+- **Sources file:** `{slug}.sources.md` next to the draft (service pages:
+  `landing-pages/{slug}/sources.md`). Written by `marketing-content-sources` before
+  the draft, from pages fetched in that session.
+- **Support marker:** an HTML comment at the end of the paragraph naming the rows it
+  rests on: `<!-- S2, S5 -->`. Validators ignore comments in word counts; markers are
+  stripped when the draft is published.
+- **What needs a row:** numbers, percentages, prices, dates, company and product
+  names, quotes, rankings ("the most", "the first"), product capabilities (the firm's
+  own included), law and regulation, causal claims ("X causes Y"), and claims about
+  what others write ("most guides say…").
+- **What does not:** the firm's advice and judgment, stated as such. "Automate rating
+  before dispatch" is advice. "Teams that automate rating first ship twice as fast" is
+  a claim.
+- **The firm's experience is a claim.** "In our projects…" needs a `proof` row or an
+  `author` row — something a named person said, recorded verbatim with a date. An
+  agent never writes the firm's experience from inference.
+- **Missing detail:** write `[ASK: what exactly is missing]`, never a plausible value.
+  `[ASK:]` may stay through review passes 1–3; it blocks the reader test and
+  publication.
+- **Competitors:** a competitor's page may support its own price only, and the text
+  states it anonymously as a range for that type of offer — no name, no link.
+
+Row types, source tiers, and the template live in `marketing-content-sources`.
+`scripts/validate-content-draft.sh` checks that every marker resolves to a row and
+that `proof` and `workspace` rows point to files that exist.
+
+## Review passes (blog, case study)
+
+The writer does not grade its own draft — the same rule as "Do not self-assess" in
+the Measurement Loop. Four separate skills each read the draft cold from files and
+only report:
+
+| # | Skill | Checks | Blocks on |
+|---|-------|--------|-----------|
+| 1 | `marketing-content-factcheck` | Each claim against a source fetched again in this pass | `distorted`, `not found`, `rejected source`, `no source` |
+| 2 | `marketing-content-consistency` | Contradictions, numbers, counters, angle, cross-references, examples against the text's own rules | Any of `CON`, `NUM`, `CNT`, `ANG`, `REF`, `EXM` |
+| 3 | `marketing-content-deslop` | AI-writing patterns, 5×10 score | Score below 35/50, or any `strong` pattern |
+| 4 | `marketing-content-reader-test` | A fresh agent with no context reads it as the persona | No answer to the buyer question in the first two paragraphs; reads as an ad for the firm; angle mismatch; a contradiction; `[ASK:]` left |
+
+**Rounds.** One round runs all four passes on the same draft version, even when an
+earlier pass fails, so one revision fixes everything the round found. Running them
+as a sequential loop spends the round budget on passes 1–2 and leaves the reader
+test — the pass that finds the most — without a revision.
+
+**Revisions.** The drafting skill changes only the places a report names, and logs
+what it changed under `## Changes` in the review file. Every sentence added in a
+revision is a new claim and needs a row before it is written — a claim about what a
+source does *not* say included. After editing a sentence with a counter or a
+definition, recheck the counters and definitions in the same paragraph.
+
+**Limit: 3 rounds.** After round 3, stop and hand the remaining findings to a human
+with quotes and proposed fixes. Only a human may waive a pass — `waived` plus
+`waived_by: {name}` — the same rule as `verified: true` on a proof metric.
+
+**Review file:** `{slug}.review.md` next to the draft (service pages:
+`landing-pages/{slug}/review.md`).
+
+```yaml
+---
+draft: why-your-monthly-release-still-takes-a-weekend
+round: 2
+factcheck: pass        # pending | pass | revise | waived
+consistency: pass
+deslop: pass
+reader_test: pass
+deslop_score: 39
+waived_by:             # a human's name; required when any pass is waived
+---
+```
+
+One `## Factcheck`, `## Consistency`, `## Deslop`, and `## Reader test` section, each
+replaced by its pass every round, with earlier verdicts kept as one line each under
+`### Earlier rounds`. The publish gate is mechanical:
+
+```bash
+scripts/validate-content-draft.sh --reviewed {draft-path}
+```
+
+**Scope.** Required for `blog_post` and `case_study`. Recommended for service pages
+(same files in the page folder; no validator yet). LinkedIn and X skip passes 1, 2,
+and 4; `marketing-content-deslop` alone is worth running on them. A full round is
+four agent passes plus page fetches — that cost is why the passes stop at long-form.
 
 ## Answer-first opening (blog, case study, service page)
 
@@ -186,7 +279,9 @@ These rules come from the old app prompt stack and apply to every content draft:
 - Acknowledge boundaries where useful: when an approach fits, and when it does not.
 - Match buying mode: reactive buyers need urgency, empathy, and quick wins;
   proactive buyers need strategic upside, tradeoffs, and ROI logic.
-- Avoid AI-slop phrases: "testament to", "plays a crucial role", "underscores",
+- Avoid AI-writing patterns. The catalogue — words, constructions, structures, per
+  language — lives in `marketing-content-deslop/references/`. A few of the most common:
+  "testament to", "plays a crucial role", "underscores",
   "groundbreaking", "delve", "showcase", "comprehensive", "multifaceted",
   "it's worth noting", and vague attributions such as "experts say".
 - Do not add a generic conclusion section. End with a stage-matched next action.
@@ -216,10 +311,10 @@ proof placeholders for case studies, and SEO keyword rules.
 Implementing skills: call Exa only for types in the first column; never attach
 long-form reference blocks to LinkedIn/X prompts.
 
-Exa is optional enrichment, not a prerequisite for writing. Use the existing
-`tool-exa` skill when the user wants a market-informed draft or when a long-form
-skill needs reference articles. Do not create a separate Exa/content-research skill
-unless it owns a new persisted artifact and workflow.
+Exa reference articles are optional enrichment for style and angle, not evidence.
+Facts a long-form draft states come from `marketing-content-sources`, which owns the
+sources file and uses `tool-exa`, `tool-firecrawl`, and web fetch as search and
+fetch tools. Do not create another content-research skill.
 
 ## Distribution channels
 
@@ -249,16 +344,21 @@ workspace/marketing/content/
 │   └── {content_type}--{buying_stage}--{slug}.md
 │                              # frontmatter: content_type, buying_stage, status, service, icp, persona
 └── drafts/
-    ├── blog/{slug}.md
+    ├── blog/
+    │   ├── {slug}.md
+    │   ├── {slug}.sources.md    # claims → fetched sources (marketing-content-sources)
+    │   └── {slug}.review.md     # review pass verdicts and reports
     ├── linkedin/{slug}.md
     ├── x/{slug}.md
-    ├── case-studies/{slug}.md
+    └── case-studies/            # same three files as blog/
 
 workspace/marketing/landing-pages/
 └── {slug}/                      # standalone service-page workflow only
     ├── page.md
     ├── service-context.md       # generated service definition
-    └── competitor-research.md   # SERP URLs + scrape summaries
+    ├── competitor-research.md   # SERP URLs + scrape summaries
+    ├── sources.md               # optional — same schema as {slug}.sources.md
+    └── review.md                # optional — same schema as {slug}.review.md
 
 workspace/sales/prospecting/
 ├── {service}--{icp}--{persona}--{campaign-slug}.md
@@ -272,7 +372,8 @@ workspace/sales/prospecting/
 ## Skill design rules
 
 1. **One skill per content type** (or one router skill that delegates) — never
-   one prompt for all formats.
+   one prompt for all formats. Sources and review passes are the exception: shared
+   by every long-form type, never copied into a type skill.
 2. Each skill's `SKILL.md` carries format requirements in `references/`.
 3. Each skill documents: allowed buying stages, length, output path, research steps.
 4. `marketing-content-ideas` generates ideas with explicit `content_type`.
