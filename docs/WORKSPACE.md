@@ -23,6 +23,8 @@ File naming and output paths for B2BForce skills + workspace.
 | LinkedIn draft | `workspace/marketing/content/drafts/linkedin/{slug}.md` | Plain text, ~150–250 words |
 | X draft | `workspace/marketing/content/drafts/x/{slug}.md` | Plain text, ≤280 chars or thread |
 | Case study draft | `workspace/marketing/content/drafts/case-studies/{slug}.md` | PASTOR, Markdown |
+| Draft sources | `…/drafts/{blog,case-studies}/{slug}.sources.md` | Claims → fetched sources; schema in `marketing-content-sources` |
+| Draft review | `…/drafts/{blog,case-studies}/{slug}.review.md` | Review pass verdicts; schema in [content-generation.md](content-generation.md) |
 | Service page | `workspace/marketing/landing-pages/{slug}/page.md` | Brief/service/URL + optional SERP — see `competitor-research.md` |
 | Competitor | `workspace/intelligence/competitors/{slug}/` | `competitors/acme-agency/!_profile.md` |
 | Weekly report | `workspace/intelligence/reports/{date}-{slug}.md` | `reports/2026-05-26-acme-agency.md` |

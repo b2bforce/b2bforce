@@ -17,9 +17,8 @@ generated_at: 2026-07-16
 CI running your tests and your release being automated are different things. Most
 mid-market logistics teams have the first and assume it delivers the second. The
 weekend survives because CI never replaced the manual regression pass — it runs
-beside it, and a human still decides whether the release is safe to ship.
-
-That decision is the weekend. Not the test run.
+beside it, and a human still decides whether the release is safe to ship. That
+decision, not the test run, is what takes the weekend.
 
 ## The part CI did not take over
 
@@ -40,8 +39,8 @@ itself does not care which weekend it is.
 
 ## Three things the manual pass is actually protecting
 
-It is worth being precise about what the weekend buys you, because that is what has
-to be replaced. In this segment it is almost always the same three.
+What the weekend buys you is exactly what has to be replaced. In this segment it is
+almost always the same three things.
 
 **Commercial correctness.** Rating and invoicing errors do not fail loudly. They
 produce plausible numbers that reach a customer. A unit test on the rating function
@@ -84,18 +83,20 @@ on the new pipeline while the old process is still available.
 
 Running those two releases together, rather than delivering a document, is usually
 what decides whether the change survives contact with the team's next busy month.
+<!-- S2 -->
 
 We did exactly this at Northwind Logistics, a mid-market freight operator with 9
 services in the release. Deployment lead time went from 6 weeks to 4 days, all 9
 services now run regression on every pull request, and the weekend release window has
-not been used since. Their CTO put the outcome more plainly than we would:
+not been used since. Their CTO put the outcome more plainly than we would: <!-- S1 -->
 
 > "We stopped planning releases around public holidays."
-> — Anna Kowalska, CTO, Northwind Logistics
+> — Anna Kowalska, CTO, Northwind Logistics <!-- S1 -->
 
 What we did not promise them, and would not promise you, is a defect-rate figure.
 That depends on how your team writes code after we leave. The mechanism is what can
 be committed to: which checks must pass, running automatically, on every change.
+<!-- S3 -->
 
 ## FAQ
 

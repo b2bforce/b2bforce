@@ -13,6 +13,7 @@ Thank you for contributing to B2BForce skills + workspace.
   reserved for thin wrappers around external tools, whether an API (`tool-exa`) or a
   local renderer (`tool-weasyprint`)
 - **Content generation:** one skill per content type (`marketing-content-blog-post`, `marketing-content-linkedin-post`, etc.) — see [docs/content-generation.md](docs/content-generation.md). Do not ship a single generic content skill.
+- Content **review** is the exception: `marketing-content-sources` and the four review passes are shared by every long-form type, so a new type reuses them instead of adding its own checks.
 - Service pages: use `marketing-service-page`. Do not add a separate content landing-page draft skill.
 - Hub skill: `firm-context` — all skills should read `workspace/firm/profile.md` first
 - Output paths: always document where artifacts go in `workspace/` (see `docs/WORKSPACE.md`)
