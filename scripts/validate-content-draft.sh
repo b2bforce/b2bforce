@@ -53,12 +53,21 @@ word_count() {
 
 # Words in the first real paragraph of prose, skipping headings, HTML comments, and
 # blockquotes. Used for the answer-first opening rule in docs/content-generation.md.
+# awk reads its whole input instead of exiting at the paragraph end: an early exit
+# breaks the pipe under prose_text, and GNU sed then fails the pipeline (pipefail).
 opening_paragraph_words() {
   prose_text "$1" | awk '
-    /^[[:space:]]*$/ { if (started) exit; next }
-    /^[[:space:]]*(#|<!--|>|!\[|\||-{3,})/ { if (started) exit; next }
+    done { next }
+    /^[[:space:]]*$/ { if (started) done = 1; next }
+    /^[[:space:]]*(#|<!--|>|!\[|\||-{3,})/ { if (started) done = 1; next }
     { started = 1; print }
   ' | wc -w | tr -d ' '
+}
+
+# True when a newline-separated ID list contains the ID. Plain string matching, so
+# no early-exiting grep -q in a pipeline.
+list_has() {
+  [[ $'\n'"$1"$'\n' == *$'\n'"$2"$'\n'* ]]
 }
 
 char_count() {
@@ -268,7 +277,7 @@ if [[ -n "${DRAFT_FILE}" && -f "${DRAFT_FILE}" ]]; then
           ;;
         derived)
           for dep in $(printf "%s" "${src}" | grep -oE 'S[0-9]+(-[a-z]{2})?' || true); do
-            if ! printf "%s\n" "${row_ids}" | grep -qx "${dep}"; then
+            if ! list_has "${row_ids}" "${dep}"; then
               error "${where}: derived from ${dep}, which has no row"
             fi
           done
@@ -278,7 +287,7 @@ if [[ -n "${DRAFT_FILE}" && -f "${DRAFT_FILE}" ]]; then
     done <<<"${source_rows}"
 
     for id in ${marker_ids}; do
-      if ! printf "%s\n" "${row_ids}" | grep -qx "${id}"; then
+      if ! list_has "${row_ids}" "${id}"; then
         error "${DRAFT_FILE}: marker ${id} has no row in ${SOURCES_FILE}"
       fi
     done
