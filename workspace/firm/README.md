@@ -6,7 +6,7 @@ Your company's identity — equivalent to the "Company" entity in B2BForce workf
 |------|---------|
 | `profile.md` | Primary firm overview and context; starts as a setup template |
 | `brands/{slug}/` | One directory per market-facing brand (`!_brand.md` + its services, icp, proof, channels) — only for firms running several; leave empty otherwise |
-| `services/{slug}.md` | Individual service definitions (problem → outcomes → proof) |
+| `services/{slug}.md` | Individual service definitions (problem → outcomes → scope and exclusions → proof); one `owner`, reviewed quarterly |
 | `people/{slug}.md` | Optional shared-team registry — assignments only, never rates or hours |
 | `proof/{slug}.md` | Verified client results — the only source any skill may cite |
 

@@ -140,8 +140,8 @@ Body: what this person owns, at most a few lines.
 This is an **assignment registry, never a PSA**: `rate`, `hours`, `utilization`,
 `capacity`, `salary`, and `cost` are rejected by the validator — the same guard as
 exact money in `workspace/clients/`. Once any person file exists, every `owner:`
-in `marketing/placements/`, `marketing/channels/`, and PDCA area READMEs must be
-a person slug. Validated by `scripts/validate-brands.sh`.
+in `marketing/placements/`, `marketing/channels/`, service files, and PDCA area
+READMEs must be a person slug. Validated by `scripts/validate-brands.sh`.
 
 ## Worked example
 

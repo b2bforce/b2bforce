@@ -83,12 +83,17 @@ Use this extraction order:
 3. Challenges
 4. Process
 5. Deliverables/features
-6. Differentiators
-7. Fit and anti-fit criteria
-8. Proof points
-9. Pricing model/positioning if stated
+6. Out of scope — adjacent work a buyer would reasonably assume is included
+7. Client responsibilities — access, people, and approval turnarounds the work
+   depends on
+8. Duration — how long it takes and what changes that
+9. Differentiators
+10. Fit and anti-fit criteria
+11. Proof points
+12. Pricing model/positioning if stated
 
-Do not invent proof, metrics, pricing, clients, certifications, or guarantees.
+Do not invent proof, metrics, pricing, clients, certifications, guarantees,
+exclusions, or durations.
 Use `!_verify` notes for useful but low-confidence facts.
 
 For proof points, read `workspace/firm/proof/` and reference the matching records by
@@ -109,6 +114,8 @@ label:
 service_type: retainer|project|subscription|package|consulting|training|support|other
 source_url:
 target_icps: []
+owner:            # one person who may change scope; a person slug once firm/people/ exists
+reviewed_at:      # YYYY-MM-DD of the last human review
 ---
 ```
 
@@ -119,6 +126,9 @@ Body sections should stay concise:
 - Expected outcomes
 - Process
 - Deliverables
+- Out of scope
+- Client responsibilities
+- Duration
 - Differentiators
 - Fit criteria
 - Anti-fit criteria
@@ -129,6 +139,17 @@ Body sections should stay concise:
 
 - Outcomes should be concrete business outcomes, not generic benefits.
 - Challenges should include consequences and current workarounds.
+- `## Out of scope` names the adjacent work buyers ask about first, and for each
+  item what the firm does with that request: priced separately, referred, or
+  declined. `sales-proposal` copies this list, so a missing exclusion here is a
+  missing exclusion in every proposal.
+- `## Client responsibilities` lists only dependencies that change the timeline or
+  the price when unmet.
+- `## Duration` gives a range and its drivers, not a promise. For a retainer, state
+  the cadence and minimum term instead.
+- Set `reviewed_at` only when a human confirmed the file in this session. Review
+  each service quarterly, and after any `lost` outcome whose `reason_assessed` is
+  `price` or `scope_mismatch`.
 - Proof points must resolve to a record in `workspace/firm/proof/`, or come from the
   user, firm profile, or page content — otherwise omit them.
 - Keep the service file readable for humans and LLMs; do not mirror it into JSON.

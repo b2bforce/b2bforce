@@ -241,7 +241,7 @@ fi
 # person. It is an assignment registry, never a PSA — rates, hours, utilization,
 # capacity, and salary are rejected outright, the same guard as exact money in
 # workspace/clients/. Once people exist, every 'owner:' in placements, channels,
-# and PDCA area READMEs must resolve to a person slug — free-text owners stop
+# services, and PDCA area READMEs must resolve to a person slug — free-text owners stop
 # being checkable the day two brands share one team.
 
 PEOPLE_DIR="${WS}/firm/people"
@@ -301,7 +301,7 @@ if [[ -n "${people_slugs}" ]]; then
     [[ -n "${file}" ]] || continue
     check_owner "${file}"
   done < <(find "${WS}/marketing/placements" "${WS}/marketing/channels" \
-    "$(brands_dir)" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+    "${WS}/firm/services" "$(brands_dir)" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
 
   while IFS= read -r file; do
     [[ -n "${file}" ]] || continue
