@@ -25,6 +25,9 @@ Please:
       brand each belongs to)
 - [ ] Target clients (ICP summary: industry, size, geography)
 - [ ] Main competitors or accounts to monitor (names + URLs)
+- [ ] Your last 3–5 won or lost deals: what did each buyer do before you, or
+      instead of you? (own team, freelancer, another firm, nothing) — the input
+      for positioning; do not ask for a positioning sentence
 - [ ] Distribution channels you actually publish on (blog, X, LinkedIn,
       newsletter, Medium…): for each — URL, how you publish (Buffer, native,
       CMS, mailing tool), and how often (e.g. every Friday, daily);
@@ -75,7 +78,8 @@ STOP after Step 1 — wait for my answers before continuing.
 - [ ] List installed skills in .agents/skills/
 - [ ] Confirm workspace/firm/profile.md is readable
 - [ ] Confirm at least one workspace/firm/services/{slug}.md exists, unless I said the firm has no defined service yet
-- [ ] Suggest first task: generate ICP + buyer personas for one service
+- [ ] Suggest first task: generate ICP + buyer personas for one service, then
+      `marketing-positioning` for that service, built from the deals I described
 - [ ] If I gave client results: write them to workspace/firm/proof/ with
       `sales-outcome-log` in backfill mode, flags false unless I approved otherwise
 - [ ] If I said this repo may be public: add workspace/firm/proof/,

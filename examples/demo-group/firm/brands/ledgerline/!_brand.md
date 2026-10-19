@@ -2,7 +2,6 @@
 fixture: true
 brand: ledgerline
 website: https://example.com/ledgerline
-positioning: Monthly finance-reporting retainer for distributors that already trust their operational data.
 content_language: en
 status: active
 ---

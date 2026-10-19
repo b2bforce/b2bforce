@@ -22,15 +22,12 @@ teams that want the pipeline maintained after handover.
 We sell one service in this demo — `platform-migration` — because one service is
 enough to show how the workflows chain.
 
-## Positioning
-
-We are the firm you call when releases have become a weekend activity and the two
-people who understand the process have started getting recruiter calls. We compete
-against staff augmentation shops on the same budget and win on the handover: our
-engagements end with the client's own engineers running the pipeline.
-
 We do not take on greenfield product builds, and we do not do staff augmentation by
 the seat.
+
+## Positioning
+
+Worked statement: [`firm/positioning/all.md`](positioning/all.md).
 
 ## Who we sell to
 

@@ -149,6 +149,7 @@ run_check "${FIRM_TMP}" "client account" bash scripts/validate-account.sh
 run_check "${FIRM_TMP}" "pdca cycle" bash scripts/validate-pdca-cycle.sh \
   "${FIRM_TMP}/pdca/content-to-pipeline/cycles/2026-W29--buyer-question-coverage.md"
 run_check "${FIRM_TMP}" "brands (single-brand mode)" bash scripts/validate-brands.sh
+run_check "${FIRM_TMP}" "positioning (firm-wide all.md)" bash scripts/validate-positioning.sh
 
 # =============================================================================
 # Demo 2 — multi-brand group
@@ -170,6 +171,7 @@ materialize "${GROUP_SRC}" "${GROUP_TMP}"
 
 echo "Workspace gates (multi-brand, ${GROUP_SRC}):"
 run_check "${GROUP_TMP}" "brands (multi-brand mode)" bash scripts/validate-brands.sh
+run_check "${GROUP_TMP}" "positioning (brand-wide + per service, cross-brand proof)" bash scripts/validate-positioning.sh
 run_check "${GROUP_TMP}" "content readiness (--brand)" bash scripts/validate-content-readiness.sh \
   --brand bramblegate "erp-integration" "mid-market-distributors" "coo-mid-market-distribution"
 run_check "${GROUP_TMP}" "content ideas (brand sweep)" bash scripts/validate-content-ideas.sh

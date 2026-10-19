@@ -135,8 +135,8 @@ no brand fields anywhere, every rule in this document exactly as written. Two or
 more mean **multi-brand**, and three rules apply on top:
 
 1. **A brand's definitional entities live in its brand home** —
-   `firm/brands/{brand}/services/`, `…/icp/` (personas inside), `…/proof/`, and
-   `…/channels/`; nothing else belongs there. **Working pipelines stay in their
+   `firm/brands/{brand}/services/`, `…/icp/` (personas inside), `…/proof/`,
+   `…/channels/`, and `…/positioning/`; nothing else belongs there. **Working pipelines stay in their
    Maister areas** under a `{brand}/` segment directly beneath the entity root:
    `marketing/content/{brand}/`, `marketing/landing-pages/{brand}/`,
    `marketing/placements/{brand}/`, `sales/prospecting/{brand}/`,
@@ -186,7 +186,7 @@ restate them in skills.
 registry, useful in both modes and near-mandatory in multi-brand, where one
 marketing or sales team serves several brands. Each person declares `functions`
 and `brands` (`all`, or a list). Once any person file exists, `owner:` fields in
-placements, channels, services, and PDCA areas must resolve to a person slug — checked by
+placements, channels, services, positioning records, and PDCA areas must resolve to a person slug — checked by
 `scripts/validate-brands.sh`. The registry holds assignments only: rates, hours,
 utilization, capacity, and salary are rejected, the same line this repo draws
 against ledger data in `workspace/clients/`. Schema: `docs/WORKSPACE.md`.
@@ -222,6 +222,27 @@ scripts/validate-content-readiness.sh [service-slug] [icp-slug] [persona-slug]
 Treat a non-zero exit as a hard stop. Fix the missing firm, service, ICP, or persona
 files before generating ideas. Keep this validation centralized in the script; do
 not copy its checks into every content skill.
+
+## Positioning
+
+A positioning statement is a record, not a paragraph:
+`workspace/firm/positioning/{scope}.md`, one per firm (`all.md`), per department
+(several services under one `label`), or per service. Schema, scope limits, and
+body format: `docs/WORKSPACE.md`, "Positioning record". Written by
+`marketing-positioning`.
+
+Any workflow that states why a buyer should pick the firm — a service page, a
+proposal's opening, a first outbound email — reads the **most specific active
+record** for its service: the service's own, then its department's, then
+`all.md`. With no record it may use the prose in `firm/profile.md` but must say
+the positioning is not worked. Cite the record's path.
+
+Not a gate: missing positioning does not block content. A record that exists
+must pass:
+
+```bash
+scripts/validate-positioning.sh
+```
 
 ## Proof Gate
 
@@ -475,6 +496,7 @@ Run workflows exactly as documented in each skill.
 | `marketing-company-profile` | Company profile create/enrich/refresh from website |
 | `marketing-service` | Service create/enrich/refresh from URL, description, or both |
 | `marketing-icp` | ICP + personas for a service |
+| `marketing-positioning` | Positioning statement per firm, department, or service — alternatives first, proof per difference |
 
 ### Marketing — content pipeline
 
@@ -558,6 +580,8 @@ See [docs/content-generation.md](docs/content-generation.md) for per-type rules.
   `runs/{YYYY-MM-DD}/{prompt-slug}.md`, `share-of-answer.md`)
 - Placement target → `workspace/marketing/placements/{domain}.md`
 - ICP → `workspace/marketing/icp/`
+- Positioning → `workspace/firm/positioning/{scope}.md` (`all.md`, a department
+  label, or a service slug)
 - Content ideas → `workspace/marketing/content/ideas/{content_type}--{buying_stage}--{slug}.md`
   (frontmatter: `content_type`, `buying_stage`, `status`, `service`, `icp`, `persona`)
 - Content drafts → type-specific subfolder under `content/drafts/` (blog, linkedin, x, case-studies);

@@ -35,6 +35,9 @@ wins on starting from data the firm already understands. Neither brand's website
 mentions the other; the connection is made in conversations, client by client,
 which is why `cross_brand` on proof records matters here.
 
+Worked statements live in each brand's `positioning/`: Ledgerline has a
+brand-wide `all.md`, Bramblegate one record for `erp-integration`.
+
 ## Who we sell to
 
 Mid-market distribution companies in the EU, 100–500 employees. Each brand has

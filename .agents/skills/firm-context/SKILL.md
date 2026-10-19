@@ -70,7 +70,12 @@ Hub skill for B2BForce. Establishes who the firm is before any other workflow ru
    - expected outcome
    - proof or notes if known
 
-5. **Sync README** — update title to `{Firm Name} — B2BForce Workspace`.
+5. **Positioning** — do not ask for a positioning sentence. Write what the user
+   says about competitors and differences into the profile as notes, and point
+   them to `marketing-positioning` once services and ICP exist: a sentence asked
+   for in an interview is the filler that skill exists to replace.
+
+6. **Sync README** — update title to `{Firm Name} — B2BForce Workspace`.
 
 ### Update (existing)
 
@@ -84,8 +89,9 @@ Hub skill for B2BForce. Establishes who the firm is before any other workflow ru
 Use when the firm starts selling under an additional name. Rules live in the
 Brand Scope Gate in `AGENTS.md`; this skill only executes them.
 
-1. **Interview** — brand name, website, positioning sentence, content language,
-   which existing services (if any) move to it.
+1. **Interview** — brand name, website, content language, which existing
+   services (if any) move to it. A one-line `positioning:` is optional; the
+   worked statement comes later from `marketing-positioning`.
 2. **Write** `workspace/firm/brands/{slug}/!_brand.md` (schema:
    `docs/WORKSPACE.md`, "Brand home"). Keep firm-level facts in `profile.md`;
    the brand record carries only what differs.
@@ -95,7 +101,8 @@ Brand Scope Gate in `AGENTS.md`; this skill only executes them.
      `firm/services/*` → `firm/brands/{brand}/services/`, `marketing/icp/*`
      (with `personas/`) → `firm/brands/{brand}/icp/`, `firm/proof/*` →
      `firm/brands/{brand}/proof/`, `marketing/channels/*` →
-     `firm/brands/{brand}/channels/`.
+     `firm/brands/{brand}/channels/`, `firm/positioning/*` →
+     `firm/brands/{brand}/positioning/`.
    - `git mv` the working pipelines into `{brand}/` segments in place:
      `marketing/content/` (`ideas/`, `drafts/`), `marketing/landing-pages/`,
      `marketing/placements/`, `sales/prospecting/`, `sales/opportunities/`,
@@ -130,6 +137,7 @@ Brand Scope Gate in `AGENTS.md`; this skill only executes them.
 | `marketing-company-profile` | Create, enrich, or refresh profile from website URL |
 | `marketing-service` | Create/enrich/refresh service before ICP |
 | `marketing-icp` | Generate ICP + personas from service context |
+| `marketing-positioning` | Positioning per firm, department, or service — after services and ICP |
 | `marketing-content-ideas` | Content calendar after ICP |
 
 ## Rules
