@@ -163,7 +163,7 @@ days_since() {
 # means single-brand (flat paths, exactly the pre-brand layout), 2+ means
 # multi-brand. A brand home is firm/brands/{slug}/ with !_brand.md inside; it
 # also holds the brand's definitional entities (services/, icp/ with personas/,
-# proof/, channels/), while working pipelines (content, opportunities,
+# proof/, channels/, positioning/), while working pipelines (content, opportunities,
 # prospecting, AI visibility, placements, landing pages) stay in their Maister
 # areas under a {brand}/ segment. See the Brand Scope Gate in AGENTS.md and the
 # path map in docs/WORKSPACE.md.
@@ -230,7 +230,7 @@ brand_from_path() {
 
 # Resolves a frontmatter reference to a file path.
 #
-#   resolve_ref {service|icp|persona} {ref} [brand]
+#   resolve_ref {service|icp|persona|proof|positioning} {ref} [brand]
 #
 # In single-brand mode the ref is a bare slug and the path is flat. In multi-brand
 # mode a "brand/slug" ref carries its own brand (the qualified form shared entities
@@ -258,6 +258,7 @@ resolve_ref() {
       icp) echo "$(brand_home "${brand}")/icp/${slug}.md" ;;
       persona) echo "$(brand_home "${brand}")/icp/personas/${slug}.md" ;;
       proof) echo "$(brand_home "${brand}")/proof/${slug}.md" ;;
+      positioning) echo "$(brand_home "${brand}")/positioning/${slug}.md" ;;
       *) return 1 ;;
     esac
   else
@@ -266,17 +267,18 @@ resolve_ref() {
       icp) echo "${WS}/marketing/icp/${slug}.md" ;;
       persona) echo "${WS}/marketing/icp/personas/${slug}.md" ;;
       proof) echo "${WS}/firm/proof/${slug}.md" ;;
+      positioning) echo "${WS}/firm/positioning/${slug}.md" ;;
       *) return 1 ;;
     esac
   fi
 }
 
 # Prints the directory for a brand-scoped entity. Definitional entities
-# (services, icp, personas, proof, channels) live in the brand home in
+# (services, icp, personas, proof, channels, positioning) live in the brand home in
 # multi-brand mode; working pipelines stay in their Maister areas under a
 # {brand}/ segment.
 #
-#   entity_dir {services|icp|personas|proof|channels|ideas|drafts|opportunities|prospecting|ai-visibility|placements|landing-pages} [brand]
+#   entity_dir {services|icp|personas|proof|channels|positioning|ideas|drafts|opportunities|prospecting|ai-visibility|placements|landing-pages} [brand]
 entity_dir() {
   local kind="$1" brand="${2:-}"
   local in_brand=""
@@ -291,6 +293,7 @@ entity_dir() {
       personas) echo "$(brand_home "${brand}")/icp/personas/"; return 0 ;;
       proof) echo "$(brand_home "${brand}")/proof/"; return 0 ;;
       channels) echo "$(brand_home "${brand}")/channels/"; return 0 ;;
+      positioning) echo "$(brand_home "${brand}")/positioning/"; return 0 ;;
     esac
   fi
 
@@ -302,6 +305,7 @@ entity_dir() {
     personas) echo "${WS}/marketing/icp/personas/" ;;
     proof) echo "${WS}/firm/proof/" ;;
     channels) echo "${WS}/marketing/channels/" ;;
+    positioning) echo "${WS}/firm/positioning/" ;;
     ideas) echo "${WS}/marketing/content/${segment}ideas/" ;;
     drafts) echo "${WS}/marketing/content/${segment}drafts/" ;;
     opportunities) echo "${WS}/sales/opportunities/${segment}" ;;

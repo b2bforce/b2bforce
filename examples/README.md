@@ -40,6 +40,8 @@ with a second brand:
 | `firm/people/rhea-alcott.md` | One marketing lead, `brands: all` — the shared team made explicit |
 | `firm/brands/{brand}/channels/…` | Each brand's own distribution surfaces — URL, what to publish, how (Buffer/CMS/mailing tool), and the schedule; both brands' queues run by the same person |
 | `firm/brands/bramblegate/proof/harrowmere-erp-cutover.md` | The path names who delivered; `cross_brand: true` is the client's explicit permission for the sibling brand to cite it |
+| `firm/brands/ledgerline/positioning/all.md` | A brand-wide positioning record replacing the `positioning:` line in `!_brand.md`; its one difference is proven by the sibling brand's record, cited as `bramblegate/{slug}` |
+| `firm/brands/bramblegate/positioning/erp-integration.md` | A service-level record; with no `all.md`, the brand's `positioning:` line stays as the fallback |
 | `sales/opportunities/ledgerline/…/proposal.md` | A retainer brand citing the project brand's result via the qualified `bramblegate/{slug}` proof ref, with attribution — the cross-brand rule in action |
 | `clients/harrowmere-distribution/!_account.md` | **One** account for a client bought from both brands: `brands: [...]`, `services` in qualified `{brand}/{slug}` form |
 | `pdca/retainer-attribution/README.md` | A brand-scoped measurement area with a person-slug `owner` |
@@ -60,29 +62,33 @@ Reading them in order is the fastest way to understand how the folders connect.
 | 3 | `marketing/icp/mid-market-logistics.md` | `marketing-icp` | `buying_mode: reactive` drives tone everywhere downstream |
 | 4 | `marketing/icp/personas/cto-mid-market-logistics.md` | `marketing-icp` | The ICP is a company; the persona is a person inside it |
 | 5 | `firm/proof/northwind-release-automation.md` | `sales-outcome-log` (`backfill`) | Three independent permission flags, and `verified: true` per metric |
-| 6 | `marketing/content/ideas/blog_post--problem--*.md` | `marketing-content-ideas` | Filename encodes type and buying stage for scanning at volume |
-| 7 | `marketing/content/drafts/blog/*.md` | `marketing-content-blog-post` | Answers the idea's `buyer_question` in the first paragraph |
-| 8 | `sales/opportunities/northwind-logistics--platform-migration--2026-05/!_discovery.md` | `sales-discovery-brief` | `brief_quality: strong` is what unlocks a proposal |
-| 9 | `.../proposal.md` | `sales-proposal` | Out of scope, Assumptions, and Change control are mandatory and non-empty |
-| 10 | `.../outcome.md` | `sales-outcome-log` (`close`) | The win creates a proof **stub**, not a result |
-| 11 | `firm/proof/northwind-warehouse-cutover.md` | `sales-outcome-log` | The honest post-win state: flags `false`, `metrics` empty |
-| 12 | `clients/northwind-logistics/!_account.md` | `client-onboarding` | Named contacts with roles, `mrr_band` instead of money |
-| 13 | `clients/northwind-logistics/onboarding.md` | `client-onboarding` | The success definition is in the client's words |
-| 14 | `clients/northwind-logistics/qbr/2026-Q2.md` | `client-qbr` | One commitment marked *not delivered*, with the cause attributed to the firm |
-| 15 | `pdca/content-to-pipeline/README.md` | `firm-pdca-setup` | One metric is `waiting`, because its source of truth does not exist |
-| 16 | `pdca/content-to-pipeline/cycles/2026-W29--*.md` | `firm-pdca-cycle` | Acceptance criteria dated before the Do Log; outcome row is `N/D` |
-| 17 | `pdca/content-to-pipeline/scoreboard.md` | `firm-pdca-cycle` | Append-only rows, one per metric checked |
+| 6 | `firm/positioning/all.md` | `marketing-positioning` | Alternatives first; one difference proven by item 5, one dropped for lack of proof |
+| 7 | `marketing/content/ideas/blog_post--problem--*.md` | `marketing-content-ideas` | Filename encodes type and buying stage for scanning at volume |
+| 8 | `marketing/content/drafts/blog/*.md` | `marketing-content-blog-post` | Answers the idea's `buyer_question` in the first paragraph |
+| 9 | `sales/opportunities/northwind-logistics--platform-migration--2026-05/!_discovery.md` | `sales-discovery-brief` | `brief_quality: strong` is what unlocks a proposal |
+| 10 | `.../proposal.md` | `sales-proposal` | Out of scope, Assumptions, and Change control are mandatory and non-empty |
+| 11 | `.../outcome.md` | `sales-outcome-log` (`close`) | The win creates a proof **stub**, not a result |
+| 12 | `firm/proof/northwind-warehouse-cutover.md` | `sales-outcome-log` | The honest post-win state: flags `false`, `metrics` empty |
+| 13 | `clients/northwind-logistics/!_account.md` | `client-onboarding` | Named contacts with roles, `mrr_band` instead of money |
+| 14 | `clients/northwind-logistics/onboarding.md` | `client-onboarding` | The success definition is in the client's words |
+| 15 | `clients/northwind-logistics/qbr/2026-Q2.md` | `client-qbr` | One commitment marked *not delivered*, with the cause attributed to the firm |
+| 16 | `pdca/content-to-pipeline/README.md` | `firm-pdca-setup` | One metric is `waiting`, because its source of truth does not exist |
+| 17 | `pdca/content-to-pipeline/cycles/2026-W29--*.md` | `firm-pdca-cycle` | Acceptance criteria dated before the Do Log; outcome row is `N/D` |
+| 18 | `pdca/content-to-pipeline/scoreboard.md` | `firm-pdca-cycle` | Append-only rows, one per metric checked |
 
 `evals.md` and `errors.md` in the PDCA area complete that folder's required shape.
 
 ## What the demo is deliberately showing
 
-- **A stub next to a filled record.** Item 11 is empty on purpose. A win produces a
+- **A stub next to a filled record.** Item 12 is empty on purpose. A win produces a
   stub, and a stub nobody returns to is the documented failure mode of the proof
   library. Item 5 is what one looks like after a human confirmed the numbers.
 - **Three permission flags that are not interchangeable.** `client_public` governs
   naming, `quote_approved` governs quoting, `usable_publicly` governs public material.
   The demo's public record sets all three; the stub sets none.
+- **A difference that did not make the cut.** The positioning record drops "a
+  principal four days a week" because no proof record shows what it changed. A
+  difference without proof is a claim.
 - **A missed commitment.** The QBR marks one item not delivered and says it was the
   firm's fault. A review where everything went well is not a review.
 - **A metric that cannot be measured.** The PDCA area leaves the outcome metric

@@ -104,6 +104,10 @@ Merge rules:
   overwrite it. Add a short `!_verify` note in `workspace/firm/profile.md` or ask
   the user if the workflow can pause.
 - Do not create `data/firm.json` or duplicate firm context elsewhere.
+- Never overwrite worked positioning. If `firm/positioning/` holds records, or the
+  profile's `## Positioning` points at one, record what the website claims as a
+  `!_verify` note outside that section instead: a difference between the site and the record is input
+  for `marketing-positioning`, not a fact to merge.
 - Keep the profile concise; remove generic website boilerplate.
 
 ### 6. Refresh behavior
@@ -131,3 +135,4 @@ wording changes.
 | `firm-context` | Setup interview and manual profile before enrichment |
 | `marketing-service` | Next: create or enrich primary services |
 | `marketing-icp` | After services exist |
+| `marketing-positioning` | Work out positioning from outcomes and proof, not website copy |

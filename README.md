@@ -76,8 +76,8 @@ Maister's point is that delivered quality *is* the marketing engine — which is
 `sales/` stops at the win and `clients/` picks it up there. `pdca/` cuts across all of
 them, and is where you find out whether any of it worked.
 
-Plus **37 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
-reports, answer-engine visibility tracking, company/service/ICP setup, content ideas,
+Plus **38 Agent Skills** — firm context, competitor monitoring & discovery, weekly intel
+reports, answer-engine visibility tracking, company/service/ICP setup, positioning per firm, department, or service, content ideas,
 4 content draft types, sourced claims with four independent review passes (factcheck,
 consistency, deslop, fresh-reader test), SEO research, GEO placement, landing page pipelines, prospecting,
 a discovery → proposal → win-loss pipeline, client onboarding through QBRs and portfolio

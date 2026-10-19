@@ -33,6 +33,7 @@ File naming and output paths for B2BForce skills + workspace.
 | Placement target | `workspace/marketing/placements/{domain}.md` | `placements/clutch.co.md` |
 | Prospecting sequence | `workspace/sales/prospecting/{service}--{icp}--{persona}--{campaign-slug}.md` | Email sequence — separate from social drafts |
 | Proof record | `workspace/firm/proof/{slug}.md` | `proof/northwind-release-automation.md` |
+| Positioning record | `workspace/firm/positioning/{scope}.md` | `positioning/all.md`, `positioning/seo-retainer.md`, `positioning/performance.md` |
 | Opportunity | `workspace/sales/opportunities/{account}--{service}--{YYYY-MM}/` | `opportunities/acme-industrial--platform-migration--2026-07/` |
 | Client account | `workspace/clients/{slug}/` | `clients/northwind-logistics/!_account.md` |
 | QBR | `workspace/clients/{slug}/qbr/{YYYY}-Q{N}.md` | `qbr/2026-Q4.md` |
@@ -57,6 +58,7 @@ market-side paths gain a `{brand}/` segment directly under the entity root:
 | Buyer persona | `workspace/firm/brands/{brand}/icp/personas/{slug}.md` |
 | Proof record | `workspace/firm/brands/{brand}/proof/{slug}.md` |
 | Distribution channel | `workspace/firm/brands/{brand}/channels/{slug}.md` |
+| Positioning record | `workspace/firm/brands/{brand}/positioning/{scope}.md` |
 | Content idea | `workspace/marketing/content/{brand}/ideas/{content_type}--{buying_stage}--{slug}.md` |
 | Content draft | `workspace/marketing/content/{brand}/drafts/{type}/{slug}.md` |
 | Service page | `workspace/marketing/landing-pages/{brand}/{slug}/page.md` |
@@ -65,7 +67,7 @@ market-side paths gain a `{brand}/` segment directly under the entity root:
 | Opportunity | `workspace/sales/opportunities/{brand}/{account}--{service}--{YYYY-MM}/` |
 | AI visibility | `workspace/intelligence/ai-visibility/{brand}/…` (panel, runs, rollup per brand) |
 
-Definitional entities (the first six rows) live in the **brand home** — one
+Definitional entities (the first seven rows) live in the **brand home** — one
 directory per brand holding everything that defines it. Working pipelines keep
 their Maister areas with one `{brand}/` segment immediately under the entity
 root — never deeper, never repeated in a filename. Splitting a brand into its
@@ -93,10 +95,11 @@ workspace/firm/brands/{brand}/
 ├── icp/{slug}.md         # this brand's ICPs…
 │   └── personas/…        # …and the personas inside them
 ├── proof/{slug}.md       # results this brand delivered
-└── channels/{slug}.md    # this brand's owned distribution surfaces
+├── channels/{slug}.md    # this brand's owned distribution surfaces
+└── positioning/{scope}.md  # this brand's positioning records
 ```
 
-Only these four subdirectories belong in a brand home — working pipelines
+Only these five subdirectories belong in a brand home — working pipelines
 (content, opportunities, prospecting…) stay in their Maister areas, and the
 validator rejects anything else here.
 
@@ -106,7 +109,7 @@ validator rejects anything else here.
 ---
 brand: brand-a                     # must equal the directory name
 website: https://example.com
-positioning: One sentence — who this brand serves and with what.
+positioning: One sentence — who this brand serves and with what.  # drop once positioning/all.md exists
 content_language: en
 status: active                     # active | sunset
 ---
@@ -142,8 +145,8 @@ Body: what this person owns, at most a few lines.
 This is an **assignment registry, never a PSA**: `rate`, `hours`, `utilization`,
 `capacity`, `salary`, and `cost` are rejected by the validator — the same guard as
 exact money in `workspace/clients/`. Once any person file exists, every `owner:`
-in `marketing/placements/`, `marketing/channels/`, service files, and PDCA area
-READMEs must be a person slug. Validated by `scripts/validate-brands.sh`.
+in `marketing/placements/`, `marketing/channels/`, service files, positioning
+records, and PDCA area READMEs must be a person slug. Validated by `scripts/validate-brands.sh`.
 
 ## Worked example
 
@@ -298,6 +301,85 @@ workspace/marketing/landing-pages/{slug}/
 ├── service-context.md
 └── competitor-research.md
 ```
+
+## Positioning record
+
+`workspace/firm/positioning/{scope}.md` — one positioning statement: for whom, in
+what situation, against which alternative, with what difference, shown by what
+proof. Written by `marketing-positioning`; the method is April Dunford's
+(alternatives first, the sentence last). Multi-brand:
+`firm/brands/{brand}/positioning/{scope}.md`, the path names the brand.
+
+**Scope is the `services:` list**, and the filename follows from it:
+
+| `services:` | Covers | Filename | Limit |
+|-------------|--------|----------|-------|
+| `all` | the whole firm — multi-brand: the whole brand | `all.md` | one per firm or brand |
+| `[a, b, …]` | a department or service line, named by `label` | `{label-slug}.md`, never a service slug | a service sits in at most one |
+| `[a]` | one service | `{service-slug}.md` | one per service |
+
+There is no department entity: a record listing several services *is* the
+department's positioning. A department with its own market name and domain is a
+brand — `firm-context`, `add-brand` mode. Every level is optional; a firm whose
+five services share no buyer and no difference has no honest `all.md`.
+
+```yaml
+---
+services: [seo-retainer, ppc-management]   # all | one slug | several slugs
+label: Performance marketing               # required when several services
+icp: ecommerce-mid-market                  # in target_icps of every listed service
+owner: anna-k                              # a person slug once firm/people/ exists
+status: active                             # draft | active | retired
+reviewed_at: 2026-10-19
+---
+```
+
+Body — headings and the first column of `## Parts` are fixed, because
+`scripts/validate-positioning.sh` reads them; the values are in
+`content_language`:
+
+```markdown
+## Statement
+
+> For [whom], who [situation] and today [alternative], we are [difference],
+> as shown by [proof].
+
+## Parts
+
+| Part | Value | Source |
+|------|-------|--------|
+| For whom | … | — |
+| Situation | … | discovery: {opportunity} |
+| Alternative | … | outcome: {opportunity} |
+| Difference 1 | what we have that the alternative does not, and what it gives the client | — |
+| Proof 1 | … | proof: {slug} |
+
+## Alternatives
+
+- In-house team — 3 opportunities: acme--seo-retainer--2026-02, …
+- Doing nothing — interview, 2026-10-19
+
+## Dropped differences
+
+- "We write in the client's customers' language" — proof_needed: a client review naming it
+```
+
+One or two differences, each with its own `Proof N` row. A difference without a
+proof record belongs in `## Dropped differences`, never in `## Parts`. Proof
+refs follow the Proof Gate: a bare slug in the record's own brand, or the
+qualified `{brand}/{slug}` of a record with `cross_brand: true`. A proof record
+with `usable_publicly: false` may support the statement — it is internal — but
+not a public headline derived from it.
+
+**Resolution.** A workflow on service X reads the most specific active record:
+`{x}.md`, then the department record listing X, then `all.md`. Without any
+record it falls back to the prose `## Positioning` in `firm/profile.md` (or the
+brand's `positioning:` field) and says it is not a worked positioning.
+
+**One source.** Once `all.md` exists, the profile's `## Positioning` section is a
+single line pointing at it, and a brand's `positioning:` field is removed.
+
+Validated by `scripts/validate-positioning.sh`.
 
 ## Proof record
 

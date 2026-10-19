@@ -10,7 +10,7 @@
 # AGENTS.md): 0 or 1 brand home means single-brand and the layout stays flat —
 # exactly the pre-brand layout, no new fields anywhere. 2+ brand homes mean
 # multi-brand: each brand's definitional entities (services, icp with personas,
-# proof, channels) live inside firm/brands/{slug}/, working pipelines carry a
+# proof, channels, positioning) live inside firm/brands/{slug}/, working pipelines carry a
 # {brand}/ segment in their Maister areas, and every flat straggler from before
 # the migration is an error.
 #
@@ -45,7 +45,7 @@ while IFS= read -r file; do
   error "${file}: brands are directories now — move to $(brands_dir)/$(slug_from_path "${file}")/!_brand.md"
 done < <(non_gitkeep_md_files "$(brands_dir)")
 
-BRAND_HOME_DIRS="services icp proof channels"
+BRAND_HOME_DIRS="services icp proof channels positioning"
 
 while IFS= read -r brand; do
   [[ -n "${brand}" ]] || continue
@@ -104,6 +104,7 @@ if is_multi_brand; then
   check_empty_root "${WS}/firm/proof" "proof"
   check_empty_root "${WS}/marketing/icp" "icp"
   check_empty_root "${WS}/marketing/channels" "channels"
+  check_empty_root "${WS}/firm/positioning" "positioning"
 
   # Working-pipeline roots hold brand segments only.
   check_segment_root() {
@@ -241,7 +242,7 @@ fi
 # person. It is an assignment registry, never a PSA — rates, hours, utilization,
 # capacity, and salary are rejected outright, the same guard as exact money in
 # workspace/clients/. Once people exist, every 'owner:' in placements, channels,
-# services, and PDCA area READMEs must resolve to a person slug — free-text owners stop
+# services, positioning records, and PDCA area READMEs must resolve to a person slug — free-text owners stop
 # being checkable the day two brands share one team.
 
 PEOPLE_DIR="${WS}/firm/people"
@@ -301,7 +302,7 @@ if [[ -n "${people_slugs}" ]]; then
     [[ -n "${file}" ]] || continue
     check_owner "${file}"
   done < <(find "${WS}/marketing/placements" "${WS}/marketing/channels" \
-    "${WS}/firm/services" "$(brands_dir)" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
+    "${WS}/firm/services" "${WS}/firm/positioning" "$(brands_dir)" -type f -name '*.md' ! -name '.gitkeep' 2>/dev/null | sort)
 
   while IFS= read -r file; do
     [[ -n "${file}" ]] || continue
